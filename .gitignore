@@ -1,0 +1,22 @@
+# macOS metadata
+._*
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+.venv/
+venv/
+
+# Next.js
+nextjs-app/.next/
+nextjs-app/node_modules/
+
+# Streamlit cache
+.streamlit/
+
+# Env files
+.env.local
+.env.production

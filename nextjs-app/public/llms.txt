@@ -1,0 +1,30 @@
+# WorkoutPatna
+
+> WorkoutPatna is a fitness social networking app that helps people find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs. It is a local fitness community platform — not a personal trainer marketplace.
+
+## Key Information
+
+WorkoutPatna connects everyday fitness people with workout partners at their specific local fitness locations. The app focuses on accountability, consistency, and community. It is currently launching in Houston, Texas, starting with Cypress and surrounding suburbs.
+
+## Key Links
+
+- Homepage: https://workoutpatna.com
+- Find Workout Partners: https://workoutpatna.com/browse
+- Houston Fitness Communities: https://workoutpatna.com/houston
+- About WorkoutPatna: https://workoutpatna.com/about
+
+## What WorkoutPatna Does
+
+- Gym partner matching at local gyms and fitness centers
+- Apartment complex fitness center community connections
+- Run club and outdoor workout group discovery
+- Fitness accountability partner matching
+- Local fitness community building
+
+## Who It Is For
+
+Anyone who works out and wants a partner — not a trainer — to stay consistent and accountable. WorkoutPatna is for gym-goers, runners, apartment residents with fitness centers, and anyone seeking a fitness community.
+
+## Location
+
+Currently serving Houston, TX and surrounding suburbs: Cypress, Katy, Spring, The Woodlands, Sugar Land, Pearland, Humble, and Tomball.
