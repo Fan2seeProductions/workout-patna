@@ -1,0 +1,2833 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Workout Patna — Find your gym person</title>
+  <style>
+/* Workout Patna — design tokens */
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap');
+
+:root {
+  /* Brand palette */
+  --wp-ink: #0B1F3A;          /* deep blue (primary) */
+  --wp-ink-2: #143358;        /* deep blue 2 */
+  --wp-ink-soft: #2C4A73;     /* deep blue, softer */
+  --wp-orange: #F26B3A;       /* warm orange (action) */
+  --wp-orange-soft: #FFE4D6;  /* orange tint */
+  --wp-green: #6FB58A;        /* soft green (success/match) */
+  --wp-green-soft: #E2F3E8;
+  --wp-cream: #FBF7F1;        /* page bg */
+  --wp-paper: #FFFFFF;
+  --wp-line: #ECE4D7;         /* warm line */
+  --wp-line-2: #DDD3C0;
+  --wp-mute: #6E7A8A;         /* muted text */
+  --wp-mute-2: #98A2B3;
+
+  /* Type */
+  --font-sans: 'Archivo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Archivo Black', 'Bebas Neue', Impact, sans-serif;
+  --font-condensed: 'Bebas Neue', 'Archivo Black', Impact, sans-serif;
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(11,31,58,0.04), 0 8px 24px rgba(11,31,58,0.06);
+  --shadow-pop: 0 4px 12px rgba(11,31,58,0.08), 0 18px 40px rgba(11,31,58,0.10);
+}
+
+/* Dark variants exposed for the palette tweak */
+.palette-dusk {
+  --wp-ink: #0E1B2C;
+  --wp-orange: #FF7A47;
+  --wp-green: #7CCFA0;
+  --wp-cream: #F4EFE6;
+  --wp-line: #E3DAC8;
+}
+
+.palette-court {
+  --wp-ink: #1B2A41;
+  --wp-orange: #E5572B;
+  --wp-green: #4FA773;
+  --wp-cream: #F8F4ED;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background: #1a1a1a;
+  color: var(--wp-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+input, textarea { font-family: inherit; }
+
+/* Scrollbar hidden */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* === Reusable atoms === */
+
+.wp-screen {
+  width: 100%;
+  height: 100%;
+  background: var(--wp-cream);
+  color: var(--wp-ink);
+  font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  padding-top: 56px; /* reserve room for iOS status bar */
+}
+
+.wp-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wp-h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.wp-h1 em { font-style: normal; color: var(--wp-orange); }
+
+.wp-h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 28px;
+  line-height: 1.0;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.wp-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wp-orange);
+}
+
+.wp-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--wp-mute);
+}
+
+.wp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 22px;
+  border-radius: 9999px;
+  background: var(--wp-ink);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  transition: transform .12s ease, background .15s ease;
+  white-space: nowrap;
+}
+.wp-btn:active { transform: scale(0.97); }
+.wp-btn--orange { background: var(--wp-orange); }
+.wp-btn--ghost { background: transparent; color: var(--wp-ink); border: 1.5px solid var(--wp-line-2); }
+.wp-btn--green { background: var(--wp-green); color: #0B2D1A; }
+.wp-btn--sm { height: 38px; font-size: 13.5px; padding: 0 16px; }
+
+.wp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid var(--wp-line);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--wp-ink);
+  white-space: nowrap;
+}
+.wp-chip--solid { background: var(--wp-ink); color: #fff; border-color: var(--wp-ink); }
+.wp-chip--orange { background: var(--wp-orange-soft); color: #B14217; border-color: transparent; }
+.wp-chip--green { background: var(--wp-green-soft); color: #2D6845; border-color: transparent; }
+
+.wp-card {
+  background: var(--wp-paper);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--wp-line);
+  box-shadow: var(--shadow-card);
+}
+
+.wp-input {
+  width: 100%;
+  height: 52px;
+  background: #fff;
+  border: 1.5px solid var(--wp-line);
+  border-radius: 14px;
+  padding: 0 16px;
+  font-size: 15px;
+  color: var(--wp-ink);
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.wp-input:focus { border-color: var(--wp-ink); box-shadow: 0 0 0 4px rgba(11,31,58,0.08); }
+
+.wp-divider {
+  height: 1px;
+  background: var(--wp-line);
+  border: none;
+  margin: 0;
+}
+
+/* Avatar — initials w/ tinted bg */
+.wp-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(140deg, #FFB590, #F26B3A);
+}
+
+/* Animated dot */
+@keyframes wp-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+.wp-dot {
+  width: 8px; height: 8px; border-radius: 9999px;
+  background: var(--wp-green);
+  animation: wp-pulse 1.8s ease-in-out infinite;
+}
+
+/* Tab bar */
+.wp-tabbar {
+  height: 78px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--wp-line);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 8px 8px 22px;
+  flex-shrink: 0;
+}
+.wp-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--wp-mute-2);
+  cursor: pointer;
+  position: relative;
+}
+.wp-tab[data-active="true"] { color: var(--wp-ink); }
+.wp-tab[data-active="true"] .wp-tab-icon { color: var(--wp-orange); }
+.wp-tab-icon { color: var(--wp-mute-2); }
+
+/* Subtle entrance */
+@keyframes wp-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.wp-fade-up { animation: wp-fade-up .35s ease both; }
+
+/* Match toast */
+@keyframes wp-pop {
+  0% { opacity: 0; transform: scale(0.7); }
+  60% { opacity: 1; transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.wp-pop { animation: wp-pop .45s cubic-bezier(.2,1.5,.4,1) both; }
+
+  </style>
+  <style>
+    html, body, #root { width: 100%; height: 100%; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 30% 20%, #1d2a3f 0%, #0b1018 70%);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #root { display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <script>
+// Workout Patna — mock data
+
+window.WP_GYMS = [
+  { id: 'planet-southside', name: 'Planet Fitness — Southside', area: 'Southside', members: 1240 },
+  { id: 'iron-house', name: 'Iron House Strength Co.', area: 'Riverside', members: 380 },
+  { id: 'eastpark-y', name: 'Eastpark YMCA', area: 'Eastpark', members: 920 },
+  { id: 'crunch-mid', name: 'Crunch — Midtown', area: 'Midtown', members: 1610 },
+  { id: 'gold-uptown', name: "Gold's Gym — Uptown", area: 'Uptown', members: 870 },
+  { id: 'orangetheory-w', name: 'Orangetheory — Westside', area: 'Westside', members: 540 },
+];
+
+const goals = [
+  'Build muscle', 'Lose weight', 'Get stronger', 'Stay consistent',
+  'Train for marathon', 'Powerlifting meet', 'Cut weight', 'Mobility',
+  'Olympic lifts', 'General fitness', 'Hypertrophy',
+];
+const splits = ['Push/Pull/Legs', 'Upper/Lower', 'Bro split', 'Full body', '5/3/1', 'Conjugate'];
+const vibes = ['🤝 Spotter buddy', '🎧 Quiet co-lifter', '🔥 Push me harder', '😂 Banter okay', '⏱ Strict timing', '🥤 Post-gym smoothies'];
+
+window.WP_PEOPLE = [
+  {
+    id: 'p1', name: 'Maya Okafor', age: 28, gender: 'F',
+    gym: 'planet-southside', level: 'Intermediate',
+    schedule: 'Weekday 6–7am',
+    goals: ['Build muscle', 'Stay consistent'],
+    split: 'Push/Pull/Legs', vibe: ['🤝 Spotter buddy', '🎧 Quiet co-lifter'],
+    bio: 'PPL girlie. Looking for a 6am regular who actually shows up. I bring the chalk, you bring the playlist.',
+    hue: 18, distance: 'Same gym',
+    rating: 4.9, sessions: 47, streak: 12,
+  },
+  {
+    id: 'p2', name: 'Devon Reyes', age: 31, gender: 'M',
+    gym: 'planet-southside', level: 'Advanced',
+    schedule: 'Tue/Thu/Sat evenings',
+    goals: ['Powerlifting meet', 'Get stronger'],
+    split: '5/3/1', vibe: ['🔥 Push me harder', '⏱ Strict timing'],
+    bio: 'Powerlifter, 4 years in. Training for a meet in October — need a serious bench spotter, no phone breaks.',
+    hue: 210, distance: 'Same gym',
+    rating: 4.7, sessions: 113, streak: 41,
+  },
+  {
+    id: 'p3', name: 'Priya Shah', age: 26, gender: 'F',
+    gym: 'planet-southside', level: 'Beginner',
+    schedule: 'Mon/Wed/Fri lunch',
+    goals: ['Get stronger', 'General fitness'],
+    split: 'Full body', vibe: ['🤝 Spotter buddy', '😂 Banter okay'],
+    bio: 'Six months in, finally past gym anxiety. Want someone patient who can show me the rack etiquette.',
+    hue: 280, distance: 'Same gym',
+    rating: 5.0, sessions: 22, streak: 6,
+  },
+  {
+    id: 'p4', name: 'Jordan Liu', age: 34, gender: 'NB',
+    gym: 'iron-house', level: 'Advanced',
+    schedule: 'Weekend mornings',
+    goals: ['Olympic lifts', 'Hypertrophy'],
+    split: 'Conjugate', vibe: ['🔥 Push me harder', '🥤 Post-gym smoothies'],
+    bio: 'Snatch and clean nerd. Will critique your hook grip with love. Coffee after, always.',
+    hue: 140, distance: '0.4 mi away',
+    rating: 4.8, sessions: 76, streak: 18,
+  },
+  {
+    id: 'p5', name: 'Sam Whitfield', age: 24, gender: 'M',
+    gym: 'planet-southside', level: 'Intermediate',
+    schedule: 'Weekday evenings',
+    goals: ['Build muscle', 'Cut weight'],
+    split: 'Upper/Lower', vibe: ['😂 Banter okay', '🤝 Spotter buddy'],
+    bio: 'Cutting before summer. Need someone who won\'t let me skip leg day. I will absolutely complain.',
+    hue: 35, distance: 'Same gym',
+    rating: 4.6, sessions: 58, streak: 9,
+  },
+  {
+    id: 'p6', name: 'Renata Alvarez', age: 39, gender: 'F',
+    gym: 'planet-southside', level: 'Intermediate',
+    schedule: 'Early mornings',
+    goals: ['Train for marathon', 'Mobility'],
+    split: 'Full body', vibe: ['🎧 Quiet co-lifter', '⏱ Strict timing'],
+    bio: 'Marathon #4 in March. Lift twice a week to support running. In and out, no chitchat — but I will wave.',
+    hue: 320, distance: 'Same gym',
+    rating: 4.9, sessions: 142, streak: 67,
+  },
+  {
+    id: 'p7', name: 'Theo Bennett', age: 29, gender: 'M',
+    gym: 'eastpark-y', level: 'Beginner',
+    schedule: 'Flexible',
+    goals: ['Lose weight', 'Stay consistent'],
+    split: 'Full body', vibe: ['🤝 Spotter buddy', '😂 Banter okay'],
+    bio: 'New dad, 30 lbs to lose, learning as I go. Looking for someone equally non-judgmental.',
+    hue: 200, distance: '1.1 mi away',
+    rating: 4.5, sessions: 14, streak: 3,
+  },
+  {
+    id: 'p8', name: 'Aiko Tanaka', age: 27, gender: 'F',
+    gym: 'iron-house', level: 'Advanced',
+    schedule: 'Weekday 5–6pm',
+    goals: ['Hypertrophy', 'Get stronger'],
+    split: 'Upper/Lower', vibe: ['🔥 Push me harder', '🥤 Post-gym smoothies'],
+    bio: 'Two years on Upper/Lower. Will absolutely rep out with you. Currently chasing a 1.5x BW bench.',
+    hue: 5, distance: '0.4 mi away',
+    rating: 4.8, sessions: 91, streak: 22,
+  },
+];
+
+// Pre-existing matches & threads
+window.WP_THREADS = [
+  {
+    id: 't1', personId: 'p1', unread: 2, last: 'See you 6am? I\'ll grab the bench.',
+    lastTime: '12m', messages: [
+      { from: 'them', text: 'Hey! Saw your profile — you\'re always at PF Southside?', time: 'Mon 8:14pm' },
+      { from: 'me', text: 'Yep! Almost daily 6am. You?', time: 'Mon 8:22pm' },
+      { from: 'them', text: 'Same window. Want to lift together Wed?', time: 'Mon 8:23pm' },
+      { from: 'me', text: 'Wed works. Push day for me.', time: 'Mon 8:30pm' },
+      { from: 'them', text: 'Perfect, mine too.', time: 'Mon 8:30pm' },
+      { from: 'them', text: 'See you 6am? I\'ll grab the bench.', time: '12m ago' },
+    ],
+  },
+  {
+    id: 't2', personId: 'p4', unread: 0, last: 'Smoothie place across the street is open',
+    lastTime: '2h', messages: [
+      { from: 'them', text: 'Nice clean today!', time: 'Sat 10:01am' },
+      { from: 'me', text: 'You too — that 3rd set was clean.', time: 'Sat 10:02am' },
+      { from: 'them', text: 'Smoothie place across the street is open', time: '2h ago' },
+    ],
+  },
+  {
+    id: 't3', personId: 'p6', unread: 0, last: '👍', lastTime: 'Yesterday',
+    messages: [
+      { from: 'me', text: 'Catch you tomorrow at 5:45?', time: 'Yesterday' },
+      { from: 'them', text: '👍', time: 'Yesterday' },
+    ],
+  },
+];
+
+window.WP_ACTIVITY = [
+  { id: 'a1', personId: 'p2', kind: 'pr', text: 'hit a 365 lb deadlift PR', time: '34m ago' },
+  { id: 'a2', personId: 'p6', kind: 'streak', text: 'is on a 67-day streak 🔥', time: '1h ago' },
+  { id: 'a3', personId: 'p3', kind: 'session', text: 'logged Leg Day — squat 3×5 @135', time: '3h ago' },
+  { id: 'a4', personId: 'p8', kind: 'match', text: 'matched with Devon R.', time: '5h ago' },
+  { id: 'a5', personId: 'p1', kind: 'session', text: 'logged Push Day — 52 min', time: 'Yesterday' },
+];
+
+window.WP_GOALS = goals;
+window.WP_SPLITS = splits;
+window.WP_VIBES = vibes;
+
+  </script>
+
+<script type="text/babel">
+(function(){
+
+// iOS.jsx — Simplified iOS 26 (Liquid Glass) device frame
+// Based on the iOS 26 UI Kit + Figma status bar spec. No assets, no deps.
+// Exports: IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard
+
+// ─────────────────────────────────────────────────────────────
+// Status bar
+// ─────────────────────────────────────────────────────────────
+function IOSStatusBar({ dark = false, time = '9:41' }) {
+  const c = dark ? '#fff' : '#000';
+  return (
+    <div style={{
+      display: 'flex', gap: 154, alignItems: 'center', justifyContent: 'center',
+      padding: '21px 24px 19px', boxSizing: 'border-box',
+      position: 'relative', zIndex: 20, width: '100%',
+    }}>
+      <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 1.5 }}>
+        <span style={{
+          fontFamily: '-apple-system, "SF Pro", system-ui', fontWeight: 590,
+          fontSize: 17, lineHeight: '22px', color: c,
+        }}>{time}</span>
+      </div>
+      <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, paddingTop: 1, paddingRight: 1 }}>
+        <svg width="19" height="12" viewBox="0 0 19 12">
+          <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill={c}/>
+          <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill={c}/>
+          <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill={c}/>
+          <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill={c}/>
+        </svg>
+        <svg width="17" height="12" viewBox="0 0 17 12">
+          <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill={c}/>
+          <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill={c}/>
+          <circle cx="8.5" cy="10.5" r="1.5" fill={c}/>
+        </svg>
+        <svg width="27" height="13" viewBox="0 0 27 13">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke={c} strokeOpacity="0.35" fill="none"/>
+          <rect x="2" y="2" width="20" height="9" rx="2" fill={c}/>
+          <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill={c} fillOpacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Liquid glass pill — blur + tint + shine
+// ─────────────────────────────────────────────────────────────
+function IOSGlassPill({ children, dark = false, style = {} }) {
+  return (
+    <div style={{
+      height: 44, minWidth: 44, borderRadius: 9999,
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: dark
+        ? '0 2px 6px rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.2)'
+        : '0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.06)',
+      ...style,
+    }}>
+      {/* blur + tint */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 9999,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        background: dark ? 'rgba(120,120,128,0.28)' : 'rgba(255,255,255,0.5)',
+      }} />
+      {/* shine */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 9999,
+        boxShadow: dark
+          ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15), inset -1px -1px 1px rgba(255,255,255,0.08)'
+          : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+      }} />
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Navigation bar — glass pills + large title
+// ─────────────────────────────────────────────────────────────
+function IOSNavBar({ title = 'Title', dark = false, trailingIcon = true }) {
+  const muted = dark ? 'rgba(255,255,255,0.6)' : '#404040';
+  const text = dark ? '#fff' : '#000';
+  const pillIcon = (content) => (
+    <IOSGlassPill dark={dark}>
+      <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {content}
+      </div>
+    </IOSGlassPill>
+  );
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 10,
+      paddingTop: 62, paddingBottom: 10, position: 'relative', zIndex: 5,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px',
+      }}>
+        {/* back chevron */}
+        {pillIcon(
+          <svg width="12" height="20" viewBox="0 0 12 20" fill="none" style={{ marginLeft: -1 }}>
+            <path d="M10 2L2 10l8 8" stroke={muted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+        {/* trailing ellipsis */}
+        {trailingIcon && pillIcon(
+          <svg width="22" height="6" viewBox="0 0 22 6">
+            <circle cx="3" cy="3" r="2.5" fill={muted}/>
+            <circle cx="11" cy="3" r="2.5" fill={muted}/>
+            <circle cx="19" cy="3" r="2.5" fill={muted}/>
+          </svg>
+        )}
+      </div>
+      {/* large title */}
+      <div style={{
+        padding: '0 16px',
+        fontFamily: '-apple-system, system-ui',
+        fontSize: 34, fontWeight: 700, lineHeight: '41px',
+        color: text, letterSpacing: 0.4,
+      }}>{title}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Grouped list (inset card, r:26) + row (52px)
+// ─────────────────────────────────────────────────────────────
+function IOSListRow({ title, detail, icon, chevron = true, isLast = false, dark = false }) {
+  const text = dark ? '#fff' : '#000';
+  const sec = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const ter = dark ? 'rgba(235,235,245,0.3)' : 'rgba(60,60,67,0.3)';
+  const sep = dark ? 'rgba(84,84,88,0.65)' : 'rgba(60,60,67,0.12)';
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', minHeight: 52,
+      padding: '0 16px', position: 'relative',
+      fontFamily: '-apple-system, system-ui', fontSize: 17,
+      letterSpacing: -0.43,
+    }}>
+      {icon && (
+        <div style={{
+          width: 30, height: 30, borderRadius: 7, background: icon,
+          marginRight: 12, flexShrink: 0,
+        }} />
+      )}
+      <div style={{ flex: 1, color: text }}>{title}</div>
+      {detail && <span style={{ color: sec, marginRight: 6 }}>{detail}</span>}
+      {chevron && (
+        <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}>
+          <path d="M1 1l6 6-6 6" stroke={ter} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+      {!isLast && (
+        <div style={{
+          position: 'absolute', bottom: 0, right: 0,
+          left: icon ? 58 : 16, height: 0.5, background: sep,
+        }} />
+      )}
+    </div>
+  );
+}
+
+function IOSList({ header, children, dark = false }) {
+  const hc = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const bg = dark ? '#1C1C1E' : '#fff';
+  return (
+    <div>
+      {header && (
+        <div style={{
+          fontFamily: '-apple-system, system-ui', fontSize: 13,
+          color: hc, textTransform: 'uppercase',
+          padding: '8px 36px 6px', letterSpacing: -0.08,
+        }}>{header}</div>
+      )}
+      <div style={{
+        background: bg, borderRadius: 26,
+        margin: '0 16px', overflow: 'hidden',
+      }}>{children}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Device frame
+// ─────────────────────────────────────────────────────────────
+function IOSDevice({
+  children, width = 402, height = 874, dark = false,
+  title, keyboard = false,
+}) {
+  return (
+    <div style={{
+      width, height, borderRadius: 48, overflow: 'hidden',
+      position: 'relative', background: dark ? '#000' : '#F2F2F7',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      fontFamily: '-apple-system, system-ui, sans-serif',
+      WebkitFontSmoothing: 'antialiased',
+    }}>
+      {/* dynamic island */}
+      <div style={{
+        position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
+        width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
+      }} />
+      {/* status bar (absolute) */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+        <IOSStatusBar dark={dark} />
+      </div>
+      {/* nav + content */}
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {title !== undefined && <IOSNavBar title={title} dark={dark} />}
+        <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
+        {keyboard && <IOSKeyboard dark={dark} />}
+      </div>
+      {/* home indicator — always on top */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 60,
+        height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        paddingBottom: 8, pointerEvents: 'none',
+      }}>
+        <div style={{
+          width: 139, height: 5, borderRadius: 100,
+          background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Keyboard — iOS 26 liquid glass
+// ─────────────────────────────────────────────────────────────
+function IOSKeyboard({ dark = false }) {
+  const glyph = dark ? 'rgba(255,255,255,0.7)' : '#595959';
+  const sugg = dark ? 'rgba(255,255,255,0.6)' : '#333';
+  const keyBg = dark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+
+  // special-key icons
+  const icons = {
+    shift: <svg width="19" height="17" viewBox="0 0 19 17"><path d="M9.5 1L1 9.5h4.5V16h8V9.5H18L9.5 1z" fill={glyph}/></svg>,
+    del: <svg width="23" height="17" viewBox="0 0 23 17"><path d="M7 1h13a2 2 0 012 2v11a2 2 0 01-2 2H7l-6-7.5L7 1z" fill="none" stroke={glyph} strokeWidth="1.6" strokeLinejoin="round"/><path d="M10 5l7 7M17 5l-7 7" stroke={glyph} strokeWidth="1.6" strokeLinecap="round"/></svg>,
+    ret: <svg width="20" height="14" viewBox="0 0 20 14"><path d="M18 1v6H4m0 0l4-4M4 7l4 4" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  };
+
+  const key = (content, { w, flex, ret, fs = 25, k } = {}) => (
+    <div key={k} style={{
+      height: 42, borderRadius: 8.5,
+      flex: flex ? 1 : undefined, width: w, minWidth: 0,
+      background: ret ? '#08f' : keyBg,
+      boxShadow: '0 1px 0 rgba(0,0,0,0.075)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: '-apple-system, "SF Compact", system-ui',
+      fontSize: fs, fontWeight: 458, color: ret ? '#fff' : glyph,
+    }}>{content}</div>
+  );
+
+  const row = (keys, pad = 0) => (
+    <div style={{ display: 'flex', gap: 6.5, justifyContent: 'center', padding: `0 ${pad}px` }}>
+      {keys.map(l => key(l, { flex: true, k: l }))}
+    </div>
+  );
+
+  return (
+    <div style={{
+      position: 'relative', zIndex: 15, borderRadius: 27, overflow: 'hidden',
+      padding: '11px 0 2px',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      boxShadow: dark
+        ? '0 -2px 20px rgba(0,0,0,0.09)'
+        : '0 -1px 6px rgba(0,0,0,0.018), 0 -3px 20px rgba(0,0,0,0.012)',
+    }}>
+      {/* liquid glass bg — same recipe as nav pills */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 27,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        background: dark ? 'rgba(120,120,128,0.14)' : 'rgba(255,255,255,0.25)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 27,
+        boxShadow: dark
+          ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15)'
+          : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* autocorrect bar */}
+      <div style={{
+        display: 'flex', gap: 20, alignItems: 'center',
+        padding: '8px 22px 13px', width: '100%', boxSizing: 'border-box',
+        position: 'relative',
+      }}>
+        {['"The"', 'the', 'to'].map((w, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <div style={{ width: 1, height: 25, background: '#ccc', opacity: 0.3 }} />}
+            <div style={{
+              flex: 1, textAlign: 'center',
+              fontFamily: '-apple-system, system-ui', fontSize: 17,
+              color: sugg, letterSpacing: -0.43, lineHeight: '22px',
+            }}>{w}</div>
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* key layout */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 13,
+        padding: '0 6.5px', width: '100%', boxSizing: 'border-box',
+        position: 'relative',
+      }}>
+        {row(['q','w','e','r','t','y','u','i','o','p'])}
+        {row(['a','s','d','f','g','h','j','k','l'], 20)}
+        <div style={{ display: 'flex', gap: 14.25, alignItems: 'center' }}>
+          {key(icons.shift, { w: 45, k: 'shift' })}
+          <div style={{ display: 'flex', gap: 6.5, flex: 1 }}>
+            {['z','x','c','v','b','n','m'].map(l => key(l, { flex: true, k: l }))}
+          </div>
+          {key(icons.del, { w: 45, k: 'del' })}
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {key('ABC', { w: 92.25, fs: 18, k: 'abc' })}
+          {key('', { flex: true, k: 'space' })}
+          {key(icons.ret, { w: 92.25, ret: true, k: 'ret' })}
+        </div>
+      </div>
+
+      {/* bottom spacer (emoji+mic area, icons omitted) */}
+      <div style={{ height: 56, width: '100%', position: 'relative' }} />
+    </div>
+  );
+}
+
+Object.assign(window, {
+  IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard,
+});
+
+})();
+</script>
+<script type="text/babel">
+(function(){
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-noncommentable=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+})();
+</script>
+<script type="text/babel">
+(function(){
+// Workout Patna — small icon set (stroke-based)
+// All icons accept { size, color, strokeWidth }
+
+const Icon = ({ children, size = 22, color = 'currentColor', strokeWidth = 1.8, fill = 'none', viewBox = '0 0 24 24' }) => (
+  <svg width={size} height={size} viewBox={viewBox} fill={fill} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', flexShrink: 0 }}>
+    {children}
+  </svg>
+);
+
+const IconHome = (p) => <Icon {...p}><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/><path d="M10 20v-6h4v6"/></Icon>;
+const IconSearch = (p) => <Icon {...p}><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></Icon>;
+const IconSpark = (p) => <Icon {...p}><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/></Icon>;
+const IconChat = (p) => <Icon {...p}><path d="M21 12a8 8 0 1 1-3.4-6.5L21 4l-1.5 3.5A8 8 0 0 1 21 12Z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></Icon>;
+const IconUser = (p) => <Icon {...p}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></Icon>;
+const IconPlus = (p) => <Icon {...p}><path d="M12 5v14M5 12h14"/></Icon>;
+const IconBack = (p) => <Icon {...p}><path d="m15 6-6 6 6 6"/></Icon>;
+const IconClose = (p) => <Icon {...p}><path d="M18 6 6 18M6 6l12 12"/></Icon>;
+const IconCheck = (p) => <Icon {...p}><path d="m5 12 5 5L20 7"/></Icon>;
+const IconHeart = (p) => <Icon {...p}><path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.65-9.5 9-9.5 9Z"/></Icon>;
+const IconX = IconClose;
+const IconBolt = (p) => <Icon {...p} fill={p.fill || 'currentColor'} stroke="none"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></Icon>;
+const IconFlame = (p) => <Icon {...p}><path d="M12 22c4 0 7-3 7-7 0-4-3-6-3-9 0 0-2 2-3 4-1-3-4-5-4-5s-3 3-3 7c0 4 2 6 2 8 0 1 1 2 4 2Z"/></Icon>;
+const IconPin = (p) => <Icon {...p}><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13Z"/><circle cx="12" cy="9" r="2.5"/></Icon>;
+const IconClock = (p) => <Icon {...p}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></Icon>;
+const IconStar = (p) => <Icon {...p} fill="currentColor" stroke="none"><path d="m12 3 2.6 5.6 6.1.6-4.6 4.2 1.3 6L12 16.5 6.6 19.4l1.3-6L3.3 9.2l6.1-.6L12 3Z"/></Icon>;
+const IconDumbbell = (p) => <Icon {...p}><path d="M3 9v6M6 6v12M10 8v8M14 8v8M18 6v12M21 9v6M6 12h12"/></Icon>;
+const IconShield = (p) => <Icon {...p}><path d="M12 3 4 6v6c0 4.5 3.5 8 8 9 4.5-1 8-4.5 8-9V6l-8-3Z"/></Icon>;
+const IconSliders = (p) => <Icon {...p}><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2.2" fill="white"/><circle cx="15" cy="12" r="2.2" fill="white"/><circle cx="7" cy="18" r="2.2" fill="white"/></Icon>;
+const IconSend = (p) => <Icon {...p}><path d="m4 12 16-8-6 18-2-8-8-2Z"/></Icon>;
+const IconMore = (p) => <Icon {...p}><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></Icon>;
+const IconChevR = (p) => <Icon {...p}><path d="m9 6 6 6-6 6"/></Icon>;
+const IconList = (p) => <Icon {...p}><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></Icon>;
+const IconCards = (p) => <Icon {...p}><rect x="6" y="3" width="14" height="18" rx="2.5"/><path d="M3 7v12a2 2 0 0 0 2 2h11"/></Icon>;
+const IconMap = (p) => <Icon {...p}><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2V6Z"/><path d="M9 4v16M15 6v16"/></Icon>;
+const IconCrown = (p) => <Icon {...p}><path d="m3 7 4 4 5-7 5 7 4-4-2 12H5L3 7Z"/></Icon>;
+
+Object.assign(window, {
+  IconHome, IconSearch, IconSpark, IconChat, IconUser, IconPlus,
+  IconBack, IconClose, IconCheck, IconHeart, IconX, IconBolt,
+  IconFlame, IconPin, IconClock, IconStar, IconDumbbell, IconShield,
+  IconSliders, IconSend, IconMore, IconChevR, IconList, IconCards, IconMap, IconCrown,
+});
+
+})();
+</script>
+<script type="text/babel">
+(function(){
+// Workout Patna — Auth + Onboarding screens
+
+const { useState, useEffect, useRef } = React;
+
+// ────────────────────────────────────────────────────────────
+// Splash + Auth
+// ────────────────────────────────────────────────────────────
+
+function WPLogo({ size = 44, light = false }) {
+  // 'WP' monogram inside a barbell-inspired roundel
+  const fg = light ? '#fff' : 'var(--wp-ink)';
+  const accent = 'var(--wp-orange)';
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: 14,
+      background: light ? 'rgba(255,255,255,0.12)' : '#fff',
+      border: light ? '1px solid rgba(255,255,255,0.25)' : '1.5px solid var(--wp-line)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative', flexShrink: 0,
+    }}>
+      <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" fill="none">
+        <path d="M3 8v8M5 6v12M19 6v12M21 8v8" stroke={fg} strokeWidth="1.8" strokeLinecap="round"/>
+        <path d="M5 12h14" stroke={accent} strokeWidth="2.4" strokeLinecap="round"/>
+      </svg>
+    </div>
+  );
+}
+
+function ScreenAuth({ onContinue, mode = 'signup', setMode }) {
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  return (
+    <div className="wp-screen" style={{ background: 'var(--wp-ink)', color: '#fff' }}>
+      {/* Hero */}
+      <div style={{ flex: 1, padding: '34px 28px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+        {/* decorative blob */}
+        <div style={{
+          position: 'absolute', top: -120, right: -100, width: 320, height: 320,
+          borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(242,107,58,0.55), rgba(242,107,58,0) 70%)',
+          filter: 'blur(8px)', pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -80, left: -60, width: 240, height: 240,
+          borderRadius: '50%', background: 'radial-gradient(circle at 50% 50%, rgba(111,181,138,0.35), rgba(111,181,138,0) 70%)',
+          filter: 'blur(8px)', pointerEvents: 'none',
+        }} />
+
+        {/* Background scene: people walking to the gym, chatting */}
+        <svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMax slice" style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          opacity: 0.42, pointerEvents: 'none', mixBlendMode: 'screen',
+        }}>
+          <defs>
+            <linearGradient id="gymGlow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F26B3A" stopOpacity="0"/>
+              <stop offset="100%" stopColor="#F26B3A" stopOpacity="0.35"/>
+            </linearGradient>
+          </defs>
+          {/* gym building silhouette far back */}
+          <rect x="0" y="380" width="400" height="220" fill="#000" opacity="0.35"/>
+          <rect x="40" y="320" width="120" height="120" fill="#0B1F3A" opacity="0.6"/>
+          <rect x="200" y="290" width="160" height="150" fill="#0B1F3A" opacity="0.55"/>
+          {/* lit windows */}
+          <g fill="#F26B3A" opacity="0.7">
+            <rect x="56" y="340" width="14" height="18"/>
+            <rect x="80" y="340" width="14" height="18"/>
+            <rect x="104" y="340" width="14" height="18"/>
+            <rect x="56" y="368" width="14" height="18"/>
+            <rect x="104" y="368" width="14" height="18"/>
+            <rect x="216" y="310" width="18" height="22"/>
+            <rect x="246" y="310" width="18" height="22"/>
+            <rect x="276" y="310" width="18" height="22"/>
+            <rect x="306" y="310" width="18" height="22"/>
+            <rect x="336" y="310" width="18" height="22"/>
+            <rect x="216" y="344" width="18" height="22"/>
+            <rect x="276" y="344" width="18" height="22"/>
+            <rect x="336" y="344" width="18" height="22"/>
+          </g>
+          {/* glow above gym entrance */}
+          <rect x="220" y="380" width="80" height="60" fill="url(#gymGlow)"/>
+          <text x="260" y="408" textAnchor="middle" fill="#F26B3A" fontFamily="Archivo Black, Impact" fontSize="13" fontWeight="900" opacity="0.85" letterSpacing="2">GYM</text>
+
+          {/* === Two people walking + chatting (foreground silhouettes) === */}
+          {/* Person A - left, mid-stride, gym bag */}
+          <g fill="#000" opacity="0.78" transform="translate(70 400)">
+            {/* head */}
+            <circle cx="0" cy="0" r="14"/>
+            {/* hair tuft / bun */}
+            <circle cx="-8" cy="-10" r="6"/>
+            {/* torso */}
+            <path d="M-14 14 Q-16 22 -14 38 L14 38 Q16 22 14 14 Z"/>
+            {/* arm forward (gesturing) */}
+            <path d="M14 18 Q26 22 34 14 L36 18 Q28 28 14 26 Z"/>
+            {/* back arm with bag strap */}
+            <path d="M-14 18 Q-22 28 -20 42 L-16 42 Q-12 30 -10 22 Z"/>
+            {/* gym bag */}
+            <rect x="-32" y="36" width="22" height="14" rx="3"/>
+            <path d="M-26 36 Q-21 32 -16 36" stroke="#000" strokeWidth="2" fill="none"/>
+            {/* legs - mid stride */}
+            <path d="M-8 38 Q-10 56 -14 78 L-6 78 Q-2 58 0 40 Z"/>
+            <path d="M2 38 Q6 56 12 76 L18 74 Q14 56 10 40 Z"/>
+            {/* shoes */}
+            <ellipse cx="-10" cy="80" rx="8" ry="3"/>
+            <ellipse cx="15" cy="76" rx="8" ry="3"/>
+          </g>
+
+          {/* Person B - right, walking together, water bottle */}
+          <g fill="#000" opacity="0.78" transform="translate(135 402)">
+            {/* head */}
+            <circle cx="0" cy="0" r="14"/>
+            {/* cap */}
+            <path d="M-14 -4 Q0 -18 14 -4 L14 -8 Q0 -22 -14 -8 Z"/>
+            <path d="M14 -4 L24 -2 L14 0 Z"/>
+            {/* torso */}
+            <path d="M-14 14 Q-16 24 -14 40 L14 40 Q16 24 14 14 Z"/>
+            {/* arm forward, holding water bottle */}
+            <path d="M-14 18 Q-26 24 -32 18 L-30 24 Q-22 30 -10 26 Z"/>
+            <rect x="-40" y="14" width="6" height="14" rx="2"/>
+            <rect x="-39" y="11" width="4" height="4"/>
+            {/* back arm relaxed */}
+            <path d="M14 18 Q20 30 18 44 L14 44 Q12 30 10 22 Z"/>
+            {/* legs - opposite stride from person A */}
+            <path d="M-8 40 Q-12 58 -16 76 L-8 78 Q-2 60 0 42 Z"/>
+            <path d="M2 40 Q4 58 8 80 L16 80 Q14 58 10 42 Z"/>
+            <ellipse cx="-12" cy="78" rx="8" ry="3"/>
+            <ellipse cx="12" cy="80" rx="8" ry="3"/>
+          </g>
+
+          {/* speech bubble between them */}
+          <g opacity="0.55">
+            <ellipse cx="105" cy="350" rx="22" ry="11" fill="#F26B3A"/>
+            <path d="M95 358 L92 365 L100 360 Z" fill="#F26B3A"/>
+            <circle cx="98" cy="350" r="2" fill="#0B1F3A"/>
+            <circle cx="105" cy="350" r="2" fill="#0B1F3A"/>
+            <circle cx="112" cy="350" r="2" fill="#0B1F3A"/>
+          </g>
+
+          {/* Third person ahead, jogging toward gym */}
+          <g fill="#000" opacity="0.6" transform="translate(260 420) scale(0.85)">
+            <circle cx="0" cy="0" r="12"/>
+            {/* ponytail */}
+            <path d="M10 -2 Q18 4 14 14" stroke="#000" strokeWidth="4" fill="none" strokeLinecap="round"/>
+            {/* torso leaning forward */}
+            <path d="M-12 12 Q-8 22 -10 34 L12 36 Q16 22 12 12 Z"/>
+            {/* running arms */}
+            <path d="M-10 16 Q-22 22 -20 34 L-16 34 Q-12 24 -8 18 Z"/>
+            <path d="M12 16 Q22 14 26 6 L28 10 Q24 22 14 22 Z"/>
+            {/* legs running */}
+            <path d="M-6 34 Q-14 50 -18 66 L-10 68 Q-2 52 2 36 Z"/>
+            <path d="M4 34 Q12 46 18 56 L24 50 Q16 42 10 34 Z"/>
+            <ellipse cx="-14" cy="68" rx="7" ry="3"/>
+            <ellipse cx="22" cy="52" rx="7" ry="3"/>
+          </g>
+
+          {/* Pavement line */}
+          <path d="M0 488 L400 488" stroke="#fff" strokeOpacity="0.08" strokeWidth="1"/>
+          <g stroke="#F26B3A" strokeOpacity="0.25" strokeWidth="2" strokeDasharray="8 12">
+            <line x1="0" y1="498" x2="400" y2="498"/>
+          </g>
+        </svg>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', zIndex: 1 }}>
+          <WPLogo light />
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: '0.01em', textTransform: 'uppercase' }}>
+            Workout <span style={{ color: 'var(--wp-orange)' }}>Patna</span>
+          </div>
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: '0.18em',
+            textTransform: 'uppercase', color: 'var(--wp-orange)', marginBottom: 14,
+          }}>For people who lift</div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)', fontWeight: 900,
+            fontSize: 32, lineHeight: 1.05, letterSpacing: '-0.02em', margin: 0,
+            position: 'relative', zIndex: 2,
+          }}>
+            Consistency starts with the <span style={{ color: 'var(--wp-orange)' }}>right partner.</span>
+          </h1>
+          <p style={{ fontSize: 13.5, lineHeight: 1.5, color: 'rgba(255,255,255,0.78)', marginTop: 16, maxWidth: 340, position: 'relative', zIndex: 2 }}>
+            <b style={{ color: '#fff', fontWeight: 700 }}>WorkoutPatna</b> is the fitness social app that helps you find workout partners near you at gyms, apartment complexes, parks, run clubs, and community fitness centers. <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', color: '#fff' }}>No trainers. No guesswork.</span> Just better accountability.
+          </p>
+        </div>
+      </div>
+
+      {/* Auth card */}
+      <div style={{
+        background: 'var(--wp-cream)', color: 'var(--wp-ink)',
+        borderTopLeftRadius: 28, borderTopRightRadius: 28,
+        padding: '22px 22px 22px',
+      }}>
+        {/* Feature bullets */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+          {[
+            ['Match by gym, schedule, and goals'],
+            ['Lifting, cardio, classes, or run clubs'],
+            ['Check-ins, challenges, and accountability'],
+          ].map(([t], i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: 6, background: 'var(--wp-orange-soft)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.5 L5 9 L9.5 3.5" stroke="#F26B3A" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+              <div style={{ fontSize: 13.5, color: 'var(--wp-ink)', fontWeight: 500 }}>{t}</div>
+            </div>
+          ))}
+        </div>
+
+        <button className="wp-btn wp-btn--orange" style={{ width: '100%' }} onClick={onContinue}>
+          Join WorkoutPatna
+        </button>
+
+        <button className="wp-btn wp-btn--ghost" style={{ width: '100%', background: '#fff', marginTop: 10 }} onClick={onContinue}>
+          Find a Gym Partner Near You
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '14px 4px 12px' }}>
+          <hr className="wp-divider" style={{ flex: 1 }}/>
+          <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', color: 'var(--wp-mute)', textTransform: 'uppercase' }}>or</span>
+          <hr className="wp-divider" style={{ flex: 1 }}/>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="wp-btn wp-btn--ghost" style={{ flex: 1, background: '#fff', height: 44, fontSize: 13 }} onClick={onContinue}>
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4c-.2 1.3-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3Z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.7-5.6-4H3.1v2.6A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.4 14.1A6 6 0 0 1 6.1 12c0-.7.1-1.4.3-2.1V7.3H3.1A10 10 0 0 0 2 12c0 1.6.4 3.2 1.1 4.7l3.3-2.6Z"/><path fill="#EA4335" d="M12 6.4c1.5 0 2.8.5 3.8 1.5l2.8-2.8C16.9 3.5 14.7 2.6 12 2.6A10 10 0 0 0 3.1 7.3l3.3 2.6c.8-2.4 3-4 5.6-4Z"/></svg>
+            Google
+          </button>
+          <button className="wp-btn wp-btn--ghost" style={{ flex: 1, background: '#fff', height: 44, fontSize: 13 }} onClick={onContinue}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#0B1F3A"><path d="M16.4 12.6c0-2.4 2-3.6 2-3.6-1-1.6-2.7-1.8-3.3-1.8-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.2 0 2-1.1 2.8-2.3.9-1.3 1.2-2.6 1.3-2.7-.1 0-2.6-1-2.7-3.5zM14.3 5.5c.6-.8 1-1.9.9-3-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.8-.9 2.9 1 .1 2-.5 2.6-1.3z"/></svg>
+            Apple
+          </button>
+        </div>
+
+        <div style={{ marginTop: 14, fontSize: 12.5, textAlign: 'center', color: 'var(--wp-mute)' }}>
+          Already a member? <button onClick={onContinue} style={{ color: 'var(--wp-orange)', fontWeight: 700 }}>Sign in</button>
+        </div>
+
+        <p style={{ fontSize: 10.5, color: 'var(--wp-mute)', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
+          By continuing you agree to our Terms & Community Standards.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// Onboarding container
+// ────────────────────────────────────────────────────────────
+
+function OnboardShell({ step, total, title, subtitle, children, onBack, onNext, nextLabel = 'Continue', nextDisabled, onSkip }) {
+  return (
+    <div className="wp-screen">
+      {/* Top bar */}
+      <div style={{ padding: '8px 20px 4px', display: 'flex', alignItems: 'center', gap: 14 }}>
+        {onBack ? (
+          <button onClick={onBack} style={{ width: 36, height: 36, borderRadius: 9999, background: '#fff', border: '1px solid var(--wp-line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IconBack size={18} color="var(--wp-ink)"/>
+          </button>
+        ) : <div style={{ width: 36 }}/>}
+        <div style={{ flex: 1, height: 5, background: '#EEE3D2', borderRadius: 9999, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${(step / total) * 100}%`, background: 'var(--wp-orange)', borderRadius: 9999, transition: 'width .35s ease' }}/>
+        </div>
+        {onSkip ? (
+          <button onClick={onSkip} style={{ fontSize: 13, fontWeight: 600, color: 'var(--wp-mute)' }}>Skip</button>
+        ) : <div style={{ width: 36 }}/>}
+      </div>
+
+      <div className="wp-scroll" style={{ padding: '14px 24px 20px' }}>
+        <div className="wp-eyebrow" style={{ marginBottom: 8 }}>Step {step} of {total}</div>
+        <h1 className="wp-h1" style={{ marginBottom: 8 }}>{title}</h1>
+        {subtitle && <p style={{ fontSize: 15, color: 'var(--wp-mute)', lineHeight: 1.5, margin: '0 0 22px' }}>{subtitle}</p>}
+        <div className="wp-fade-up" key={step}>{children}</div>
+      </div>
+
+      <div style={{ padding: '12px 24px 28px', borderTop: '1px solid var(--wp-line)', background: 'rgba(251,247,241,0.96)', backdropFilter: 'blur(10px)' }}>
+        <button className="wp-btn wp-btn--orange" style={{ width: '100%', opacity: nextDisabled ? 0.4 : 1, pointerEvents: nextDisabled ? 'none' : 'auto' }} onClick={onNext}>
+          {nextLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ScreenOnboardGym({ value, setValue, ...rest }) {
+  return (
+    <OnboardShell {...rest} title={<>Where do you <em>lift</em>?</>} subtitle="We only show people who train at your gym (or 1 mile away).">
+      <div style={{ position: 'relative', marginBottom: 18 }}>
+        <input className="wp-input" placeholder="Search by gym name or area" style={{ paddingLeft: 44 }}/>
+        <div style={{ position: 'absolute', left: 16, top: 17 }}>
+          <IconSearch size={18} color="var(--wp-mute)" />
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {window.WP_GYMS.map(g => {
+          const sel = value === g.id;
+          return (
+            <button key={g.id} onClick={() => setValue(g.id)} style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '14px 16px', borderRadius: 16,
+              background: sel ? 'var(--wp-ink)' : '#fff',
+              color: sel ? '#fff' : 'var(--wp-ink)',
+              border: `1.5px solid ${sel ? 'var(--wp-ink)' : 'var(--wp-line)'}`,
+              textAlign: 'left', transition: 'all .15s ease',
+            }}>
+              <div style={{
+                width: 42, height: 42, borderRadius: 12,
+                background: sel ? 'rgba(255,255,255,0.12)' : 'var(--wp-orange-soft)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <IconDumbbell size={22} color={sel ? '#fff' : 'var(--wp-orange)'}/>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14.5, fontWeight: 700, marginBottom: 2 }}>{g.name}</div>
+                <div style={{ fontSize: 12.5, opacity: 0.7 }}>{g.area} · {g.members.toLocaleString()} members</div>
+              </div>
+              {sel && <IconCheck size={20} color="var(--wp-orange)"/>}
+            </button>
+          );
+        })}
+      </div>
+    </OnboardShell>
+  );
+}
+
+function PickGrid({ options, value, setValue, multi = false, columns = 2 }) {
+  const isSel = (o) => multi ? value.includes(o) : value === o;
+  const toggle = (o) => {
+    if (multi) {
+      setValue(value.includes(o) ? value.filter(x => x !== o) : [...value, o]);
+    } else {
+      setValue(o);
+    }
+  };
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: 10 }}>
+      {options.map(o => {
+        const sel = isSel(o);
+        return (
+          <button key={o} onClick={() => toggle(o)} style={{
+            padding: '16px 14px', borderRadius: 16,
+            background: sel ? 'var(--wp-ink)' : '#fff',
+            color: sel ? '#fff' : 'var(--wp-ink)',
+            border: `1.5px solid ${sel ? 'var(--wp-ink)' : 'var(--wp-line)'}`,
+            fontSize: 14, fontWeight: 600, textAlign: 'center',
+            transition: 'all .15s ease', minHeight: 56,
+          }}>
+            {o}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ScreenOnboardLevel({ value, setValue, ...rest }) {
+  const levels = [
+    { id: 'Beginner', desc: 'Less than 1 year. Still learning form.', emoji: '🌱' },
+    { id: 'Intermediate', desc: '1–3 years. I know what a hook grip is.', emoji: '🏋️' },
+    { id: 'Advanced', desc: '3+ years. I have a coach or program.', emoji: '🔥' },
+  ];
+  return (
+    <OnboardShell {...rest} title={<>Your <em>level</em>.</>} subtitle="Be honest — this matches you with people who lift like you do.">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {levels.map(l => {
+          const sel = value === l.id;
+          return (
+            <button key={l.id} onClick={() => setValue(l.id)} style={{
+              display: 'flex', alignItems: 'center', gap: 16,
+              padding: '18px 18px', borderRadius: 18,
+              background: sel ? 'var(--wp-ink)' : '#fff',
+              color: sel ? '#fff' : 'var(--wp-ink)',
+              border: `1.5px solid ${sel ? 'var(--wp-ink)' : 'var(--wp-line)'}`,
+              textAlign: 'left',
+            }}>
+              <div style={{ fontSize: 30 }}>{l.emoji}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 17, fontWeight: 700 }}>{l.id}</div>
+                <div style={{ fontSize: 13, opacity: 0.72, marginTop: 2 }}>{l.desc}</div>
+              </div>
+              {sel && <IconCheck size={22} color="var(--wp-orange)"/>}
+            </button>
+          );
+        })}
+      </div>
+    </OnboardShell>
+  );
+}
+
+function ScreenOnboardGoals({ value, setValue, ...rest }) {
+  return (
+    <OnboardShell {...rest} title={<>What are you <em>chasing</em>?</>} subtitle="Pick 1–3. We'll prioritize people working toward similar things.">
+      <PickGrid options={window.WP_GOALS} value={value} setValue={setValue} multi columns={2}/>
+    </OnboardShell>
+  );
+}
+
+function ScreenOnboardVibe({ value, setValue, ...rest }) {
+  return (
+    <OnboardShell {...rest} title={<>Your gym <em>vibe</em>.</>} subtitle="What kind of partner do you actually want? Pick all that fit." nextLabel="Find my people →">
+      <PickGrid options={window.WP_VIBES} value={value} setValue={setValue} multi columns={2}/>
+      <div className="wp-card" style={{ padding: 14, marginTop: 22, display: 'flex', gap: 12, alignItems: 'flex-start', background: 'var(--wp-orange-soft)', border: 'none' }}>
+        <IconShield size={20} color="var(--wp-orange)"/>
+        <div style={{ fontSize: 12.5, color: '#7A3815', lineHeight: 1.5 }}>
+          <b>Heads up:</b> Workout Patna is for finding workout partners, not dates. Profiles flagged as romantic get a one-strike warning.
+        </div>
+      </div>
+    </OnboardShell>
+  );
+}
+
+Object.assign(window, {
+  WPLogo,
+  ScreenAuth,
+  ScreenOnboardGym,
+  ScreenOnboardLevel,
+  ScreenOnboardGoals,
+  ScreenOnboardVibe,
+});
+
+})();
+</script>
+<script type="text/babel">
+(function(){
+// Workout Patna — Main app screens
+
+const { useState: useStateApp, useEffect: useEffectApp, useRef: useRefApp, useMemo } = React;
+
+// ────────────────────────────────────────────────────────────
+// Reusable: Avatar
+// ────────────────────────────────────────────────────────────
+
+function Avatar({ person, size = 44, ring }) {
+  const initials = person.name.split(' ').map(p => p[0]).slice(0, 2).join('');
+  const bg = `linear-gradient(140deg, hsl(${person.hue}, 80%, 78%), hsl(${person.hue}, 65%, 52%))`;
+  return (
+    <div className="wp-avatar" style={{
+      width: size, height: size, fontSize: size * 0.36, background: bg,
+      boxShadow: ring ? `0 0 0 3px ${ring}` : 'none',
+    }}>
+      {initials}
+    </div>
+  );
+}
+
+function ProfilePhoto({ person, height = 380, rounded = 22 }) {
+  // Generate a stylized "photo" — duotone gradient + abstract shape
+  const h = person.hue;
+  return (
+    <div style={{
+      height, borderRadius: rounded, position: 'relative', overflow: 'hidden',
+      background: `linear-gradient(160deg, hsl(${h}, 75%, 72%) 0%, hsl(${h}, 60%, 38%) 100%)`,
+    }}>
+      {/* concentric rings — stylized */}
+      <svg viewBox="0 0 400 500" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.55 }} preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id={`g-${person.id}`} cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor={`hsl(${h}, 90%, 88%)`} stopOpacity="0.9"/>
+            <stop offset="100%" stopColor={`hsl(${h}, 60%, 30%)`} stopOpacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="200" cy="200" r="160" fill={`url(#g-${person.id})`}/>
+        <circle cx="200" cy="200" r="120" fill="none" stroke="#fff" strokeOpacity="0.18" strokeWidth="1"/>
+        <circle cx="200" cy="200" r="180" fill="none" stroke="#fff" strokeOpacity="0.12" strokeWidth="1"/>
+        {/* abstract "figure" silhouette */}
+        <ellipse cx="200" cy="180" rx="38" ry="42" fill="rgba(0,0,0,0.32)"/>
+        <path d="M120 320 Q200 230 280 320 L290 500 L110 500 Z" fill="rgba(0,0,0,0.32)"/>
+      </svg>
+      {/* initial badge */}
+      <div style={{
+        position: 'absolute', top: 18, left: 18,
+        fontFamily: 'var(--font-display)', fontWeight: 900,
+        fontSize: 90, lineHeight: 1, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase',
+      }}>{person.name[0]}</div>
+      {/* placeholder watermark */}
+      <div style={{
+        position: 'absolute', bottom: 12, right: 14,
+        fontSize: 9.5, fontWeight: 600, letterSpacing: '0.14em',
+        color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase',
+      }}>placeholder</div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// Tab bar
+// ────────────────────────────────────────────────────────────
+function TabBar({ active, onChange, badge }) {
+  const tabs = [
+    { id: 'home', label: 'Home', Icon: window.IconHome },
+    { id: 'browse', label: 'Browse', Icon: window.IconSpark },
+    { id: 'matches', label: 'Matches', Icon: window.IconHeart, badge: badge?.matches },
+    { id: 'chat', label: 'Chats', Icon: window.IconChat, badge: badge?.chat },
+    { id: 'me', label: 'Me', Icon: window.IconUser },
+  ];
+  return (
+    <div className="wp-tabbar">
+      {tabs.map(t => (
+        <button key={t.id} className="wp-tab" data-active={active === t.id} onClick={() => onChange(t.id)}>
+          <div style={{ position: 'relative' }} className="wp-tab-icon">
+            <t.Icon size={24}/>
+            {t.badge ? <div style={{
+              position: 'absolute', top: -4, right: -8,
+              minWidth: 16, height: 16, padding: '0 4px',
+              borderRadius: 9999, background: 'var(--wp-orange)',
+              color: '#fff', fontSize: 10, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{t.badge}</div> : null}
+          </div>
+          <div>{t.label}</div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// HOME
+// ────────────────────────────────────────────────────────────
+function ScreenHome({ user, onOpenPerson, onGoTo }) {
+  const matches = window.WP_THREADS;
+  const peopleById = Object.fromEntries(window.WP_PEOPLE.map(p => [p.id, p]));
+  const myGym = window.WP_GYMS.find(g => g.id === user.gym);
+  const newPeople = window.WP_PEOPLE.filter(p => p.gym === user.gym).slice(0, 4);
+
+  return (
+    <div className="wp-screen">
+      {/* Header */}
+      <div style={{ padding: '12px 20px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--wp-mute)' }}>Good morning,</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>Alex 👋</div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button style={{ width: 40, height: 40, borderRadius: 9999, background: '#fff', border: '1px solid var(--wp-line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IconBolt size={18} color="var(--wp-orange)" fill="var(--wp-orange)"/>
+          </button>
+        </div>
+      </div>
+
+      <div className="wp-scroll" style={{ padding: '6px 0 8px' }}>
+        {/* Today card */}
+        <div style={{ padding: '0 20px' }}>
+          <div className="wp-card" style={{
+            padding: '20px 20px 18px', position: 'relative', overflow: 'hidden',
+            background: 'var(--wp-ink)', color: '#fff', border: 'none',
+          }}>
+            <div style={{
+              position: 'absolute', top: -60, right: -60, width: 160, height: 160,
+              borderRadius: '50%', pointerEvents: 'none',
+              background: 'radial-gradient(circle, rgba(242,107,58,0.45), rgba(242,107,58,0) 70%)',
+              filter: 'blur(8px)', zIndex: 0,
+            }}/>
+            <div style={{ position: 'relative' }}>
+              <div className="wp-eyebrow" style={{ color: 'var(--wp-orange)' }}>Today · {myGym?.area}</div>
+              <h2 className="wp-h2" style={{ color: '#fff', marginTop: 6, marginBottom: 12 }}>
+                <em style={{ color: 'var(--wp-orange)', fontStyle: 'italic' }}>14 lifters</em> at your gym this week.
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <div style={{ display: 'flex' }}>
+                  {window.WP_PEOPLE.slice(0, 4).map((p, i) => (
+                    <div key={p.id} style={{ marginLeft: i ? -10 : 0, border: '2px solid var(--wp-ink)', borderRadius: 9999 }}>
+                      <Avatar person={p} size={32}/>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>+10 more</div>
+              </div>
+              <button className="wp-btn wp-btn--orange wp-btn--sm" onClick={() => onGoTo('browse')}>
+                Browse them <IconChevR size={14}/>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Daily motivation */}
+        <div style={{ padding: '20px 20px 0' }}>
+          <div style={{
+            padding: '16px 18px', borderRadius: 18,
+            background: 'var(--wp-orange-soft)', display: 'flex', gap: 14, alignItems: 'flex-start',
+          }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 44, color: 'var(--wp-orange)', lineHeight: 0.7, marginTop: -2 }}>“</div>
+            <div>
+              <div style={{ fontFamily: 'var(--font-condensed)', fontSize: 22, lineHeight: 1.15, color: '#5C2C0F', letterSpacing: '0.01em', textTransform: 'uppercase' }}>
+                Showing up beats the perfect program every single day.
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#9B5223', marginTop: 6, letterSpacing: '0.04em' }}>
+                — Daily nudge
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* New at your gym */}
+        <div style={{ padding: '24px 0 0' }}>
+          <div style={{ padding: '0 20px 12px', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.005em' }}>New at your gym</h3>
+            <button onClick={() => onGoTo('browse')} style={{ fontSize: 13, fontWeight: 600, color: 'var(--wp-orange)' }}>See all →</button>
+          </div>
+          <div className="no-scrollbar" style={{ display: 'flex', gap: 12, padding: '0 20px', overflowX: 'auto' }}>
+            {newPeople.map(p => (
+              <button key={p.id} onClick={() => onOpenPerson(p.id)} style={{
+                width: 168, flexShrink: 0, textAlign: 'left',
+                background: '#fff', border: '1px solid var(--wp-line)', borderRadius: 18, overflow: 'hidden',
+              }}>
+                <div style={{ height: 140 }}>
+                  <ProfilePhoto person={p} height={140} rounded={0}/>
+                </div>
+                <div style={{ padding: '10px 12px 12px' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{p.name.split(' ')[0]}, {p.age}</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--wp-mute)', marginTop: 2 }}>{p.level} · {p.split}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Activity */}
+        <div style={{ padding: '24px 20px 0' }}>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '-0.005em' }}>Recent activity</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {window.WP_ACTIVITY.map(a => {
+              const p = peopleById[a.personId];
+              const colors = { pr: 'var(--wp-orange-soft)', streak: 'var(--wp-green-soft)', session: '#EEF2F8', match: 'var(--wp-orange-soft)' };
+              return (
+                <div key={a.id} className="wp-card" style={{ padding: '12px 14px', display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <Avatar person={p} size={42}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, lineHeight: 1.35 }}>
+                      <b>{p.name.split(' ')[0]}</b> <span style={{ color: 'var(--wp-mute)' }}>{a.text}</span>
+                    </div>
+                    <div style={{ fontSize: 11.5, color: 'var(--wp-mute-2)', marginTop: 2 }}>{a.time}</div>
+                  </div>
+                  <div style={{
+                    width: 30, height: 30, borderRadius: 9999,
+                    background: colors[a.kind] || '#EEF2F8', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {a.kind === 'pr' && <IconBolt size={14} color="var(--wp-orange)"/>}
+                    {a.kind === 'streak' && <IconFlame size={14} color="#2D6845"/>}
+                    {a.kind === 'session' && <IconDumbbell size={14} color="var(--wp-mute)"/>}
+                    {a.kind === 'match' && <IconHeart size={14} color="var(--wp-orange)"/>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Premium upsell */}
+        <div style={{ padding: '20px 20px 28px' }}>
+          <div className="wp-card" style={{
+            padding: 18, background: 'linear-gradient(135deg, #FFE4D6, #FFD0B0)',
+            border: 'none', display: 'flex', gap: 14, alignItems: 'center',
+          }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 14, background: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <IconCrown size={24} color="var(--wp-orange)"/>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--wp-ink)' }}>Unlock unlimited matches</div>
+              <div style={{ fontSize: 12.5, color: '#7A3815' }}>2 of 2 free profiles used today · $10/mo</div>
+            </div>
+            <button className="wp-btn wp-btn--orange wp-btn--sm">Upgrade</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// BROWSE — multi-metaphor (swipe / feed / list)
+// ────────────────────────────────────────────────────────────
+function ScreenBrowse({ user, mode, onMetaphorChange, onOpenPerson, onMatch }) {
+  const myGym = window.WP_GYMS.find(g => g.id === user.gym);
+  const people = window.WP_PEOPLE.filter(p => p.gym === user.gym || p.distance.includes('mi'));
+
+  return (
+    <div className="wp-screen">
+      <div style={{ padding: '12px 20px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 className="wp-h1" style={{ fontSize: 30 }}>Browse</h1>
+          <div style={{ fontSize: 13, color: 'var(--wp-mute)', marginTop: 2 }}>
+            <IconPin size={12} color="var(--wp-mute)" /> {myGym?.name.split('—')[0].trim()} · {people.length} people
+          </div>
+        </div>
+        <button style={{ width: 40, height: 40, borderRadius: 9999, background: '#fff', border: '1px solid var(--wp-line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <IconSliders size={18} color="var(--wp-ink)"/>
+        </button>
+      </div>
+
+      {/* Metaphor switcher */}
+      <div style={{ padding: '0 20px 10px' }}>
+        <div style={{ display: 'flex', gap: 4, padding: 4, background: '#EEE3D2', borderRadius: 12 }}>
+          {[
+            { id: 'cards', label: 'Cards', Icon: IconCards },
+            { id: 'feed', label: 'Feed', Icon: IconList },
+            { id: 'list', label: 'Roster', Icon: IconMap },
+          ].map(m => (
+            <button key={m.id} onClick={() => onMetaphorChange(m.id)} style={{
+              flex: 1, height: 34, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              background: mode === m.id ? '#fff' : 'transparent',
+              color: 'var(--wp-ink)', fontSize: 13, fontWeight: 600,
+              boxShadow: mode === m.id ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
+            }}>
+              <m.Icon size={15} color="var(--wp-ink)"/>{m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {mode === 'cards' && <BrowseCards people={people} onOpenPerson={onOpenPerson} onMatch={onMatch}/>}
+      {mode === 'feed' && <BrowseFeed people={people} onOpenPerson={onOpenPerson} onMatch={onMatch}/>}
+      {mode === 'list' && <BrowseList people={people} onOpenPerson={onOpenPerson} onMatch={onMatch}/>}
+    </div>
+  );
+}
+
+// Cards (Tinder-style swipe)
+function BrowseCards({ people, onOpenPerson, onMatch }) {
+  const [idx, setIdx] = useStateApp(0);
+  const [drag, setDrag] = useStateApp({ x: 0, y: 0, active: false });
+  const startRef = useRefApp({ x: 0, y: 0 });
+
+  const onPointerDown = (e) => {
+    startRef.current = { x: e.clientX, y: e.clientY };
+    setDrag({ x: 0, y: 0, active: true });
+  };
+  const onPointerMove = (e) => {
+    if (!drag.active) return;
+    setDrag({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y, active: true });
+  };
+  const onPointerUp = () => {
+    if (Math.abs(drag.x) > 90) {
+      const liked = drag.x > 0;
+      if (liked && Math.random() > 0.5) onMatch?.(people[idx]);
+      setIdx(i => Math.min(i + 1, people.length));
+    }
+    setDrag({ x: 0, y: 0, active: false });
+  };
+
+  if (idx >= people.length) {
+    return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+        <div style={{ fontSize: 56, marginBottom: 12 }}>🏁</div>
+        <div className="wp-h2">You've seen everyone.</div>
+        <p style={{ fontSize: 14, color: 'var(--wp-mute)', marginTop: 8, maxWidth: 260 }}>New lifters check in daily. We'll ping you when someone new arrives at your gym.</p>
+        <button className="wp-btn wp-btn--orange wp-btn--sm" style={{ marginTop: 18 }} onClick={() => setIdx(0)}>Start over</button>
+      </div>
+    );
+  }
+
+  const top = people[idx];
+  const next = people[idx + 1];
+  const rotation = drag.x * 0.06;
+  const likeOpacity = Math.max(0, Math.min(1, drag.x / 100));
+  const nopeOpacity = Math.max(0, Math.min(1, -drag.x / 100));
+
+  return (
+    <div style={{ flex: 1, padding: '6px 20px 12px', position: 'relative', overflow: 'hidden' }}>
+      {/* next card behind */}
+      {next && (
+        <div style={{
+          position: 'absolute', inset: '6px 28px 80px', borderRadius: 24,
+          transform: 'scale(0.95)', opacity: 0.7, pointerEvents: 'none',
+        }}>
+          <CardFace person={next} compact/>
+        </div>
+      )}
+      {/* top card */}
+      <div
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onClick={() => Math.abs(drag.x) < 5 && onOpenPerson(top.id)}
+        style={{
+          position: 'absolute', inset: '6px 20px 80px', borderRadius: 24,
+          transform: `translate(${drag.x}px, ${drag.y * 0.4}px) rotate(${rotation}deg)`,
+          transition: drag.active ? 'none' : 'transform .35s cubic-bezier(.2,1.2,.4,1)',
+          touchAction: 'none', userSelect: 'none',
+        }}>
+        <CardFace person={top} likeOpacity={likeOpacity} nopeOpacity={nopeOpacity}/>
+      </div>
+
+      {/* Swipe action buttons */}
+      <div style={{
+        position: 'absolute', bottom: 16, left: 0, right: 0,
+        display: 'flex', justifyContent: 'center', gap: 18, pointerEvents: 'none',
+      }}>
+        <button onClick={() => setIdx(i => i + 1)} style={{
+          pointerEvents: 'auto', width: 56, height: 56, borderRadius: 9999,
+          background: '#fff', border: '1.5px solid var(--wp-line)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: 'var(--shadow-card)',
+        }}>
+          <IconClose size={24} color="var(--wp-mute)"/>
+        </button>
+        <button onClick={() => onOpenPerson(top.id)} style={{
+          pointerEvents: 'auto', width: 50, height: 50, borderRadius: 9999,
+          background: '#fff', border: '1.5px solid var(--wp-line)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: 'var(--shadow-card)',
+        }}>
+          <IconUser size={20} color="var(--wp-ink)"/>
+        </button>
+        <button onClick={() => { onMatch?.(top); setIdx(i => i + 1); }} style={{
+          pointerEvents: 'auto', width: 56, height: 56, borderRadius: 9999,
+          background: 'var(--wp-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 6px 18px rgba(242,107,58,0.4)',
+        }}>
+          <IconDumbbell size={24} color="#fff"/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CardFace({ person, likeOpacity = 0, nopeOpacity = 0, compact }) {
+  return (
+    <div style={{
+      width: '100%', height: '100%', borderRadius: 24, overflow: 'hidden',
+      background: '#fff', border: '1px solid var(--wp-line)',
+      boxShadow: '0 4px 16px rgba(11,31,58,0.08), 0 18px 40px rgba(11,31,58,0.10)',
+      position: 'relative', display: 'flex', flexDirection: 'column',
+    }}>
+      <div style={{ flex: 1, position: 'relative' }}>
+        <ProfilePhoto person={person} height="100%" rounded={0}/>
+        {/* Same gym badge */}
+        <div style={{
+          position: 'absolute', top: 14, left: 14,
+          background: 'rgba(255,255,255,0.95)', borderRadius: 9999,
+          padding: '5px 10px', fontSize: 11, fontWeight: 700, color: 'var(--wp-ink)',
+          display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap',
+        }}>
+          <div style={{ width: 6, height: 6, borderRadius: 9999, background: 'var(--wp-green)' }}/>
+          {person.distance}
+        </div>
+        {/* LIKE / NOPE overlays */}
+        {!compact && (
+          <>
+            <div style={{
+              position: 'absolute', top: 32, right: 24, padding: '8px 14px',
+              border: '3px solid var(--wp-green)', color: 'var(--wp-green)',
+              fontSize: 22, fontWeight: 800, letterSpacing: '0.05em',
+              borderRadius: 10, transform: 'rotate(15deg)', opacity: likeOpacity,
+              background: 'rgba(255,255,255,0.9)',
+            }}>LIFT</div>
+            <div style={{
+              position: 'absolute', top: 32, left: 24, padding: '8px 14px',
+              border: '3px solid #C7415B', color: '#C7415B',
+              fontSize: 22, fontWeight: 800, letterSpacing: '0.05em',
+              borderRadius: 10, transform: 'rotate(-15deg)', opacity: nopeOpacity,
+              background: 'rgba(255,255,255,0.9)',
+            }}>PASS</div>
+          </>
+        )}
+        {/* Bottom info */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '40px 18px 18px',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0))',
+          color: '#fff',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>{person.name}</div>
+            <div style={{ fontSize: 16, opacity: 0.7 }}>{person.age}</div>
+          </div>
+          <div style={{ fontSize: 12.5, opacity: 0.85, marginTop: 6, lineHeight: 1.4 }}>
+            {person.level} · {person.split}<br/>{person.schedule}
+          </div>
+        </div>
+      </div>
+      {!compact && (
+        <div style={{ padding: '14px 18px 16px', background: '#fff' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+            {person.goals.map(g => <span key={g} className="wp-chip wp-chip--orange">{g}</span>)}
+            {person.vibe.slice(0, 2).map(v => <span key={v} className="wp-chip wp-chip--green">{v}</span>)}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--wp-mute)', lineHeight: 1.4 }}>
+            {person.bio}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Feed (vertical scrolling cards)
+function BrowseFeed({ people, onOpenPerson, onMatch }) {
+  return (
+    <div className="wp-scroll" style={{ padding: '6px 20px 16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {people.map(p => (
+          <div key={p.id} className="wp-card" style={{ overflow: 'hidden' }}>
+            <button onClick={() => onOpenPerson(p.id)} style={{ width: '100%', textAlign: 'left' }}>
+              <ProfilePhoto person={p} height={300} rounded={0}/>
+            </button>
+            <div style={{ padding: '14px 16px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+                <div>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1, textTransform: 'uppercase', letterSpacing: '-0.005em' }}>{p.name}</span>
+                  <span style={{ fontSize: 16, color: 'var(--wp-mute)', marginLeft: 6 }}>{p.age}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--wp-mute)' }}>
+                  <IconStar size={14} color="var(--wp-orange)"/>{p.rating}
+                </div>
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--wp-mute)', marginBottom: 10 }}>
+                {p.level} · {p.split} · {p.schedule}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                {p.goals.slice(0, 2).map(g => <span key={g} className="wp-chip wp-chip--orange">{g}</span>)}
+                {p.vibe.slice(0, 1).map(v => <span key={v} className="wp-chip wp-chip--green">{v}</span>)}
+              </div>
+              <p style={{ fontSize: 13.5, color: 'var(--wp-ink)', lineHeight: 1.45, margin: '0 0 14px' }}>{p.bio}</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="wp-btn wp-btn--ghost wp-btn--sm" style={{ flex: 1, background: '#fff' }} onClick={() => onOpenPerson(p.id)}>View profile</button>
+                <button className="wp-btn wp-btn--orange wp-btn--sm" style={{ flex: 1 }} onClick={() => onMatch?.(p)}>
+                  <IconDumbbell size={15} color="#fff"/> Lift together
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// List / Roster (compact rows)
+function BrowseList({ people, onOpenPerson, onMatch }) {
+  const buckets = useMemo(() => {
+    const b = { 'Beginner': [], 'Intermediate': [], 'Advanced': [] };
+    people.forEach(p => b[p.level]?.push(p));
+    return b;
+  }, [people]);
+  return (
+    <div className="wp-scroll" style={{ padding: '6px 20px 16px' }}>
+      {Object.entries(buckets).map(([lvl, list]) => list.length ? (
+        <div key={lvl} style={{ marginBottom: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div className="wp-eyebrow">{lvl}</div>
+            <div style={{ fontSize: 12, color: 'var(--wp-mute)' }}>{list.length} {list.length === 1 ? 'person' : 'people'}</div>
+          </div>
+          <div className="wp-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {list.map((p, i) => (
+              <div key={p.id} style={{
+                padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12,
+                borderTop: i ? '1px solid var(--wp-line)' : 'none',
+              }}>
+                <button onClick={() => onOpenPerson(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, textAlign: 'left' }}>
+                  <Avatar person={p} size={48}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                      <span style={{ fontSize: 14.5, fontWeight: 700 }}>{p.name}</span>
+                      <span style={{ fontSize: 12, color: 'var(--wp-mute)' }}>{p.age}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--wp-mute)', marginTop: 2 }}>
+                      {p.split} · {p.schedule}
+                    </div>
+                    <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                      {p.goals.slice(0, 2).map(g => (
+                        <span key={g} style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--wp-orange)', background: 'var(--wp-orange-soft)', padding: '2px 7px', borderRadius: 9999 }}>{g}</span>
+                      ))}
+                    </div>
+                  </div>
+                </button>
+                <button onClick={() => onMatch?.(p)} style={{
+                  width: 38, height: 38, borderRadius: 9999,
+                  background: 'var(--wp-orange-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <IconDumbbell size={18} color="var(--wp-orange)"/>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null)}
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// PROFILE DETAIL (modal)
+// ────────────────────────────────────────────────────────────
+function ProfileDetail({ person, onClose, onMatch }) {
+  if (!person) return null;
+  return (
+    <div className="wp-screen" style={{ position: 'absolute', inset: 0, zIndex: 50, animation: 'wp-fade-up .25s ease both' }}>
+      <div className="wp-scroll">
+        <div style={{ position: 'relative' }}>
+          <ProfilePhoto person={person} height={420} rounded={0}/>
+          <button onClick={onClose} style={{
+            position: 'absolute', top: 14, left: 14, width: 38, height: 38, borderRadius: 9999,
+            background: 'rgba(255,255,255,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          }}>
+            <IconBack size={18} color="var(--wp-ink)"/>
+          </button>
+          <button style={{
+            position: 'absolute', top: 14, right: 14, width: 38, height: 38, borderRadius: 9999,
+            background: 'rgba(255,255,255,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <IconMore size={18} color="var(--wp-ink)"/>
+          </button>
+        </div>
+        <div style={{ padding: '20px 22px 28px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <h1 className="wp-h1" style={{ fontSize: 36 }}>{person.name}</h1>
+            <span style={{ fontSize: 22, color: 'var(--wp-mute)' }}>{person.age}</span>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', marginTop: 6, fontSize: 13, color: 'var(--wp-mute)' }}>
+            <IconPin size={14} color="var(--wp-mute)"/>{person.distance}
+            <span>·</span>
+            <IconClock size={14} color="var(--wp-mute)"/>{person.schedule}
+          </div>
+
+          {/* stats row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 18 }}>
+            <Stat label="Rating" value={person.rating} icon={<IconStar size={14} color="var(--wp-orange)"/>}/>
+            <Stat label="Sessions" value={person.sessions}/>
+            <Stat label="Streak" value={`${person.streak}d`} icon={<IconFlame size={14} color="var(--wp-orange)"/>}/>
+          </div>
+
+          <Section title="About">
+            <p style={{ fontSize: 15, lineHeight: 1.55, margin: 0, color: 'var(--wp-ink)' }}>{person.bio}</p>
+          </Section>
+
+          <Section title="Training">
+            <Row label="Level" value={person.level}/>
+            <Row label="Split" value={person.split}/>
+            <Row label="Schedule" value={person.schedule}/>
+          </Section>
+
+          <Section title="Goals">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {person.goals.map(g => <span key={g} className="wp-chip wp-chip--orange">{g}</span>)}
+            </div>
+          </Section>
+
+          <Section title="Vibe">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {person.vibe.map(v => <span key={v} className="wp-chip wp-chip--green">{v}</span>)}
+            </div>
+          </Section>
+
+          <div style={{ height: 80 }}/>
+        </div>
+      </div>
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        padding: '14px 22px 28px', borderTop: '1px solid var(--wp-line)',
+        background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(10px)',
+        display: 'flex', gap: 10,
+      }}>
+        <button className="wp-btn wp-btn--ghost" style={{ flex: 0, padding: '0 18px', background: '#fff' }} onClick={onClose}>Pass</button>
+        <button className="wp-btn wp-btn--orange" style={{ flex: 1 }} onClick={() => { onMatch?.(person); onClose(); }}>
+          <IconDumbbell size={18} color="#fff"/> Lift with {person.name.split(' ')[0]}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, icon }) {
+  return (
+    <div style={{ background: '#fff', border: '1px solid var(--wp-line)', borderRadius: 14, padding: '10px 12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 18, fontWeight: 700 }}>
+        {icon}{value}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--wp-mute)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 2 }}>{label}</div>
+    </div>
+  );
+}
+function Section({ title, children }) {
+  return (
+    <div style={{ marginTop: 22 }}>
+      <div className="wp-eyebrow" style={{ marginBottom: 10 }}>{title}</div>
+      {children}
+    </div>
+  );
+}
+function Row({ label, value }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--wp-line)' }}>
+      <span style={{ fontSize: 13, color: 'var(--wp-mute)' }}>{label}</span>
+      <span style={{ fontSize: 14, fontWeight: 600 }}>{value}</span>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// MATCHES
+// ────────────────────────────────────────────────────────────
+function ScreenMatches({ onOpenChat, onOpenPerson }) {
+  const peopleById = Object.fromEntries(window.WP_PEOPLE.map(p => [p.id, p]));
+  const newMatches = window.WP_PEOPLE.slice(0, 6);
+  return (
+    <div className="wp-screen">
+      <div style={{ padding: '12px 20px 6px' }}>
+        <h1 className="wp-h1" style={{ fontSize: 32 }}>Matches</h1>
+      </div>
+      <div className="wp-scroll" style={{ padding: '6px 0 8px' }}>
+        <div style={{ padding: '6px 20px 0' }}>
+          <div className="wp-eyebrow" style={{ marginBottom: 10 }}>New · {newMatches.length}</div>
+          <div className="no-scrollbar" style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 6 }}>
+            {newMatches.map(p => (
+              <button key={p.id} onClick={() => onOpenPerson(p.id)} style={{ textAlign: 'center', flexShrink: 0, width: 78 }}>
+                <div style={{
+                  padding: 3, borderRadius: 9999,
+                  background: 'linear-gradient(135deg, var(--wp-orange), var(--wp-green))',
+                }}>
+                  <div style={{ background: 'var(--wp-cream)', borderRadius: 9999, padding: 2 }}>
+                    <Avatar person={p} size={66}/>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginTop: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name.split(' ')[0]}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding: '20px 20px 0' }}>
+          <div className="wp-eyebrow" style={{ marginBottom: 10 }}>Chats</div>
+          <div className="wp-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {window.WP_THREADS.map((t, i) => {
+              const p = peopleById[t.personId];
+              return (
+                <button key={t.id} onClick={() => onOpenChat(t.id)} style={{
+                  width: '100%', padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12,
+                  borderTop: i ? '1px solid var(--wp-line)' : 'none', textAlign: 'left',
+                }}>
+                  <Avatar person={p} size={50}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ fontSize: 14.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
+                      <span style={{ fontSize: 11, color: 'var(--wp-mute-2)', flexShrink: 0 }}>{t.lastTime}</span>
+                    </div>
+                    <div style={{ fontSize: 13, color: t.unread ? 'var(--wp-ink)' : 'var(--wp-mute)', fontWeight: t.unread ? 600 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 2 }}>
+                      {t.last}
+                    </div>
+                  </div>
+                  {t.unread > 0 && (
+                    <div style={{
+                      minWidth: 22, height: 22, padding: '0 7px', borderRadius: 9999,
+                      background: 'var(--wp-orange)', color: '#fff', fontSize: 11, fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{t.unread}</div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// CHAT
+// ────────────────────────────────────────────────────────────
+function ScreenChat({ threadId, onBack }) {
+  const thread = window.WP_THREADS.find(t => t.id === threadId);
+  const person = window.WP_PEOPLE.find(p => p.id === thread?.personId);
+  const [msgs, setMsgs] = useStateApp(thread?.messages || []);
+  const [input, setInput] = useStateApp('');
+  const scrollRef = useRefApp(null);
+
+  useEffectApp(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [msgs]);
+
+  const send = () => {
+    if (!input.trim()) return;
+    setMsgs(m => [...m, { from: 'me', text: input, time: 'now' }]);
+    setInput('');
+    setTimeout(() => {
+      setMsgs(m => [...m, { from: 'them', text: 'Sounds good — see you there 💪', time: 'now' }]);
+    }, 1100);
+  };
+
+  if (!thread) return null;
+
+  return (
+    <div className="wp-screen">
+      {/* Header */}
+      <div style={{ padding: '8px 14px 10px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid var(--wp-line)', background: '#fff' }}>
+        <button onClick={onBack} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <IconBack size={20} color="var(--wp-ink)"/>
+        </button>
+        <Avatar person={person} size={38}/>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.1 }}>{person.name}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--wp-green)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+            <span className="wp-dot" style={{ width: 6, height: 6 }}/> at the gym now
+          </div>
+        </div>
+        <button style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <IconMore size={20} color="var(--wp-ink)"/>
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} className="wp-scroll" style={{ padding: '14px 16px 8px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {/* Match banner */}
+        <div style={{
+          textAlign: 'center', padding: '10px 14px',
+          background: 'var(--wp-orange-soft)', borderRadius: 14,
+          fontSize: 12.5, color: '#7A3815', margin: '4px auto 8px', maxWidth: 280,
+        }}>
+          You matched 3 days ago · Both train at Planet Fitness Southside
+        </div>
+
+        {msgs.map((m, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: m.from === 'me' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              maxWidth: '76%', padding: '10px 14px',
+              borderRadius: m.from === 'me' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+              background: m.from === 'me' ? 'var(--wp-ink)' : '#fff',
+              color: m.from === 'me' ? '#fff' : 'var(--wp-ink)',
+              border: m.from === 'me' ? 'none' : '1px solid var(--wp-line)',
+              fontSize: 14.5, lineHeight: 1.4,
+            }}>{m.text}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick reply chips */}
+      <div className="no-scrollbar" style={{ display: 'flex', gap: 8, padding: '6px 16px 8px', overflowX: 'auto' }}>
+        {['📅 Lift today?', '6am works', '🤝 Spot me?', 'Running 10 late'].map(q => (
+          <button key={q} onClick={() => setInput(q)} style={{
+            padding: '8px 14px', borderRadius: 9999, background: '#fff',
+            border: '1px solid var(--wp-line)', fontSize: 13, fontWeight: 500,
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>{q}</button>
+        ))}
+      </div>
+
+      {/* Composer */}
+      <div style={{ padding: '6px 12px 18px', display: 'flex', gap: 8, alignItems: 'center', background: 'var(--wp-cream)', borderTop: '1px solid var(--wp-line)' }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && send()}
+          placeholder="Message…"
+          style={{
+            flex: 1, height: 44, background: '#fff',
+            border: '1px solid var(--wp-line)', borderRadius: 9999,
+            padding: '0 18px', fontSize: 14.5, outline: 'none', color: 'var(--wp-ink)',
+          }}
+        />
+        <button onClick={send} style={{
+          width: 44, height: 44, borderRadius: 9999, background: 'var(--wp-orange)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 12px rgba(242,107,58,0.35)',
+        }}>
+          <IconSend size={18} color="#fff"/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// ME (profile)
+// ────────────────────────────────────────────────────────────
+function ScreenMe({ user, onLogout }) {
+  const myPerson = {
+    id: 'me', name: 'Alex Morgan', age: 29, hue: 24,
+  };
+  const myGym = window.WP_GYMS.find(g => g.id === user.gym);
+  return (
+    <div className="wp-screen">
+      <div className="wp-scroll" style={{ padding: '12px 20px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+          <h1 className="wp-h1" style={{ fontSize: 32 }}>You</h1>
+          <button style={{ width: 40, height: 40, borderRadius: 9999, background: '#fff', border: '1px solid var(--wp-line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IconSliders size={18} color="var(--wp-ink)"/>
+          </button>
+        </div>
+
+        {/* Hero card */}
+        <div className="wp-card" style={{ padding: 0, overflow: 'hidden' }}>
+          <ProfilePhoto person={myPerson} height={220} rounded={0}/>
+          <div style={{ padding: '16px 18px' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+              <h2 className="wp-h2" style={{ fontSize: 24 }}>Alex Morgan</h2>
+              <span style={{ fontSize: 14, color: 'var(--wp-mute)' }}>· {user.level || 'Intermediate'}</span>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--wp-mute)', marginTop: 4 }}>
+              <IconPin size={12} color="var(--wp-mute)"/> {myGym?.name}
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+              <button className="wp-btn wp-btn--ghost wp-btn--sm" style={{ flex: 1, background: '#fff' }}>Edit profile</button>
+              <button className="wp-btn wp-btn--sm" style={{ flex: 1, background: 'var(--wp-ink)' }}>Preview</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 14 }}>
+          <Stat label="Streak" value="9d" icon={<IconFlame size={14} color="var(--wp-orange)"/>}/>
+          <Stat label="Sessions" value="34"/>
+          <Stat label="Matches" value="7"/>
+        </div>
+
+        {/* Premium upsell */}
+        <div className="wp-card" style={{
+          marginTop: 18, padding: 18, background: 'var(--wp-ink)', color: '#fff', border: 'none',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{
+            position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(242,107,58,0.4), rgba(242,107,58,0) 70%)',
+          }}/>
+          <div style={{ position: 'relative' }}>
+            <div className="wp-eyebrow" style={{ color: 'var(--wp-orange)' }}>Patna Plus</div>
+            <h3 className="wp-h2" style={{ color: '#fff', fontSize: 22, marginTop: 4 }}>
+              Unlimited matches. <em style={{ color: 'var(--wp-orange)', fontStyle: 'italic' }}>$10/mo.</em>
+            </h3>
+            <ul style={{ margin: '12px 0', padding: 0, listStyle: 'none', fontSize: 13.5, opacity: 0.85, lineHeight: 1.7 }}>
+              <li>· See who lifted you</li>
+              <li>· Filter by schedule + split</li>
+              <li>· Verified badge</li>
+            </ul>
+            <button className="wp-btn wp-btn--orange wp-btn--sm">Upgrade — $10/mo</button>
+          </div>
+        </div>
+
+        {/* Settings list */}
+        <div style={{ marginTop: 18 }}>
+          <div className="wp-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {[
+              ['My gyms', myGym?.area],
+              ['Schedule', 'Weekday 6–7am'],
+              ['Privacy', 'Visible to gym'],
+              ['Notifications', 'On'],
+              ['Help & safety', null],
+            ].map(([label, val], i) => (
+              <button key={label} style={{
+                width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                borderTop: i ? '1px solid var(--wp-line)' : 'none', textAlign: 'left',
+              }}>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>{label}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--wp-mute)' }}>
+                  {val}<IconChevR size={16} color="var(--wp-mute-2)"/>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={onLogout} style={{ width: '100%', padding: '14px', marginTop: 12, fontSize: 13.5, color: 'var(--wp-mute)', fontWeight: 600 }}>
+          Sign out
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
+// MATCH POPUP
+// ────────────────────────────────────────────────────────────
+function MatchPopup({ person, onClose, onMessage }) {
+  if (!person) return null;
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, zIndex: 60,
+      background: 'rgba(11,31,58,0.85)', backdropFilter: 'blur(8px)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: 32,
+    }}>
+      <div className="wp-pop" style={{ textAlign: 'center', color: '#fff', marginBottom: 24 }}>
+        <div style={{
+          fontFamily: 'var(--font-display)', fontWeight: 900,
+          fontSize: 64, lineHeight: 1, color: 'var(--wp-orange)', textTransform: 'uppercase', letterSpacing: '-0.02em',
+        }}>It's a Lift!</div>
+        <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 8 }}>
+          You and {person.name.split(' ')[0]} both want to train together.
+        </div>
+      </div>
+      <div className="wp-pop" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28, animationDelay: '.1s' }}>
+        <div style={{ padding: 4, borderRadius: 9999, background: 'var(--wp-orange)' }}>
+          <Avatar person={{ name: 'Alex Morgan', hue: 24 }} size={86}/>
+        </div>
+        <div style={{ fontSize: 32 }}>🤝</div>
+        <div style={{ padding: 4, borderRadius: 9999, background: 'var(--wp-orange)' }}>
+          <Avatar person={person} size={86}/>
+        </div>
+      </div>
+      <button className="wp-btn wp-btn--orange wp-pop" style={{ width: '100%', maxWidth: 280, animationDelay: '.2s' }} onClick={onMessage}>
+        <IconChat size={18} color="#fff"/> Send a message
+      </button>
+      <button onClick={onClose} style={{ marginTop: 12, padding: 12, fontSize: 13.5, color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>
+        Keep browsing
+      </button>
+    </div>
+  );
+}
+
+Object.assign(window, {
+  Avatar, ProfilePhoto, TabBar,
+  ScreenHome, ScreenBrowse, ScreenMatches, ScreenChat, ScreenMe,
+  ProfileDetail, MatchPopup,
+});
+
+})();
+</script>
+<script type="text/babel">
+(function(){
+// Workout Patna — root app (router + tweaks)
+
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "matchMode": "cards",
+  "palette": "default",
+  "density": "comfortable",
+  "startScreen": "auth"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaks, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+
+  // Top-level route
+  const [route, setRoute] = useState(tweaks.startScreen || 'auth'); // auth | onboard | app
+  const [authMode, setAuthMode] = useState('signup');
+
+  // Onboarding state
+  const [onbStep, setOnbStep] = useState(1);
+  const [onb, setOnb] = useState({ gym: null, level: null, goals: [], vibe: [] });
+
+  // App state
+  const [tab, setTab] = useState('home');
+  const [openPersonId, setOpenPersonId] = useState(null);
+  const [openThreadId, setOpenThreadId] = useState(null);
+  const [matchedPerson, setMatchedPerson] = useState(null);
+
+  const user = { gym: onb.gym || 'planet-southside', level: onb.level || 'Intermediate' };
+
+  // Apply palette class to wrapper
+  const paletteCls = tweaks.palette === 'dusk' ? 'palette-dusk'
+                    : tweaks.palette === 'court' ? 'palette-court' : '';
+
+  // Onboarding navigation
+  const onbNext = () => {
+    if (onbStep < 4) setOnbStep(onbStep + 1);
+    else setRoute('app');
+  };
+  const onbBack = () => {
+    if (onbStep > 1) setOnbStep(onbStep - 1);
+    else setRoute('auth');
+  };
+
+  let screen;
+  if (route === 'auth') {
+    screen = <ScreenAuth mode={authMode} setMode={setAuthMode} onContinue={() => { setRoute('onboard'); setOnbStep(1); }}/>;
+  } else if (route === 'onboard') {
+    const shellProps = {
+      step: onbStep, total: 4,
+      onBack: onbBack,
+      onNext: onbNext,
+      onSkip: onbStep === 4 ? null : () => setOnbStep(onbStep + 1),
+    };
+    if (onbStep === 1) screen = <ScreenOnboardGym {...shellProps} value={onb.gym} setValue={(v) => setOnb({ ...onb, gym: v })} nextDisabled={!onb.gym}/>;
+    else if (onbStep === 2) screen = <ScreenOnboardLevel {...shellProps} value={onb.level} setValue={(v) => setOnb({ ...onb, level: v })} nextDisabled={!onb.level}/>;
+    else if (onbStep === 3) screen = <ScreenOnboardGoals {...shellProps} value={onb.goals} setValue={(v) => setOnb({ ...onb, goals: v })} nextDisabled={onb.goals.length === 0}/>;
+    else screen = <ScreenOnboardVibe {...shellProps} value={onb.vibe} setValue={(v) => setOnb({ ...onb, vibe: v })} nextDisabled={onb.vibe.length === 0}/>;
+  } else {
+    // app
+    if (openThreadId) {
+      screen = <ScreenChat threadId={openThreadId} onBack={() => setOpenThreadId(null)}/>;
+    } else {
+      const tabScreen = (() => {
+        if (tab === 'home') return <ScreenHome user={user} onOpenPerson={setOpenPersonId} onGoTo={setTab}/>;
+        if (tab === 'browse') return <ScreenBrowse user={user} mode={tweaks.matchMode} onMetaphorChange={(m) => setTweak('matchMode', m)} onOpenPerson={setOpenPersonId} onMatch={setMatchedPerson}/>;
+        if (tab === 'matches') return <ScreenMatches onOpenChat={setOpenThreadId} onOpenPerson={setOpenPersonId}/>;
+        if (tab === 'chat') return <ScreenMatches onOpenChat={setOpenThreadId} onOpenPerson={setOpenPersonId}/>;
+        if (tab === 'me') return <ScreenMe user={user} onLogout={() => setRoute('auth')}/>;
+      })();
+
+      screen = (
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+            {tabScreen}
+          </div>
+          <TabBar active={tab} onChange={setTab} badge={{ matches: 6, chat: 2 }}/>
+        </div>
+      );
+    }
+  }
+
+  // Profile detail overlay (works across tabs)
+  const openPerson = openPersonId ? window.WP_PEOPLE.find(p => p.id === openPersonId) : null;
+
+  return (
+    <div className={paletteCls} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <window.IOSDevice width={402} height={874} dark={route === 'auth'} dynamicIsland>
+        <div style={{ width: '100%', height: '100%', position: 'relative', background: 'var(--wp-cream)' }}>
+          {screen}
+          {openPerson && route === 'app' && (
+            <ProfileDetail
+              person={openPerson}
+              onClose={() => setOpenPersonId(null)}
+              onMatch={(p) => { setMatchedPerson(p); }}
+            />
+          )}
+          {matchedPerson && (
+            <MatchPopup
+              person={matchedPerson}
+              onClose={() => setMatchedPerson(null)}
+              onMessage={() => {
+                setMatchedPerson(null);
+                setOpenPersonId(null);
+                // open existing thread if exists else 1st
+                const existing = window.WP_THREADS.find(t => t.personId === matchedPerson.id);
+                setOpenThreadId(existing ? existing.id : window.WP_THREADS[0].id);
+                setTab('chat');
+              }}
+            />
+          )}
+        </div>
+      </window.IOSDevice>
+
+      {/* Tweaks panel */}
+      <window.TweaksPanel title="Tweaks">
+        <window.TweakSection label="Match metaphor"/>
+        <window.TweakRadio
+          label="Browse style"
+          value={tweaks.matchMode}
+          onChange={(v) => setTweak('matchMode', v)}
+          options={[
+            { value: 'cards', label: 'Cards' },
+            { value: 'feed', label: 'Feed' },
+            { value: 'list', label: 'Roster' },
+          ]}
+        />
+        <window.TweakSection label="Palette"/>
+        <window.TweakRadio
+          label="Color"
+          value={tweaks.palette}
+          onChange={(v) => setTweak('palette', v)}
+          options={[
+            { value: 'default', label: 'Default' },
+            { value: 'dusk', label: 'Dusk' },
+            { value: 'court', label: 'Court' },
+          ]}
+        />
+        <window.TweakSection label="Jump to"/>
+        <window.TweakButton label="Auth screen" onClick={() => { setRoute('auth'); }}/>
+        <window.TweakButton label="Onboarding" onClick={() => { setRoute('onboard'); setOnbStep(1); }}/>
+        <window.TweakButton label="Home" onClick={() => { setRoute('app'); setTab('home'); }}/>
+        <window.TweakButton label="Browse" onClick={() => { setRoute('app'); setTab('browse'); }}/>
+        <window.TweakButton label="Matches" onClick={() => { setRoute('app'); setTab('matches'); }}/>
+        <window.TweakButton label="Open chat" onClick={() => { setRoute('app'); setOpenThreadId('t1'); }}/>
+        <window.TweakButton label="Me" onClick={() => { setRoute('app'); setTab('me'); }}/>
+      </window.TweaksPanel>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+
+})();
+</script>
+</body>
+</html>
