@@ -1,4 +1,4 @@
-// WorkoutPatna — Homepage
+// WorkoutPartna, Homepage
 // Answer-engine optimized content structure.
 // Headings, FAQs, and answer-first paragraphs make this AI-citation friendly.
 
@@ -9,28 +9,28 @@ export default function HomePage() {
       <section aria-labelledby="hero-heading">
         <h1 id="hero-heading">Find Your Gym Partner in Houston</h1>
         <p>
-          WorkoutPatna is the fitness social network that connects you with workout
+          WorkoutPartna is the fitness social network that connects you with workout
           partners at gyms, apartment fitness centers, community centers, parks, and
-          run clubs near you. Built for accountability — not for finding trainers.
+          run clubs near you. Built for accountability, not for finding trainers.
         </p>
         <a href="/signup">Get Started Free</a>
       </section>
 
-      {/* ── What is WorkoutPatna ──────────────────────────────────────── */}
+      {/* ── What is WorkoutPartna ──────────────────────────────────────── */}
       <section aria-labelledby="what-heading">
-        <h2 id="what-heading">What is WorkoutPatna?</h2>
+        <h2 id="what-heading">What is WorkoutPartna?</h2>
         <p>
-          WorkoutPatna is a local fitness social networking app that helps people find
+          WorkoutPartna is a local fitness social networking app that helps people find
           workout partners at their gym, apartment fitness center, community recreation
           center, neighborhood park, or run club. It is designed for everyday fitness
-          people who want consistency, accountability, and community — not personal
+          people who want consistency, accountability, and community, not personal
           training services.
         </p>
       </section>
 
       {/* ── How it Works ─────────────────────────────────────────────── */}
       <section aria-labelledby="how-heading">
-        <h2 id="how-heading">How WorkoutPatna Helps You Find a Workout Partner</h2>
+        <h2 id="how-heading">How WorkoutPartna Helps You Find a Workout Partner</h2>
         <ol>
           <li>
             <strong>Choose your location.</strong> Select your gym, apartment fitness
@@ -38,7 +38,7 @@ export default function HomePage() {
             surrounding areas.
           </li>
           <li>
-            <strong>Set your workout style and goals.</strong> Let WorkoutPatna know
+            <strong>Set your workout style and goals.</strong> Let WorkoutPartna know
             your schedule, fitness level, and what you are working toward.
           </li>
           <li>
@@ -56,27 +56,27 @@ export default function HomePage() {
       <section aria-labelledby="locations-heading">
         <h2 id="locations-heading">Find Workout Partners at Any Fitness Location</h2>
         <p>
-          WorkoutPatna works across every type of fitness space in your community:
+          WorkoutPartna works across every type of fitness space in your community:
         </p>
         <ul>
           <li>
-            <strong>Gyms and fitness centers</strong> — Planet Fitness, LA Fitness,
+            <strong>Gyms and fitness centers</strong>, Planet Fitness, LA Fitness,
             EOS Fitness, local independent gyms, and boutique studios
           </li>
           <li>
-            <strong>Apartment complex fitness centers</strong> — Connect with neighbors
+            <strong>Apartment complex fitness centers</strong>, Connect with neighbors
             who use the same residential gym
           </li>
           <li>
-            <strong>Community and recreation centers</strong> — YMCAs, city rec
+            <strong>Community and recreation centers</strong>, YMCAs, city rec
             centers, and public fitness facilities
           </li>
           <li>
-            <strong>Parks and outdoor workout areas</strong> — Find running partners,
+            <strong>Parks and outdoor workout areas</strong>, Find running partners,
             outdoor bootcamp groups, and trail workout communities
           </li>
           <li>
-            <strong>Run clubs</strong> — Discover local run clubs and outdoor fitness
+            <strong>Run clubs</strong>, Discover local run clubs and outdoor fitness
             groups near you
           </li>
         </ul>
@@ -84,16 +84,16 @@ export default function HomePage() {
 
       {/* ── Who it's for ─────────────────────────────────────────────── */}
       <section aria-labelledby="who-heading">
-        <h2 id="who-heading">Who is WorkoutPatna For?</h2>
+        <h2 id="who-heading">Who is WorkoutPartna For?</h2>
         <p>
-          WorkoutPatna is for anyone who works out and wants a partner to make it
+          WorkoutPartna is for anyone who works out and wants a partner to make it
           more consistent and more fun. Whether you go to a gym three times a week,
           run your neighborhood every morning, or use the fitness center in your
-          apartment complex, WorkoutPatna helps you find someone with the same
+          apartment complex, WorkoutPartna helps you find someone with the same
           schedule and energy.
         </p>
         <p>
-          WorkoutPatna is <strong>not</strong> a personal trainer marketplace or a
+          WorkoutPartna is <strong>not</strong> a personal trainer marketplace or a
           fitness coaching platform. It is a social fitness app built around community,
           accountability, and local connection.
         </p>
@@ -106,8 +106,8 @@ export default function HomePage() {
         </h2>
         <p>
           Research consistently shows that people who work out with a partner are more
-          consistent, push harder, and stick to their routines longer. WorkoutPatna
-          makes it easy to find that partner at your exact gym or fitness location —
+          consistent, push harder, and stick to their routines longer. WorkoutPartna
+          makes it easy to find that partner at your exact gym or fitness location , 
           so skipping is no longer an option.
         </p>
       </section>
@@ -115,13 +115,13 @@ export default function HomePage() {
       {/* ── Houston / Cypress ─────────────────────────────────────────── */}
       <section aria-labelledby="houston-heading">
         <h2 id="houston-heading">
-          Launching in Houston — Starting in Cypress, TX
+          Launching in Houston, Starting in Cypress, TX
         </h2>
         <p>
-          WorkoutPatna is currently live and growing in the Houston, Texas area.
+          WorkoutPartna is currently live and growing in the Houston, Texas area.
           The first communities include Cypress, Katy, Spring, The Woodlands,
           Sugar Land, and other Houston suburbs. If you are looking for a workout
-          partner near you in the Houston metro, WorkoutPatna is building the
+          partner near you in the Houston metro, WorkoutPartna is building the
           community for you.
         </p>
       </section>
@@ -131,18 +131,18 @@ export default function HomePage() {
         <h2 id="faq-heading">Frequently Asked Questions</h2>
 
         <article>
-          <h3>Is WorkoutPatna free to use?</h3>
+          <h3>Is WorkoutPartna free to use?</h3>
           <p>
-            Yes. WorkoutPatna is free to join and free to find workout partners.
+            Yes. WorkoutPartna is free to join and free to find workout partners.
             Premium features for enhanced matching and exclusive community access
             are available for members who want more.
           </p>
         </article>
 
         <article>
-          <h3>Does WorkoutPatna help me find personal trainers?</h3>
+          <h3>Does WorkoutPartna help me find personal trainers?</h3>
           <p>
-            No. WorkoutPatna is specifically designed for finding workout partners —
+            No. WorkoutPartna is specifically designed for finding workout partners , 
             not personal trainers. It is a fitness social network for people who want
             a gym buddy, running partner, or fitness accountability friend.
           </p>
@@ -151,26 +151,26 @@ export default function HomePage() {
         <article>
           <h3>Can I find workout partners at my apartment gym?</h3>
           <p>
-            Yes. WorkoutPatna supports apartment complex fitness centers so you can
+            Yes. WorkoutPartna supports apartment complex fitness centers so you can
             connect with neighbors who use the same space and share your schedule.
           </p>
         </article>
 
         <article>
-          <h3>What cities does WorkoutPatna serve?</h3>
+          <h3>What cities does WorkoutPartna serve?</h3>
           <p>
-            WorkoutPatna is currently launching in Houston, Texas and surrounding
+            WorkoutPartna is currently launching in Houston, Texas and surrounding
             suburbs including Cypress, Katy, Spring, The Woodlands, Sugar Land,
             Pearland, and Humble.
           </p>
         </article>
 
         <article>
-          <h3>How is WorkoutPatna different from other fitness apps?</h3>
+          <h3>How is WorkoutPartna different from other fitness apps?</h3>
           <p>
             Most fitness apps focus on workout tracking, nutrition, or trainer
-            booking. WorkoutPatna is focused entirely on connecting people with
-            workout partners in their local community — at their specific gym,
+            booking. WorkoutPartna is focused entirely on connecting people with
+            workout partners in their local community, at their specific gym,
             apartment complex, park, or run club.
           </p>
         </article>

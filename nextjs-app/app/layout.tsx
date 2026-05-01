@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import Script from 'next/script'
+import './globals.css'
 
 // ─── Viewport ────────────────────────────────────────────────────────────────
 export const viewport: Viewport = {
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://workoutpatna.com'),
 
   title: {
-    default: 'WorkoutPatna — Find Your Gym Partner | Fitness Social Network',
-    template: '%s | WorkoutPatna',
+    default: 'WorkoutPartna, Find Your Gym Partner | Fitness Social Network',
+    template: '%s | WorkoutPartna',
   },
   description:
-    'WorkoutPatna helps you find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs in Houston. Build accountability, stay consistent, and connect with local fitness communities.',
+    'WorkoutPartna helps you find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs in Houston. Build accountability, stay consistent, and connect with local fitness communities.',
 
   keywords: [
     'find workout partner',
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     'fitness friend app',
   ],
 
-  authors: [{ name: 'WorkoutPatna', url: 'https://workoutpatna.com' }],
-  creator: 'WorkoutPatna',
-  publisher: 'WorkoutPatna',
+  authors: [{ name: 'WorkoutPartna', url: 'https://workoutpatna.com' }],
+  creator: 'WorkoutPartna',
+  publisher: 'WorkoutPartna',
 
   // Canonical + alternates
   alternates: {
@@ -47,16 +47,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: 'https://workoutpatna.com',
-    siteName: 'WorkoutPatna',
-    title: 'WorkoutPatna — Find Your Gym Partner',
+    siteName: 'WorkoutPartna',
+    title: 'WorkoutPartna, Find Your Gym Partner',
     description:
-      'Connect with workout partners at gyms, apartment fitness centers, parks, and run clubs near you. WorkoutPatna is the fitness social network built for local communities in Houston.',
+      'Connect with workout partners at gyms, apartment fitness centers, parks, and run clubs near you. WorkoutPartna is the fitness social network built for local communities in Houston.',
     images: [
       {
         url: '/og-image.png',    // place a 1200x630 image in /public
         width: 1200,
         height: 630,
-        alt: 'WorkoutPatna — Find Your Gym Partner',
+        alt: 'WorkoutPartna, Find Your Gym Partner',
       },
     ],
     locale: 'en_US',
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   // Twitter / X
   twitter: {
     card: 'summary_large_image',
-    title: 'WorkoutPatna — Find Your Gym Partner',
+    title: 'WorkoutPartna, Find Your Gym Partner',
     description:
       'Find workout partners at gyms, apartment fitness centers, parks, and run clubs near you.',
     images: ['/og-image.png'],
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
   // App links / manifest
   manifest: '/manifest.json',   // create this when PWA is ready
 
-  // Verification tags — fill in after claiming properties
+  // Verification tags, fill in after claiming properties
   // verification: {
   //   google: 'YOUR_GOOGLE_VERIFICATION_TOKEN',
   //   other: { 'msvalidate.01': 'YOUR_BING_TOKEN' },
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'WorkoutPatna',
+  name: 'WorkoutPartna',
   url: 'https://workoutpatna.com',
   logo: 'https://workoutpatna.com/logo.png',
   sameAs: [
@@ -117,7 +117,7 @@ const organizationSchema = {
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'WorkoutPatna',
+  name: 'WorkoutPartna',
   url: 'https://workoutpatna.com',
   potentialAction: {
     '@type': 'SearchAction',
@@ -132,11 +132,11 @@ const websiteSchema = {
 const appSchema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'WorkoutPatna',
+  name: 'WorkoutPartna',
   applicationCategory: 'HealthApplication',
   operatingSystem: 'iOS, Android, Web',
   description:
-    'WorkoutPatna is a fitness social networking app that helps people find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs. Connect with local fitness communities, build accountability, and stay consistent.',
+    'WorkoutPartna is a fitness social networking app that helps people find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs. Connect with local fitness communities, build accountability, and stay consistent.',
   url: 'https://workoutpatna.com',
   offers: {
     '@type': 'Offer',
@@ -162,26 +162,26 @@ const faqSchema = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'What is WorkoutPatna?',
+      name: 'What is WorkoutPartna?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'WorkoutPatna is a fitness social networking app that helps people find workout partners at local gyms, apartment fitness centers, community centers, parks, and run clubs. It is built for people who want accountability, consistency, and a fitness community — not personal trainers.',
+        text: 'WorkoutPartna is a fitness social networking app that helps people find workout partners at local gyms, apartment fitness centers, community centers, parks, and run clubs. It is built for people who want accountability, consistency, and a fitness community, not personal trainers.',
       },
     },
     {
       '@type': 'Question',
-      name: 'How does WorkoutPatna help me find a gym partner?',
+      name: 'How does WorkoutPartna help me find a gym partner?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'WorkoutPatna matches you with other members at your gym or nearby fitness locations based on your schedule, goals, and workout preferences. You can browse profiles, connect, and start working out together.',
+        text: 'WorkoutPartna matches you with other members at your gym or nearby fitness locations based on your schedule, goals, and workout preferences. You can browse profiles, connect, and start working out together.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Is WorkoutPatna for finding trainers?',
+      name: 'Is WorkoutPartna for finding trainers?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'No. WorkoutPatna is not a personal trainer marketplace. It is a social fitness app built for finding workout partners — people like you who want to stay consistent, stay accountable, and enjoy working out with a gym partner or crew.',
+        text: 'No. WorkoutPartna is not a personal trainer marketplace. It is a social fitness app built for finding workout partners, people like you who want to stay consistent, stay accountable, and enjoy working out with a gym partner or crew.',
       },
     },
     {
@@ -189,23 +189,23 @@ const faqSchema = {
       name: 'Can I find workout partners at my apartment gym?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. WorkoutPatna supports apartment fitness centers, community gyms, and residential fitness spaces so you can connect with neighbors who share your workout routine.',
+        text: 'Yes. WorkoutPartna supports apartment fitness centers, community gyms, and residential fitness spaces so you can connect with neighbors who share your workout routine.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Does WorkoutPatna work for run clubs and outdoor workouts?',
+      name: 'Does WorkoutPartna work for run clubs and outdoor workouts?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. WorkoutPatna helps you find and join run clubs, outdoor workout groups, and park fitness communities near you.',
+        text: 'Yes. WorkoutPartna helps you find and join run clubs, outdoor workout groups, and park fitness communities near you.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Where is WorkoutPatna available?',
+      name: 'Where is WorkoutPartna available?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'WorkoutPatna is currently launching in the Houston, Texas area, including Cypress, Katy, Spring, The Woodlands, and surrounding communities.',
+        text: 'WorkoutPartna is currently launching in the Houston, Texas area, including Cypress, Katy, Spring, The Woodlands, and surrounding communities.',
       },
     },
   ],
@@ -224,30 +224,22 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
-        {/* Structured data */}
-        <Script
-          id="schema-organization"
+        {/* Structured data, plain script tags are correct for static JSON-LD in App Router */}
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-          strategy="beforeInteractive"
         />
-        <Script
-          id="schema-website"
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-          strategy="beforeInteractive"
         />
-        <Script
-          id="schema-app"
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }}
-          strategy="beforeInteractive"
         />
-        <Script
-          id="schema-faq"
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-          strategy="beforeInteractive"
         />
       </head>
       <body>{children}</body>

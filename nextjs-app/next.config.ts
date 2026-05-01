@@ -4,6 +4,18 @@ const nextConfig: NextConfig = {
   // Strict mode for better React compatibility
   reactStrictMode: true,
 
+  // Disable router segment cache (avoids localStorage access in non-browser envs)
+  experimental: {
+    staleTimes: { dynamic: 0, static: 0 },
+  },
+
+  // Allow Unsplash photos for placeholder content
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
+  },
+
   // Security headers
   async headers() {
     return [
