@@ -14,7 +14,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [pending, setPending] = useState<null | 'email' | 'google' | 'apple'>(null)
+  const [pending, setPending] = useState<null | 'email' | 'google'>(null)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
 
@@ -55,7 +55,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
   }
 
-  async function onOAuth(provider: 'google' | 'apple') {
+  async function onOAuth(provider: 'google') {
     setError(null)
     if (!supabaseConfigured) {
       setError('Auth backend is not configured yet. Add Supabase keys to .env.local to enable sign in.')
@@ -87,15 +87,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
         >
           <GoogleMark />
           {pending === 'google' ? 'Continuing...' : 'Continue with Google'}
-        </button>
-        <button
-          type="button"
-          onClick={() => onOAuth('apple')}
-          disabled={pending !== null}
-          className="w-full h-12 rounded-full border border-[var(--color-border-bright)] bg-white/[0.04] flex items-center justify-center gap-2.5 text-[14px] font-semibold text-white hover:bg-white/[0.08] disabled:opacity-50"
-        >
-          <AppleMark />
-          {pending === 'apple' ? 'Continuing...' : 'Continue with Apple'}
         </button>
       </div>
 
@@ -186,10 +177,3 @@ function GoogleMark() {
   )
 }
 
-function AppleMark() {
-  return (
-    <svg width="16" height="18" viewBox="0 0 14 17" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M11.5 9.05c0-2.05 1.67-3.04 1.74-3.09-.95-1.39-2.43-1.58-2.96-1.6-1.26-.13-2.46.74-3.1.74-.65 0-1.63-.72-2.69-.7-1.38.02-2.66.81-3.37 2.05-1.44 2.5-.37 6.19 1.03 8.21.69.99 1.49 2.1 2.55 2.06 1.03-.04 1.41-.66 2.65-.66 1.24 0 1.59.66 2.67.64 1.1-.02 1.8-1 2.48-2 .78-1.15 1.1-2.27 1.12-2.32-.02-.01-2.13-.82-2.12-3.23z M9.6 3.13c.57-.69.95-1.65.85-2.6-.82.03-1.81.55-2.4 1.24-.53.61-.99 1.59-.87 2.52.91.07 1.85-.46 2.42-1.16z" />
-    </svg>
-  )
-}
