@@ -9,6 +9,7 @@ import {
   BellIcon, ChatIcon, BrainIcon, ArrowRightIcon, SparkleIcon,
 } from '../../../../components/app/icons'
 import { matchPhotos } from '../../../../lib/photos'
+import { createClient } from '../../../../lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -34,19 +35,52 @@ const activities = [
   { name: 'Abs / Core',  Icon: TargetIcon },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Live unread + match counts for the header badges
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  let unreadNotifications = 0
+  let unreadMessages = 0
+  if (user) {
+    const [{ count: notifCount }, { data: activeMatches }] = await Promise.all([
+      supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).is('read_at', null),
+      supabase.from('matches').select('id').eq('status', 'active').or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
+    ])
+    unreadNotifications = notifCount ?? 0
+    const matchIds = (activeMatches ?? []).map(m => m.id)
+    if (matchIds.length > 0) {
+      const { count: msgCount } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .in('match_id', matchIds)
+        .neq('sender_id', user.id)
+        .is('read_at', null)
+      unreadMessages = msgCount ?? 0
+    }
+  }
+
   return (
     <main className="mx-auto max-w-md px-5 pt-3 pb-2">
       {/* Top bar */}
       <header className="flex items-center justify-between py-3">
         <Logo size={28} withWordmark />
         <div className="flex items-center gap-2">
-          <IconButton aria-label="Notifications" badge>
+          <Link href="/app/notifications" aria-label="Notifications" className="relative h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.03] flex items-center justify-center text-white/85 hover:bg-white/[0.07] transition">
             <BellIcon width={18} height={18} />
-          </IconButton>
-          <IconButton aria-label="Messages">
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-[var(--color-danger)] text-white text-[10px] font-extrabold flex items-center justify-center">
+                {unreadNotifications > 9 ? '9+' : unreadNotifications}
+              </span>
+            )}
+          </Link>
+          <Link href="/app/messages" aria-label="Messages" className="relative h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.03] flex items-center justify-center text-white/85 hover:bg-white/[0.07] transition">
             <ChatIcon width={18} height={18} />
-          </IconButton>
+            {unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-[var(--color-brand-bright)] text-white text-[10px] font-extrabold flex items-center justify-center">
+                {unreadMessages > 9 ? '9+' : unreadMessages}
+              </span>
+            )}
+          </Link>
         </div>
       </header>
 
