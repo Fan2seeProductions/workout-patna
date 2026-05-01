@@ -5,9 +5,10 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import {
   BackIcon, MoreIcon, VerifiedIcon, MapPinIcon,
-  ChatIcon, CheckIcon, ArrowRightIcon,
+  ChatIcon, CheckIcon,
 } from '../../../../components/app/icons'
 import { matchPhotos, profileHero } from '../../../../lib/photos'
+import { ConnectButton } from '../../../../components/app/ConnectButton'
 
 export const metadata: Metadata = {
   title: 'Profile',
@@ -193,9 +194,7 @@ export default async function ProfileDetailPage({
           >
             <ChatIcon width={20} height={20} />
           </button>
-          <button className="flex-1 h-12 rounded-full brand-gradient text-white font-semibold inline-flex items-center justify-center gap-1.5 text-[15px] shadow-[0_8px_24px_-4px_rgba(59,130,246,0.45)]">
-            Connect <ArrowRightIcon width={16} height={16} />
-          </button>
+          <ConnectButton profileId={id} />
         </div>
       </div>
     </main>

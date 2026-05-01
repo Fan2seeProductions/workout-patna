@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { OnboardingFrame } from '../../../../components/app/OnboardingFrame'
 import { BrandButton } from '../../../../components/app/BrandButton'
+import { PhotoUploader } from '../../../../components/app/PhotoUploader'
 
 const levels = ['Beginner', 'Intermediate', 'Advanced', 'Athlete']
 const goals = [
@@ -51,6 +52,15 @@ export default function ProfilePage() {
       </div>
 
       <div className="mt-6 space-y-6">
+        <Group label="Photo">
+          <div className="flex flex-col items-center">
+            <PhotoUploader size={104} />
+            <p className="mt-2 text-[11px] text-[var(--color-text-dim)]">
+              Optional, but profiles with a photo get 4x more matches.
+            </p>
+          </div>
+        </Group>
+
         <Group label="Fitness level">
           <PillRow options={levels} selected={level ? new Set([level]) : new Set()} onClick={setLevel} single />
         </Group>
