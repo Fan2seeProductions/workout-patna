@@ -2,8 +2,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { PhotoUploader } from '../../../../components/app/PhotoUploader'
-import { updateMyProfile } from '../../../../lib/actions/profile'
+import { PhotoUploader } from '../../../../../components/app/PhotoUploader'
+import { updateMyProfile } from '../../../../../lib/actions/profile'
 
 type Profile = {
   id: string
