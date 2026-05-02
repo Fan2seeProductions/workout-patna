@@ -45,7 +45,7 @@ export default function SplashPage() {
 
       {/* Top brand */}
       <header className="relative px-6 pt-10 flex justify-center">
-        <Logo size={32} withWordmark />
+        <Logo size={96} withWordmark />
       </header>
 
       {/* Spacer */}
