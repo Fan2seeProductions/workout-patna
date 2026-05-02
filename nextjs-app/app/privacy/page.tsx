@@ -352,7 +352,7 @@ export default function PrivacyPage() {
         <Section n="12" title="Account Deletion">
           <p>You may request deletion of your WorkoutPartna account by contacting us at:</p>
           <p>
-            <a className="text-[var(--color-brand-bright)] underline" href="mailto:hello@workoutpartna.com">hello@workoutpartna.com</a>
+            <a className="text-[var(--color-brand-bright)] underline" href="mailto:sales@fan2seeproductions.com">sales@fan2seeproductions.com</a>
           </p>
           <p>If the app includes an account deletion feature, you may also delete your account through the app settings.</p>
           <p>After deletion, some information may be retained where legally required or reasonably necessary for safety, fraud prevention, dispute resolution, tax, accounting, legal compliance, or enforcement of our Terms.</p>
@@ -371,7 +371,7 @@ export default function PrivacyPage() {
           <p>WorkoutPartna will honor applicable privacy rights where required by law.</p>
           <p>To submit a request, contact us at:</p>
           <p>
-            <a className="text-[var(--color-brand-bright)] underline" href="mailto:hello@workoutpartna.com">hello@workoutpartna.com</a>
+            <a className="text-[var(--color-brand-bright)] underline" href="mailto:sales@fan2seeproductions.com">sales@fan2seeproductions.com</a>
           </p>
         </Section>
 
@@ -425,7 +425,7 @@ export default function PrivacyPage() {
             <br />
             App: <strong>WorkoutPartna</strong>
             <br />
-            Email: <a className="text-[var(--color-brand-bright)] underline" href="mailto:hello@workoutpartna.com">hello@workoutpartna.com</a>
+            Email: <a className="text-[var(--color-brand-bright)] underline" href="mailto:sales@fan2seeproductions.com">sales@fan2seeproductions.com</a>
           </p>
         </Section>
 

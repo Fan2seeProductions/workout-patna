@@ -322,7 +322,7 @@ export default function TermsPage() {
             <br />
             Website: <a className="text-[var(--color-brand-bright)] underline" href="https://workoutpartna.com">workoutpartna.com</a>
             <br />
-            Email: <a className="text-[var(--color-brand-bright)] underline" href="mailto:hello@workoutpartna.com">hello@workoutpartna.com</a>
+            Email: <a className="text-[var(--color-brand-bright)] underline" href="mailto:sales@fan2seeproductions.com">sales@fan2seeproductions.com</a>
           </p>
         </Section>
 
