@@ -19,9 +19,10 @@ export const profileHero = {
   marcus: cdn('1583454110551-21f2fa2afe61', 1200, 1500),
 }
 
-// Splash hero. User-supplied marketing photo at /public/photos/splash.jpg.
-export const splashHero = '/photos/splash.jpg'
-export const splashHeroFallback = cdn('1601412436009-d964bd02edbc', 1500, 2000)
+// Splash hero. Original Black girl in yoga pants (Unsplash).
+// User-supplied photo at /public/photos/splash.jpg is kept as a backup.
+export const splashHero = cdn('1594737626072-90dc274bc2bd', 1500, 2000)
+export const splashHeroFallback = splashHero
 
 // 16:9 wide for splash and location pages
 export const heroWide = cdn('1534438327276-14e5300c3a48', 1600, 900)
