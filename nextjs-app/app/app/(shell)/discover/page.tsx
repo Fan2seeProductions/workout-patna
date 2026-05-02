@@ -1,46 +1,40 @@
-// Discover: real Supabase data with computed match scores.
-// Falls back gracefully when there's nothing yet.
-import Link from 'next/link'
+// /app/discover (aliased as /app/browse). Mirrors the Replit Browse page:
+// mode toggle (partners / trainers), search, level filters, profile cards
+// with compatibility, lock overlay for non-premium users beyond row 2,
+// trainer cards with claim-consultation button.
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
 import { matchScore } from '../../../../lib/matching'
-import { DiscoverClient } from './DiscoverClient'
+import { BrowseClient } from './BrowseClient'
 
-export const metadata = { title: 'Discover', robots: { index: false, follow: false } }
-
-type ProfileRow = {
-  id: string
-  display_name: string | null
-  age: number | null
-  bio: string | null
-  goals: string[] | null
-  styles: string[] | null
-  schedule_days: string[] | null
-  schedule_times: string[] | null
-  primary_location: string | null
-  photo_url: string | null
-  vibe: string | null
-  fitness_level: string | null
-}
+export const metadata = { title: 'Find a Partna', robots: { index: false, follow: false } }
 
 export default async function DiscoverPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/app/signin')
 
-  // Pull my profile + everyone else
-  const [{ data: me }, { data: others }] = await Promise.all([
+  const [{ data: me }, { data: others }, { data: trainers }, { data: claimedRows }] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
     supabase.from('profiles').select('*').neq('id', user.id).limit(50),
+    supabase.from('trainers').select('id, gym_id, name, bio, specialties, photo_url, booking_link, is_active').eq('is_active', true),
+    supabase.from('trainer_consultations').select('gym_id').eq('user_id', user.id),
   ])
 
-  const myProfile = (me ?? null) as ProfileRow | null
-  const profiles = (others ?? []) as ProfileRow[]
+  const meProfile = me ?? null
+  const profileList = (others ?? []).map(p => ({
+    ...p,
+    score: meProfile ? matchScore(meProfile, p) : 80,
+  })).sort((a, b) => b.score - a.score)
 
-  // Compute match score and sort
-  const scored = profiles
-    .map(p => ({ ...p, score: myProfile ? matchScore(myProfile, p) : 70 }))
-    .sort((a, b) => b.score - a.score)
+  const claimedGymIds = (claimedRows ?? []).map(r => r.gym_id)
 
-  return <DiscoverClient profiles={scored} />
+  return (
+    <BrowseClient
+      profiles={profileList}
+      trainers={trainers ?? []}
+      claimedGymIds={claimedGymIds}
+      isPremium={!!meProfile?.is_premium}
+    />
+  )
 }
