@@ -32,17 +32,12 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Redirects: www → non-www (configure on Vercel DNS instead if possible)
-  // async redirects() {
-  //   return [
-  //     {
-  //       source: '/:path*',
-  //       has: [{ type: 'host', value: 'www.workoutpatna.com' }],
-  //       destination: 'https://workoutpatna.com/:path*',
-  //       permanent: true,
-  //     },
-  //   ]
-  // },
+  // Send the apex root straight to the app splash.
+  async redirects() {
+    return [
+      { source: '/', destination: '/app', permanent: false },
+    ]
+  },
 }
 
 export default nextConfig
