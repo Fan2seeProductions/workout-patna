@@ -83,7 +83,7 @@ export default async function HomePage() {
 
   const inviteCount = 0 // user invites not implemented yet
   const isPremium = false
-  const showWatermark = inviteCount < 3
+  const showWatermark = false // disabled — was triggering on every page
   const userName = me?.display_name ?? user?.email?.split('@')[0] ?? 'Friend'
   const userInitial = (firstName(userName)[0] ?? '?').toUpperCase()
 
