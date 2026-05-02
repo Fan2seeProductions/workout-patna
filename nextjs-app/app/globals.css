@@ -1,82 +1,104 @@
 @import "tailwindcss";
 
-/* ─── WorkoutPatna brand tokens ──────────────────────────────────────────── */
+/* WorkoutPartna brand tokens (mirrors the Replit version)
+   Primary  Deep Blue   #1C3D5A   208 53% 23%
+   Secondary Warm Orange #F38B2B   29 90% 56%
+   Accent   Soft Green  #35B873   148 55% 46%
+   Background           #F5F7FA   216 33% 97%
+   Text                 #1E2227   213 13% 14%
+   Muted text           #6F7480   223 7% 47% */
+
 @theme {
-  /* Surface palette — dark premium */
-  --color-bg:           #050810;
-  --color-surface:      #0A0E1A;
-  --color-surface-2:    #111726;
-  --color-surface-3:    #1A2236;
-  --color-border:       #1E2A44;
-  --color-border-bright:#2A3A5C;
+  --color-background:        hsl(216 33% 97%);
+  --color-foreground:        hsl(213 13% 14%);
 
-  /* Text */
-  --color-text:         #F5F7FB;
-  --color-text-muted:   #94A3B8;
-  --color-text-dim:     #64748B;
+  --color-card:              hsl(0 0% 100%);
+  --color-card-foreground:   hsl(213 13% 14%);
 
-  /* Brand accents — neon blue → teal */
-  --color-brand:        #3B82F6;
-  --color-brand-bright: #60A5FA;
-  --color-teal:         #14B8A6;
-  --color-cyan:         #06B6D4;
+  --color-primary:           hsl(208 53% 23%);
+  --color-primary-foreground:hsl(0 0% 100%);
 
-  /* Status */
-  --color-success:      #10B981;
-  --color-warning:      #F59E0B;
-  --color-danger:       #EF4444;
-  --color-match:        #22C55E;
+  --color-secondary:         hsl(29 90% 56%);
+  --color-secondary-foreground: hsl(0 0% 100%);
 
-  /* Premium gold (for paywall/badges) */
-  --color-gold:         #FBBF24;
+  --color-accent:            hsl(148 55% 46%);
+  --color-accent-foreground: hsl(0 0% 100%);
 
-  /* Radii */
-  --radius-card:        18px;
-  --radius-lg:          14px;
-  --radius-md:          10px;
-  --radius-pill:        9999px;
+  --color-muted:             hsl(210 40% 93%);
+  --color-muted-foreground:  hsl(223 7% 47%);
 
-  /* Shadows */
-  --shadow-card:        0 8px 32px -8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
-  --shadow-glow:        0 0 24px -4px rgba(59,130,246,0.4);
+  --color-destructive:       hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+
+  --color-border:            hsl(220 13% 91%);
+  --color-input:             hsl(220 13% 91%);
+  --color-ring:              hsl(208 53% 23%);
+
+  /* Legacy aliases used elsewhere in the app, mapped to the new palette */
+  --color-bg:                hsl(216 33% 97%);
+  --color-surface:           hsl(0 0% 100%);
+  --color-surface-2:         hsl(216 33% 97%);
+  --color-surface-3:         hsl(220 13% 91%);
+  --color-border-bright:     hsl(220 13% 84%);
+  --color-text:              hsl(213 13% 14%);
+  --color-text-muted:        hsl(223 7% 47%);
+  --color-text-dim:          hsl(220 9% 60%);
+  --color-brand:             hsl(208 53% 23%);
+  --color-brand-bright:      hsl(208 53% 35%);
+  --color-teal:              hsl(148 55% 46%);
+  --color-cyan:              hsl(208 53% 35%);
+  --color-success:           hsl(148 55% 46%);
+  --color-warning:           hsl(29 90% 56%);
+  --color-danger:            hsl(0 84% 60%);
+  --color-match:             hsl(148 55% 46%);
+  --color-gold:              hsl(29 90% 56%);
+
+  --radius-card: 14px;
+  --radius-lg:   12px;
+  --radius-md:   10px;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 4px 24px -6px rgba(28,61,90,0.08), 0 0 0 1px rgba(28,61,90,0.05);
+  --shadow-glow: 0 0 24px -4px rgba(243,139,43,0.4);
+
+  --font-sans:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), 'Poppins', var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* ─── Base ─────────────────────────────────────────────────────────────── */
 html, body {
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--color-background);
+  color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
 }
 
-/* ─── Reusable component classes ───────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Reusable component utilities */
 @utility glass-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-  backdrop-filter: blur(12px);
+  background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 @utility brand-gradient {
-  background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-teal) 100%);
+  background: linear-gradient(135deg, hsl(208 53% 23%) 0%, hsl(208 53% 35%) 100%);
 }
 
 @utility brand-gradient-text {
-  background: linear-gradient(135deg, var(--color-brand-bright) 0%, var(--color-teal) 100%);
+  background: linear-gradient(135deg, hsl(208 53% 23%) 0%, hsl(29 90% 56%) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-@utility scrollbar-hide {
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
-}
-
-/* Hide scrollbars on horizontal carousels */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
