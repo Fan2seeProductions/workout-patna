@@ -22,10 +22,11 @@ export const profileHero = {
 // 16:9 wide for splash and location pages (1200x675)
 export const heroWide = cdn('1534438327276-14e5300c3a48', 1200, 675) // group gym
 
-// 9:16 vertical for full-screen splash background (900x1600)
-// Placeholder until user provides a specific Unsplash URL or uploads to /public/photos/splash.jpg.
-// Original Black woman athlete photo (solo, not social) as fallback.
-export const splashHero = cdn('1594737626072-90dc274bc2bd', 900, 1600)
+// 9:16 vertical for full-screen splash background.
+// Prefers /public/photos/splash.jpg if present (saved by user, e.g. the
+// "four women socializing" marketing photo). Falls back to an Unsplash CDN URL.
+export const splashHero = '/photos/splash.jpg'
+export const splashHeroFallback = cdn('1594737626072-90dc274bc2bd', 900, 1600)
 
 // Location placeholders
 export const locationPhotos = {
