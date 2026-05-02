@@ -23,7 +23,8 @@ export const profileHero = {
 export const heroWide = cdn('1534438327276-14e5300c3a48', 1200, 675) // group gym
 
 // 9:16 vertical for full-screen splash background (900x1600)
-// Black woman athlete. Swap with a local /public/photos/splash.jpg later.
+// Placeholder until user provides a specific Unsplash URL or uploads to /public/photos/splash.jpg.
+// Original Black woman athlete photo (solo, not social) as fallback.
 export const splashHero = cdn('1594737626072-90dc274bc2bd', 900, 1600)
 
 // Location placeholders
