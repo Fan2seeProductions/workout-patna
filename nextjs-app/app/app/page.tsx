@@ -57,8 +57,8 @@ export default function SplashPage() {
           Find your<br />
           <span className="brand-gradient-text">gym person</span>.
         </h1>
-        <p className="mt-3 text-[17px] text-white/85 max-w-xs leading-snug">
-          Connect. Train. Grow. Stronger together.
+        <p className="mt-3 text-[17px] text-white/80 max-w-xs leading-snug">
+          Not a personal trainer. A real partner who shows up at your gym, on your schedule.
         </p>
 
         {/* Feature pills */}
