@@ -1,6 +1,9 @@
 // WorkoutPartna logo. Blue-to-violet gradient WP mark with a dumbbell icon
-// inside the P. Wordmark: "workout" (dark or white) + "partna" (gradient).
-// Optional tagline: "Match. Train. Grow. Together."
+// inside the P. Wordmark: "workout" + "partna" (Partna in brand blue).
+// Renders as inline SVG so it sits cleanly on any background, including dark.
+//
+// The full PNG asset at /public/logo.png is kept for OG image, app icon,
+// and other surfaces where a white background is fine.
 
 type LogoProps = {
   size?: number
@@ -36,7 +39,6 @@ export function Logo({
         </linearGradient>
       </defs>
 
-      {/* W: angled strokes, last stroke continues into the P stem */}
       <path
         d="M8 14 L20 64 L32 30 L40 56 L40 14"
         stroke="url(#wp-grad)"
@@ -46,7 +48,6 @@ export function Logo({
         fill="none"
       />
 
-      {/* P: stem + curved bowl */}
       <path
         d="M40 14 L40 64 M40 14 L56 14 C66 14 72 21 72 31 C72 41 66 48 56 48 L48 48"
         stroke="url(#wp-grad)"
@@ -56,14 +57,10 @@ export function Logo({
         fill="none"
       />
 
-      {/* Dumbbell inside the P bowl */}
       <g stroke="#FFFFFF" strokeWidth="2.6" strokeLinecap="round" fill="#FFFFFF">
-        {/* bar */}
         <line x1="49" y1="31" x2="63" y2="31" strokeWidth="2.6" />
-        {/* left plates */}
         <rect x="47" y="27" width="2.5" height="8" rx="0.6" />
         <rect x="50" y="25" width="2" height="12" rx="0.5" />
-        {/* right plates */}
         <rect x="63" y="25" width="2" height="12" rx="0.5" />
         <rect x="65.5" y="27" width="2.5" height="8" rx="0.6" />
       </g>
