@@ -19,9 +19,9 @@ export const profileHero = {
   marcus: cdn('1583454110551-21f2fa2afe61', 1200, 1500),
 }
 
-// Splash hero. Original Black girl in yoga pants (Unsplash).
-// User-supplied photo at /public/photos/splash.jpg is kept as a backup.
-export const splashHero = cdn('1594737626072-90dc274bc2bd', 1500, 2000)
+// Splash hero. Black woman in maroon sports bra, hand on chest, intimate
+// candle-lit setting (photo by Franco on Unsplash, ID hm8ODkqGQZI).
+export const splashHero = cdn('1737638699875-ae5eac03c0f0', 1500, 2000)
 export const splashHeroFallback = splashHero
 
 // 16:9 wide for splash and location pages
