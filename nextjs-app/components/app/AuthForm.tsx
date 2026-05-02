@@ -39,7 +39,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/app/onboarding` },
+          options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/app/onboarding` },
         })
         if (error) throw error
         setInfo('Check your email to confirm your account.')
@@ -67,7 +67,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/app/home`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/app/home`,
           skipBrowserRedirect: true,
         },
       })
