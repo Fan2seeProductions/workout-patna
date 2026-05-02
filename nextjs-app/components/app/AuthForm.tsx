@@ -64,11 +64,19 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setPending(provider)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/app/home` },
+        options: {
+          redirectTo: `${window.location.origin}/app/home`,
+          skipBrowserRedirect: true,
+        },
       })
       if (error) throw error
+      if (data?.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No redirect URL returned from Supabase.')
+      }
     } catch (err) {
       setError((err as Error).message)
       setPending(null)
