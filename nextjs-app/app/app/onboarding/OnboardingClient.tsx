@@ -78,6 +78,7 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
     start(async () => {
       const res = await updateMyProfile({
         primary_location: form.gymName ? `${form.gymName}, ${form.gymCity}` : undefined,
+        gym_id: form.gymId || null,
         fitness_level: form.level,
         goals: form.goals,
         vibe: form.vibe,

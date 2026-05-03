@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Search, Filter, MessageCircle, Clock, Lock, Star,
-  Dumbbell, Building2, UsersRound, User as UserIcon, Award, Gift,
+  Dumbbell, Building2, UsersRound, User as UserIcon, Award, Gift, Globe,
 } from 'lucide-react'
 import { cn } from '../../../../lib/utils'
 import { sendMatchRequest } from '../../../../lib/actions/matches'
@@ -39,16 +39,20 @@ type Trainer = {
 const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'] as const
 type Level = typeof levels[number]
 
+type GymLite = { id: string; name: string; type: string; city: string; state: string } | null
+
 export function BrowseClient({
   profiles,
   trainers,
   claimedGymIds,
   isPremium,
+  myGym,
 }: {
   profiles: Profile[]
   trainers: Trainer[]
   claimedGymIds: string[]
   isPremium: boolean
+  myGym?: GymLite
 }) {
   const router = useRouter()
   const [mode, setMode] = useState<'partner' | 'trainer'>('partner')
@@ -105,6 +109,56 @@ export function BrowseClient({
             </Link>
           )}
         </div>
+
+        {/* Community context banner */}
+        {myGym && !isPremium && (
+          <div className="bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/15 rounded-xl p-3 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[var(--color-primary)]/15 flex items-center justify-center text-[var(--color-primary)] shrink-0">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-primary)]">Your community</p>
+              <p className="text-sm font-bold text-[var(--color-foreground)] truncate">{myGym.name}</p>
+              <p className="text-[11px] text-[var(--color-muted-foreground)]">
+                Showing Partnas at this location only
+              </p>
+            </div>
+            <Link
+              href="/app/coach"
+              className="shrink-0 text-[11px] font-bold bg-[var(--color-secondary)] text-white px-3 py-1.5 rounded-full hover:opacity-90 flex items-center gap-1"
+            >
+              <Globe className="w-3 h-3" /> Expand
+            </Link>
+          </div>
+        )}
+        {!myGym && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-900">Pick your gym to see your community</p>
+              <p className="text-[11px] text-amber-800">Set your home location so we can match you with people who train there too.</p>
+            </div>
+            <Link
+              href="/app/onboarding"
+              className="shrink-0 text-[11px] font-bold bg-amber-600 text-white px-3 py-1.5 rounded-full hover:bg-amber-700"
+            >
+              Set gym
+            </Link>
+          </div>
+        )}
+        {isPremium && myGym && (
+          <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 rounded-xl p-3 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[var(--color-accent)]/15 flex items-center justify-center text-[var(--color-accent)] shrink-0">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-accent)]">Premium · Network mode</p>
+              <p className="text-sm font-bold text-[var(--color-foreground)]">All Partnas across Houston metro</p>
+            </div>
+          </div>
+        )}
 
         {/* Mode toggle */}
         <div className="flex bg-[var(--color-muted)] rounded-xl p-1">
@@ -249,8 +303,22 @@ export function BrowseClient({
             <div className="w-16 h-16 bg-[var(--color-muted)] rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-[var(--color-muted-foreground)]" />
             </div>
-            <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">No Partnas Found</h3>
-            <p className="text-[var(--color-muted-foreground)] text-sm">Be the first at your location! Invite friends to join.</p>
+            <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">
+              {myGym && !isPremium ? `No one at ${myGym.name} yet` : 'No Partnas Found'}
+            </h3>
+            <p className="text-[var(--color-muted-foreground)] text-sm mb-5 max-w-xs mx-auto">
+              {myGym && !isPremium
+                ? 'Be the first here. Invite gym friends, or upgrade to see Partnas at other gyms.'
+                : 'Be the first at your location! Invite friends to join.'}
+            </p>
+            {myGym && !isPremium && (
+              <Link
+                href="/app/coach"
+                className="inline-flex items-center gap-1.5 px-5 py-2 bg-[var(--color-secondary)] text-white rounded-xl text-sm font-bold hover:opacity-90"
+              >
+                <Globe className="w-4 h-4" /> Expand network · $9.99/mo
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -273,8 +341,9 @@ export function BrowseClient({
                       <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center mb-3">
                         <Lock className="w-6 h-6 text-[var(--color-secondary)]" />
                       </div>
-                      <h3 className="font-bold text-lg font-display text-[var(--color-foreground)]">Unlock More Partnas</h3>
-                      <p className="text-sm text-[var(--color-muted-foreground)] mb-4">Upgrade to see everyone at your gym.</p>
+                      <h3 className="font-bold text-lg font-display text-[var(--color-foreground)]">Expand Your Network</h3>
+                      <p className="text-sm text-[var(--color-muted-foreground)] mb-1">See Partnas at other gyms across Houston.</p>
+                      <p className="text-xs text-[var(--color-muted-foreground)] mb-4">$9.99 / month</p>
                       <Link
                         href="/app/coach"
                         className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-xl text-sm font-bold hover:opacity-90 transition shadow-sm"

@@ -1,7 +1,5 @@
-// /app/discover (aliased as /app/browse). Mirrors the Replit Browse page:
-// mode toggle (partners / trainers), search, level filters, profile cards
-// with compatibility, lock overlay for non-premium users beyond row 2,
-// trainer cards with claim-consultation button.
+// /app/discover (aliased as /app/browse). Free users see only their gym
+// community. Premium ($9.99/mo) unlocks the full Houston-metro network.
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
 import { matchScore } from '../../../../lib/matching'
@@ -14,18 +12,36 @@ export default async function DiscoverPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/app/signin')
 
-  const [{ data: me }, { data: others }, { data: trainers }, { data: claimedRows }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-    supabase.from('profiles').select('*').neq('id', user.id).limit(50),
+  const { data: me } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+  const isPremium = !!me?.is_premium
+  const myGymId = me?.gym_id ?? null
+
+  // Build the partner query.
+  // Free users only see Partnas at their gym.
+  // Premium users see everyone in the network.
+  // Users without a gym set yet see everyone (so first-run isn't empty).
+  let partnerQuery = supabase
+    .from('profiles')
+    .select('*')
+    .neq('id', user.id)
+    .limit(60)
+
+  if (myGymId && !isPremium) {
+    partnerQuery = partnerQuery.eq('gym_id', myGymId)
+  }
+
+  const [{ data: others }, { data: trainers }, { data: claimedRows }, { data: myGym }] = await Promise.all([
+    partnerQuery,
     supabase.from('trainers').select('id, gym_id, name, bio, specialties, photo_url, booking_link, is_active').eq('is_active', true),
     supabase.from('trainer_consultations').select('gym_id').eq('user_id', user.id),
+    myGymId
+      ? supabase.from('gyms').select('id, name, type, city, state').eq('id', myGymId).maybeSingle()
+      : Promise.resolve({ data: null }),
   ])
 
-  const meProfile = me ?? null
-  const profileList = (others ?? []).map(p => ({
-    ...p,
-    score: meProfile ? matchScore(meProfile, p) : 80,
-  })).sort((a, b) => b.score - a.score)
+  const profileList = (others ?? [])
+    .map(p => ({ ...p, score: me ? matchScore(me, p) : 80 }))
+    .sort((a, b) => b.score - a.score)
 
   const claimedGymIds = (claimedRows ?? []).map(r => r.gym_id)
 
@@ -34,7 +50,8 @@ export default async function DiscoverPage() {
       profiles={profileList}
       trainers={trainers ?? []}
       claimedGymIds={claimedGymIds}
-      isPremium={!!meProfile?.is_premium}
+      isPremium={isPremium}
+      myGym={myGym ?? null}
     />
   )
 }

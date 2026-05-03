@@ -16,6 +16,7 @@ export type ProfileUpdate = {
   schedule_times?: string[]
   vibe?: string
   primary_location?: string
+  gym_id?: string | null
   onboarded?: boolean
 }
 

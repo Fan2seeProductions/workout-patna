@@ -12,10 +12,11 @@ import { WorkoutFeedback } from './WorkoutFeedback'
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
 
 const benefits = [
-  'Personalized workouts texted every morning',
+  'See Partnas at every gym across the Houston metro (not just yours)',
+  'Personalized AI workouts texted every morning',
   'Built around your gym, schedule, and goals',
-  'Adjusts to your feedback (too easy, too hard, sore)',
-  'Recovery days and mobility built in',
+  'Advanced filters: distance, schedule overlap, fitness level',
+  'Priority placement on other Partnas’ Discover',
 ]
 
 export default async function CoachPage() {
