@@ -9,6 +9,7 @@ import {
 } from '../../../../components/app/icons'
 import { matchPhotos, profileHero } from '../../../../lib/photos'
 import { ConnectButton } from '../../../../components/app/ConnectButton'
+import { ProfileSafetyMenu } from '../../../../components/app/ProfileSafetyMenu'
 import { createClient } from '../../../../lib/supabase/server'
 import { matchScore } from '../../../../lib/matching'
 
@@ -156,9 +157,13 @@ function renderProfile(p: Args) {
           <Link href="/app/discover" aria-label="Back" className="h-10 w-10 rounded-full bg-black/40 border border-white/10 backdrop-blur-md flex items-center justify-center text-white">
             <BackIcon width={20} height={20} />
           </Link>
-          <button aria-label="More" className="h-10 w-10 rounded-full bg-black/40 border border-white/10 backdrop-blur-md flex items-center justify-center text-white">
-            <MoreIcon width={20} height={20} />
-          </button>
+          {p.isReal ? (
+            <ProfileSafetyMenu targetId={p.id} targetName={p.firstName} />
+          ) : (
+            <button aria-label="More" className="h-10 w-10 rounded-full bg-black/40 border border-white/10 backdrop-blur-md flex items-center justify-center text-white">
+              <MoreIcon width={20} height={20} />
+            </button>
+          )}
         </header>
 
         <div className="absolute left-5 top-5 z-10 flex items-center gap-2 rounded-full bg-black/55 backdrop-blur-md px-3 py-1.5 border border-white/10">

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { cn } from '../../../../lib/utils'
 import { sendMatchRequest } from '../../../../lib/actions/matches'
+import { claimConsultation } from '../../../../lib/actions/consultations'
 
 type Profile = {
   id: string
@@ -219,9 +220,18 @@ export function BrowseClient({
                     ) : (
                       <button
                         type="button"
-                        className="w-full py-2.5 bg-[var(--color-secondary)] text-white rounded-xl font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2"
+                        onClick={() => {
+                          setBusyId(t.id)
+                          start(async () => {
+                            await claimConsultation({ trainerId: t.id, gymId: t.gym_id })
+                            setBusyId(null)
+                          })
+                        }}
+                        disabled={pending && busyId === t.id}
+                        className="w-full py-2.5 bg-[var(--color-secondary)] text-white rounded-xl font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
                       >
-                        <Gift className="w-4 h-4" /> Claim Free Consultation
+                        <Gift className="w-4 h-4" />
+                        {pending && busyId === t.id ? 'Claiming...' : 'Claim Free Consultation'}
                       </button>
                     )}
                   </div>
