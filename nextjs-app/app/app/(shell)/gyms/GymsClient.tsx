@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { MapPin, Users, ArrowRight, Dumbbell, Building2, UsersRound } from 'lucide-react'
+import { MapPin, Users, ArrowRight, Dumbbell, Building2, UsersRound, BadgeCheck } from 'lucide-react'
 import { cn } from '../../../../lib/utils'
 
 export type LocationType = 'gym' | 'apartment' | 'community_center'
@@ -16,6 +16,8 @@ export type Location = {
   state: string
   members: number | null
   image: string | null
+  verified?: boolean | null
+  tier?: string | null
 }
 
 const typeConfig: Record<LocationType, { label: string; icon: typeof Dumbbell; color: string }> = {
@@ -108,7 +110,10 @@ export function GymsClient({ locations }: { locations: Location[] }) {
               </div>
 
               <div className="p-4">
-                <h3 className="font-bold text-lg font-display text-[var(--color-foreground)]">{loc.name}</h3>
+                <h3 className="font-bold text-lg font-display text-[var(--color-foreground)] flex items-center gap-1.5">
+                  {loc.name}
+                  {loc.verified && <BadgeCheck className="w-4 h-4 text-[var(--color-accent)] shrink-0" aria-label="Verified community" />}
+                </h3>
                 <p className="text-sm text-[var(--color-muted-foreground)] flex items-center gap-1 mt-1">
                   <MapPin className="w-3.5 h-3.5" /> {loc.city}, {loc.state}
                 </p>

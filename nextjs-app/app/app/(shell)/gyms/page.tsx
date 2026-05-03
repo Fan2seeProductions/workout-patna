@@ -12,9 +12,10 @@ export default async function GymsPage() {
 
   const { data: gyms } = await supabase
     .from('gyms')
-    .select('id, name, type, address, city, state, members, image')
+    .select('id, name, type, address, city, state, members, image, verified, tier')
+    .order('verified', { ascending: false })
     .order('members', { ascending: false })
-    .limit(100)
+    .limit(200)
 
   return <GymsClient locations={(gyms ?? []) as Location[]} />
 }
