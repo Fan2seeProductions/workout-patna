@@ -26,3 +26,8 @@ nextjs-app/node_modules/
 
 # Empty / scratch files
 design_extracted
+
+# Playwright test artifacts
+nextjs-app/tests/e2e/.results/
+nextjs-app/playwright-report/
+nextjs-app/test-results/

@@ -262,10 +262,12 @@ const inputClass =
   'w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] outline-none transition text-[var(--color-foreground)]'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  // Wrap inputs in the <label> so they're properly associated for screen
+  // readers and Playwright's getByLabel selectors.
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-bold text-[var(--color-foreground)] ml-1 block">{label}</label>
+    <label className="block space-y-2">
+      <span className="text-sm font-bold text-[var(--color-foreground)] ml-1 block">{label}</span>
       <div className="relative">{children}</div>
-    </div>
+    </label>
   )
 }

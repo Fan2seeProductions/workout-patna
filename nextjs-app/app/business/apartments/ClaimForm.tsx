@@ -152,9 +152,9 @@ const inputClass = 'w-full px-4 py-3 border border-[var(--color-border)] rounded
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="block text-sm font-bold text-[var(--color-foreground)] mb-1.5">{label}</label>
+    <label className="block">
+      <span className="block text-sm font-bold text-[var(--color-foreground)] mb-1.5">{label}</span>
       {children}
-    </div>
+    </label>
   )
 }

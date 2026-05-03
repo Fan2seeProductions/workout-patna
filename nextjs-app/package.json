@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed --project=desktop",
+    "test:e2e:debug": "PWDEBUG=1 playwright test --project=desktop",
+    "test:e2e:report": "playwright show-report tests/e2e/.results/html"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.92.0",
@@ -20,6 +25,7 @@
     "stripe": "^22.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^20",
     "@types/react": "^19",

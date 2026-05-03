@@ -17,12 +17,12 @@ export const metadata: Metadata = {
 
 export default function ApartmentsLanding() {
   return (
-    <main className="min-h-dvh bg-[var(--color-background)] text-[var(--color-foreground)]">
+    <main className="min-h-dvh overflow-x-hidden bg-[var(--color-background)] text-[var(--color-foreground)]">
 
       {/* Top bar */}
       <header className="border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md sticky top-0 z-30">
         <div className="mx-auto max-w-6xl px-5 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
+          <Link href="/" aria-label="WorkoutPartna home" className="flex items-center">
             <Logo size={32} />
           </Link>
           <nav className="flex items-center gap-3">
