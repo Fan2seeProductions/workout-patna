@@ -1,65 +1,64 @@
 @import "tailwindcss";
 
-/* WorkoutPartna brand tokens
-   Primary  Brand Blue  #1E63E9   216 82% 52%   (matches W in logo)
-   Secondary Cyan       #22D3EE   188 84% 53%   (matches P in logo)
-   Accent   Violet      #7C3AED   262 83% 58%   (logo gradient terminus)
-   Background           #F5F7FA   216 33% 97%
-   Text                 #1E2227   213 13% 14%
-   Muted text           #6F7480   223 7% 47% */
+/* WorkoutPartna brand tokens — Black / Red / White
+   Primary  Red    #DC1616   hsl(0 78% 48%)
+   Background      #0D0D0D   hsl(0 0% 5%)
+   Foreground      #F5F5F5   hsl(0 0% 96%)
+   Card            #171717   hsl(0 0% 9%)
+   Border          #2A2A2A   hsl(0 0% 16%) */
 
 @theme {
-  --color-background:        hsl(216 33% 97%);
-  --color-foreground:        hsl(213 13% 14%);
+  --color-background:        hsl(0 0% 5%);
+  --color-foreground:        hsl(0 0% 96%);
 
-  --color-card:              hsl(0 0% 100%);
-  --color-card-foreground:   hsl(213 13% 14%);
+  --color-card:              hsl(0 0% 9%);
+  --color-card-foreground:   hsl(0 0% 96%);
 
-  --color-primary:           hsl(216 82% 52%);
+  --color-primary:           hsl(0 78% 48%);
   --color-primary-foreground:hsl(0 0% 100%);
 
-  --color-secondary:         hsl(188 84% 53%);
-  --color-secondary-foreground: hsl(213 13% 14%);
+  --color-secondary:         hsl(0 0% 100%);
+  --color-secondary-foreground: hsl(0 0% 5%);
 
-  --color-accent:            hsl(262 83% 58%);
+  --color-accent:            hsl(0 78% 48%);
   --color-accent-foreground: hsl(0 0% 100%);
 
-  --color-muted:             hsl(210 40% 93%);
-  --color-muted-foreground:  hsl(223 7% 47%);
+  --color-muted:             hsl(0 0% 13%);
+  --color-muted-foreground:  hsl(0 0% 55%);
 
   --color-destructive:       hsl(0 84% 60%);
   --color-destructive-foreground: hsl(0 0% 98%);
 
-  --color-border:            hsl(220 13% 91%);
-  --color-input:             hsl(220 13% 91%);
-  --color-ring:              hsl(208 53% 23%);
+  --color-border:            hsl(0 0% 16%);
+  --color-input:             hsl(0 0% 16%);
+  --color-ring:              hsl(0 78% 48%);
 
-  /* Legacy aliases used elsewhere in the app, mapped to the new palette */
-  --color-bg:                hsl(216 33% 97%);
-  --color-surface:           hsl(0 0% 100%);
-  --color-surface-2:         hsl(216 33% 97%);
-  --color-surface-3:         hsl(220 13% 91%);
-  --color-border-bright:     hsl(220 13% 84%);
-  --color-text:              hsl(213 13% 14%);
-  --color-text-muted:        hsl(223 7% 47%);
-  --color-text-dim:          hsl(220 9% 60%);
-  --color-brand:             hsl(216 82% 52%);
-  --color-brand-bright:      hsl(216 82% 60%);
-  --color-teal:              hsl(188 84% 53%);
-  --color-cyan:              hsl(188 84% 53%);
+  /* Legacy aliases */
+  --color-bg:                hsl(0 0% 5%);
+  --color-surface:           hsl(0 0% 9%);
+  --color-surface-2:         hsl(0 0% 5%);
+  --color-surface-3:         hsl(0 0% 13%);
+  --color-border-bright:     hsl(0 0% 22%);
+  --color-text:              hsl(0 0% 96%);
+  --color-text-muted:        hsl(0 0% 55%);
+  --color-text-dim:          hsl(0 0% 40%);
+  --color-brand:             hsl(0 78% 48%);
+  --color-brand-bright:      hsl(0 78% 58%);
+  --color-teal:              hsl(0 78% 58%);
+  --color-cyan:              hsl(0 78% 58%);
   --color-success:           hsl(148 55% 46%);
   --color-warning:           hsl(29 90% 56%);
   --color-danger:            hsl(0 84% 60%);
   --color-match:             hsl(148 55% 46%);
-  --color-gold:              hsl(262 83% 58%);
+  --color-gold:              hsl(0 78% 48%);
 
   --radius-card: 14px;
   --radius-lg:   12px;
   --radius-md:   10px;
   --radius-pill: 9999px;
 
-  --shadow-card: 0 4px 24px -6px rgba(28,61,90,0.08), 0 0 0 1px rgba(28,61,90,0.05);
-  --shadow-glow: 0 0 24px -4px rgba(243,139,43,0.4);
+  --shadow-card: 0 4px 24px -6px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-glow: 0 0 24px -4px hsl(0 78% 48% / 0.5);
 
   --font-sans:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-poppins), 'Poppins', var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -90,19 +89,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @utility brand-gradient {
-  background: linear-gradient(135deg, hsl(216 82% 52%) 0%, hsl(188 84% 53%) 100%);
+  background: linear-gradient(135deg, hsl(0 82% 42%) 0%, hsl(0 72% 56%) 100%);
 }
 
 @utility brand-gradient-text {
-  background: linear-gradient(135deg, hsl(216 82% 52%) 0%, hsl(262 83% 58%) 100%);
+  background: linear-gradient(135deg, hsl(0 82% 48%) 0%, hsl(0 60% 62%) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* Glow shadow on primary CTAs to match the cool palette */
 @utility shadow-glow {
-  box-shadow: 0 0 24px -4px hsl(216 82% 52% / 0.4);
+  box-shadow: 0 0 24px -4px hsl(0 78% 48% / 0.45);
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

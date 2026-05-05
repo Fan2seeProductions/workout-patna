@@ -79,7 +79,7 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
   return (
     <>
       {/* ── Mobile bottom nav ── */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-[var(--color-border)] pb-[env(safe-area-inset-bottom)]">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-[#0d0d0d] border-t border-[var(--color-border)] pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around h-[60px] px-2">
           {navItems.map(item => {
             const active = pathname === item.href || pathname.startsWith(item.href + '/')
@@ -124,8 +124,8 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
       </nav>
 
       {/* ── Desktop top nav ── */}
-      <nav className="hidden md:flex fixed top-0 inset-x-0 z-50 bg-white border-b border-[var(--color-border)] px-6 h-14 items-center justify-between">
-        <Link href="/app/home" className="flex items-center gap-2 font-extrabold text-[16px] text-[var(--color-foreground)]">
+      <nav className="hidden md:flex fixed top-0 inset-x-0 z-50 bg-[#0d0d0d] border-b border-[var(--color-border)] px-6 h-14 items-center justify-between">
+        <Link href="/app/home" className="flex items-center gap-2 font-extrabold text-[16px] text-white">
           <div className="w-7 h-7 rounded-lg brand-gradient flex items-center justify-center text-white font-black text-[11px]">WP</div>
           WorkoutPartna
         </Link>
@@ -138,8 +138,8 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
                 <div className={cn(
                   'flex items-center gap-1.5 text-[13px] font-bold transition-all px-3.5 py-2 rounded-full',
                   active
-                    ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                    : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]'
+                    ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary)]'
+                    : 'text-white/50 hover:text-white'
                 )}>
                   {item.icon(active)}
                   <span>{item.label}</span>

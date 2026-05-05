@@ -82,10 +82,10 @@ export function AuthClient({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#0d0d0d] flex flex-col md:flex-row">
 
       {/* Left: branding (hidden on mobile) */}
-      <div className="relative hidden md:flex flex-1 bg-[var(--color-primary)] text-white p-12 flex-col justify-between overflow-hidden">
+      <div className="relative hidden md:flex flex-1 bg-[#0d0d0d] text-white p-12 flex-col justify-between overflow-hidden border-r border-white/10">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[var(--color-primary)]/90 mix-blend-multiply z-10" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -93,7 +93,7 @@ export function AuthClient({
         </div>
 
         <div className="relative z-20">
-          <div className="w-10 h-10 rounded-lg bg-[var(--color-secondary)] flex items-center justify-center text-white font-bold font-display text-xl mb-4">
+          <div className="w-10 h-10 rounded-lg brand-gradient flex items-center justify-center text-white font-bold font-display text-xl mb-4">
             WP
           </div>
           <h1 className="font-display font-bold text-3xl">Workout Partna</h1>
@@ -125,7 +125,7 @@ export function AuthClient({
       </div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 bg-[#0d0d0d]">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
             <div className="md:hidden flex justify-center mb-6">
@@ -133,10 +133,10 @@ export function AuthClient({
                 WP
               </div>
             </div>
-            <h2 className="text-3xl font-display font-bold text-[var(--color-foreground)]">
+            <h2 className="text-3xl font-display font-bold text-white">
               {isLogin ? 'Welcome back' : 'Create an account'}
             </h2>
-            <p className="text-[var(--color-muted-foreground)] mt-2">
+            <p className="text-white/50 mt-2">
               {isLogin
                 ? 'Enter your details to access your account.'
                 : 'Join the community and start training together.'}
@@ -220,14 +220,14 @@ export function AuthClient({
                 <span className="w-full border-t border-[var(--color-border)]" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[var(--color-background)] px-2 text-[var(--color-muted-foreground)]">Or continue with</span>
+                <span className="bg-[#0d0d0d] px-2 text-white/40">Or continue with</span>
               </div>
             </div>
             <button
               type="button"
               onClick={onGoogle}
               disabled={pending !== null}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-medium shadow-sm hover:bg-gray-50 transition disabled:opacity-60"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white hover:bg-white/[0.1] transition disabled:opacity-60"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -240,7 +240,7 @@ export function AuthClient({
           </div>
 
           <div className="text-center text-sm">
-            <span className="text-[var(--color-muted-foreground)]">
+            <span className="text-white/40">
               {isLogin ? "Don't have an account?" : 'Already have an account?'}
             </span>
             <button
@@ -267,14 +267,14 @@ export function AuthClient({
 }
 
 const inputClass =
-  'w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-[var(--color-border)] focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] outline-none transition text-[var(--color-foreground)]'
+  'w-full pl-10 pr-4 py-3 bg-white/[0.06] rounded-xl border border-white/10 focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] outline-none transition text-white placeholder:text-white/30'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   // Wrap inputs in the <label> so they're properly associated for screen
   // readers and Playwright's getByLabel selectors.
   return (
     <label className="block space-y-2">
-      <span className="text-sm font-bold text-[var(--color-foreground)] ml-1 block">{label}</span>
+      <span className="text-sm font-bold text-white/80 ml-1 block">{label}</span>
       <div className="relative">{children}</div>
     </label>
   )
