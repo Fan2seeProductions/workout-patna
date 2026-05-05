@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* WorkoutPartna brand tokens (mirrors the Replit version)
-   Primary  Deep Blue   #1C3D5A   208 53% 23%
-   Secondary Warm Orange #F38B2B   29 90% 56%
-   Accent   Soft Green  #35B873   148 55% 46%
+/* WorkoutPartna brand tokens
+   Primary  Brand Blue  #1E63E9   216 82% 52%   (matches W in logo)
+   Secondary Cyan       #22D3EE   188 84% 53%   (matches P in logo)
+   Accent   Violet      #7C3AED   262 83% 58%   (logo gradient terminus)
    Background           #F5F7FA   216 33% 97%
    Text                 #1E2227   213 13% 14%
    Muted text           #6F7480   223 7% 47% */
@@ -15,13 +15,13 @@
   --color-card:              hsl(0 0% 100%);
   --color-card-foreground:   hsl(213 13% 14%);
 
-  --color-primary:           hsl(208 53% 23%);
+  --color-primary:           hsl(216 82% 52%);
   --color-primary-foreground:hsl(0 0% 100%);
 
-  --color-secondary:         hsl(29 90% 56%);
-  --color-secondary-foreground: hsl(0 0% 100%);
+  --color-secondary:         hsl(188 84% 53%);
+  --color-secondary-foreground: hsl(213 13% 14%);
 
-  --color-accent:            hsl(148 55% 46%);
+  --color-accent:            hsl(262 83% 58%);
   --color-accent-foreground: hsl(0 0% 100%);
 
   --color-muted:             hsl(210 40% 93%);
@@ -43,15 +43,15 @@
   --color-text:              hsl(213 13% 14%);
   --color-text-muted:        hsl(223 7% 47%);
   --color-text-dim:          hsl(220 9% 60%);
-  --color-brand:             hsl(208 53% 23%);
-  --color-brand-bright:      hsl(208 53% 35%);
-  --color-teal:              hsl(148 55% 46%);
-  --color-cyan:              hsl(208 53% 35%);
+  --color-brand:             hsl(216 82% 52%);
+  --color-brand-bright:      hsl(216 82% 60%);
+  --color-teal:              hsl(188 84% 53%);
+  --color-cyan:              hsl(188 84% 53%);
   --color-success:           hsl(148 55% 46%);
   --color-warning:           hsl(29 90% 56%);
   --color-danger:            hsl(0 84% 60%);
   --color-match:             hsl(148 55% 46%);
-  --color-gold:              hsl(29 90% 56%);
+  --color-gold:              hsl(262 83% 58%);
 
   --radius-card: 14px;
   --radius-lg:   12px;
@@ -90,14 +90,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @utility brand-gradient {
-  background: linear-gradient(135deg, hsl(208 53% 23%) 0%, hsl(208 53% 35%) 100%);
+  background: linear-gradient(135deg, hsl(216 82% 52%) 0%, hsl(188 84% 53%) 100%);
 }
 
 @utility brand-gradient-text {
-  background: linear-gradient(135deg, hsl(208 53% 23%) 0%, hsl(29 90% 56%) 100%);
+  background: linear-gradient(135deg, hsl(216 82% 52%) 0%, hsl(262 83% 58%) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Glow shadow on primary CTAs to match the cool palette */
+@utility shadow-glow {
+  box-shadow: 0 0 24px -4px hsl(216 82% 52% / 0.4);
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
