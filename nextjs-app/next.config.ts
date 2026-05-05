@@ -32,12 +32,8 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Send the apex root straight to the app splash.
-  async redirects() {
-    return [
-      { source: '/', destination: '/app', permanent: false },
-    ]
-  },
+  // Apex root now serves the marketing landing page (/page.tsx).
+  // The app splash lives at /app, the auth flow at /app/signup and /app/signin.
 }
 
 export default nextConfig

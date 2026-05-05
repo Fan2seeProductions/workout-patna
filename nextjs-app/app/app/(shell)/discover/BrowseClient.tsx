@@ -22,9 +22,13 @@ type Profile = {
   primary_location: string | null
   vibe: string | null
   photo_url: string | null
+  gym_id: string | null
   is_premium?: boolean
   score: number
 }
+
+const facilityFilters = ['All', 'Gym', 'Studio', 'Apartment', 'Park', 'Outdoor'] as const
+type FacilityFilter = typeof facilityFilters[number]
 
 type Trainer = {
   id: string
@@ -47,16 +51,19 @@ export function BrowseClient({
   claimedGymIds,
   isPremium,
   myGym,
+  gymTypes = {},
 }: {
   profiles: Profile[]
   trainers: Trainer[]
   claimedGymIds: string[]
   isPremium: boolean
   myGym?: GymLite
+  gymTypes?: Record<string, string>
 }) {
   const router = useRouter()
   const [mode, setMode] = useState<'partner' | 'trainer'>('partner')
   const [filter, setFilter] = useState<Level>('All')
+  const [facility, setFacility] = useState<FacilityFilter>('All')
   const [query, setQuery] = useState('')
   const [pending, start] = useTransition()
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -65,6 +72,13 @@ export function BrowseClient({
   const filtered = useMemo(() => {
     let list = profiles
     if (filter !== 'All') list = list.filter(p => p.fitness_level === filter)
+    if (facility !== 'All') {
+      const want = facility.toLowerCase()
+      list = list.filter(p => {
+        const t = (p.gym_id ? gymTypes[p.gym_id] : '')?.toLowerCase() ?? ''
+        return t === want
+      })
+    }
     const q = query.trim().toLowerCase()
     if (q) {
       list = list.filter(p =>
@@ -74,7 +88,7 @@ export function BrowseClient({
       )
     }
     return list
-  }, [profiles, filter, query])
+  }, [profiles, filter, facility, gymTypes, query])
 
   const DISPLAY_LIMIT = 2
 
@@ -228,6 +242,35 @@ export function BrowseClient({
                 {level}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Facility-type filters (partner mode only) */}
+        {mode === 'partner' && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1.5 ml-1">
+              Facility type
+            </p>
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+              {facilityFilters.map(f => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFacility(f)}
+                  className={cn(
+                    'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border flex items-center gap-1.5',
+                    facility === f
+                      ? 'bg-[var(--color-secondary)] text-white border-[var(--color-secondary)] shadow-md'
+                      : 'bg-white text-[var(--color-muted-foreground)] border-[var(--color-border)] hover:border-[var(--color-secondary)]/30',
+                  )}
+                >
+                  {f === 'Gym' && <Dumbbell className="w-3.5 h-3.5" />}
+                  {f === 'Apartment' && <Building2 className="w-3.5 h-3.5" />}
+                  {f === 'Studio' && <UsersRound className="w-3.5 h-3.5" />}
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -30,14 +30,18 @@ export default async function DiscoverPage() {
     partnerQuery = partnerQuery.eq('gym_id', myGymId)
   }
 
-  const [{ data: others }, { data: trainers }, { data: claimedRows }, { data: myGym }] = await Promise.all([
+  const [{ data: others }, { data: trainers }, { data: claimedRows }, { data: myGym }, { data: allGyms }] = await Promise.all([
     partnerQuery,
     supabase.from('trainers').select('id, gym_id, name, bio, specialties, photo_url, booking_link, is_active').eq('is_active', true),
     supabase.from('trainer_consultations').select('gym_id').eq('user_id', user.id),
     myGymId
       ? supabase.from('gyms').select('id, name, type, city, state').eq('id', myGymId).maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase.from('gyms').select('id, type'),
   ])
+
+  const gymTypes: Record<string, string> = {}
+  for (const g of allGyms ?? []) gymTypes[g.id] = g.type
 
   const profileList = (others ?? [])
     .map(p => ({ ...p, score: me ? matchScore(me, p) : 80 }))
@@ -52,6 +56,7 @@ export default async function DiscoverPage() {
       claimedGymIds={claimedGymIds}
       isPremium={isPremium}
       myGym={myGym ?? null}
+      gymTypes={gymTypes}
     />
   )
 }
