@@ -96,7 +96,17 @@ export default async function LocationAdminPage() {
         <span className="w-10" />
       </header>
 
-      <h1 className="text-[24px] font-extrabold tracking-tight">Your Locations</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-[24px] font-extrabold tracking-tight">Your Locations</h1>
+        {isSuper && (
+          <Link
+            href="/app/admin/trainers"
+            className="text-[12.5px] font-bold text-[var(--color-primary)]"
+          >
+            Review trainers →
+          </Link>
+        )}
+      </div>
       <p className="mt-1 text-[13px] text-[var(--color-muted-foreground)]">
         Track engagement, signups, and activity at each property you manage.
       </p>

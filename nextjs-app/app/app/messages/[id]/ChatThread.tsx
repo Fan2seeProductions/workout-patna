@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { createClient } from '../../../../lib/supabase/client'
 import { sendMessage, markMessagesRead } from '../../../../lib/actions/messages'
-import { sendWorkoutInvite } from '../../../../lib/actions/workout-invites'
+import { sendWorkoutInvite, respondToInvite } from '../../../../lib/actions/workout-invites'
 import { ArrowRightIcon, SparkleIcon } from '../../../../components/app/icons'
 
 type Msg = {
@@ -13,6 +13,15 @@ type Msg = {
   body: string
   created_at: string
   read_at?: string | null
+}
+
+type Invite = {
+  id: string
+  sender_id: string
+  starts_at: string
+  workout_type?: string | null
+  notes?: string | null
+  status: string
 }
 
 const suggestedPrompts = [
@@ -27,13 +36,16 @@ export function ChatThread({
   currentUserId,
   otherDisplayName,
   initialMessages,
+  initialInvites = [],
 }: {
   matchId: string
   currentUserId: string
   otherDisplayName: string
   initialMessages: Msg[]
+  initialInvites?: Invite[]
 }) {
   const [messages, setMessages] = useState<Msg[]>(initialMessages)
+  const [invites, setInvites] = useState<Invite[]>(initialInvites)
   const [draft, setDraft] = useState('')
   const [pending, start] = useTransition()
   const scrollerRef = useRef<HTMLDivElement>(null)
@@ -97,6 +109,13 @@ export function ChatThread({
     })
   }
 
+  function handleInviteRespond(id: string, action: 'accept' | 'decline') {
+    startInvite(async () => {
+      const res = await respondToInvite(id, action)
+      if (res.ok) setInvites(prev => prev.map(i => i.id === id ? { ...i, status: action === 'accept' ? 'accepted' : 'declined' } : i))
+    })
+  }
+
   return (
     <>
       {/* Messages list */}
@@ -109,6 +128,12 @@ export function ChatThread({
           )}
           {messages.map(m => {
             const me = m.sender_id === currentUserId
+            const invite = m.body.startsWith('\u{1F4C5} Workout invite:')
+              ? invites.find(inv => inv.sender_id === m.sender_id && Math.abs(new Date(inv.starts_at).getTime() - new Date(m.created_at).getTime()) < 120000)
+              : null
+            if (invite) {
+              return <InviteCard key={m.id} invite={invite} me={me} currentUserId={currentUserId} onRespond={handleInviteRespond} />
+            }
             return (
               <div key={m.id} className={`flex ${me ? 'justify-end' : 'justify-start'}`}>
                 <div
@@ -236,5 +261,73 @@ export function ChatThread({
         </div>
       </div>
     </>
+  )
+}
+
+function InviteCard({
+  invite,
+  me,
+  currentUserId,
+  onRespond,
+}: {
+  invite: Invite
+  me: boolean
+  currentUserId: string
+  onRespond: (id: string, action: 'accept' | 'decline') => void
+}) {
+  const d = new Date(invite.starts_at)
+  const day = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  const canRespond = invite.sender_id !== currentUserId && invite.status === 'pending'
+
+  const statusLabel =
+    invite.status === 'accepted' ? 'Accepted' :
+    invite.status === 'declined' ? 'Declined' :
+    invite.status === 'cancelled' ? 'Cancelled' : null
+
+  return (
+    <div className={`flex ${me ? 'justify-end' : 'justify-start'}`}>
+      <div className="max-w-[85%] rounded-2xl border border-[var(--color-border-bright)] bg-[var(--color-surface-2)] p-3.5 space-y-2">
+        <div className="flex items-center gap-2 text-[12px] font-bold text-[var(--color-brand-bright)]">
+          <span className="text-[16px]">{'\u{1F4C5}'}</span>
+          Workout Invite
+        </div>
+        <p className="text-[15px] font-extrabold text-white">
+          {invite.workout_type ?? 'Training'}
+        </p>
+        <p className="text-[13px] text-white/80">
+          {day} at {time}
+        </p>
+        {invite.notes && (
+          <p className="text-[12px] text-white/60 italic">{invite.notes}</p>
+        )}
+        {statusLabel && (
+          <p className={`text-[12px] font-bold ${
+            invite.status === 'accepted' ? 'text-green-400' :
+            invite.status === 'declined' ? 'text-red-400' : 'text-white/50'
+          }`}>
+            {statusLabel}
+          </p>
+        )}
+        {canRespond && (
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => onRespond(invite.id, 'accept')}
+              className="flex-1 h-8 rounded-full bg-green-500 text-white text-[12px] font-bold"
+            >
+              Accept
+            </button>
+            <button
+              type="button"
+              onClick={() => onRespond(invite.id, 'decline')}
+              className="flex-1 h-8 rounded-full border border-white/20 text-white/80 text-[12px] font-bold"
+            >
+              Decline
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

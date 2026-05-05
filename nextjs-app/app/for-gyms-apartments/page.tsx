@@ -5,6 +5,7 @@ import { PublicNav } from '../../components/public/PublicNav'
 import { PublicFooter } from '../../components/public/PublicFooter'
 import { PageShell, Section, Eyebrow, H2, Lede } from '../../components/public/Section'
 import { PartnerLeadForm } from '../../components/public/PartnerLeadForm'
+import { PartnerPricingButton } from '../../components/public/PartnerPricingButton'
 
 export const metadata: Metadata = {
   title: 'For Gyms & Apartments | WorkoutPartna',
@@ -25,6 +26,7 @@ const benefits = [
 
 const tiers = [
   {
+    tier: 'starter',
     name: 'Starter Location',
     price: '$99',
     cadence: '/month',
@@ -41,6 +43,7 @@ const tiers = [
     cta: 'Start with Starter',
   },
   {
+    tier: 'growth',
     name: 'Growth Location',
     price: '$199',
     cadence: '/month',
@@ -55,9 +58,10 @@ const tiers = [
       'Custom onboarding link',
     ],
     highlight: true,
-    cta: 'Talk to sales',
+    cta: 'Get Growth',
   },
   {
+    tier: 'custom',
     name: 'Network Partner',
     price: 'Custom',
     cadence: 'pricing',
@@ -184,16 +188,7 @@ export default function ForGymsApartmentsPage() {
                       </li>
                     ))}
                   </ul>
-                  <Link
-                    href="#contact"
-                    className={`mt-6 block w-full text-center h-11 rounded-full inline-flex items-center justify-center font-bold text-[14px] ${
-                      t.highlight
-                        ? 'bg-white text-[var(--color-primary)]'
-                        : 'brand-gradient text-white'
-                    }`}
-                  >
-                    {t.cta}
-                  </Link>
+                  <PartnerPricingButton tier={t.tier} label={t.cta} highlight={t.highlight} />
                 </div>
               ))}
             </div>

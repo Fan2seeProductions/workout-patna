@@ -38,12 +38,19 @@ export default async function ChatDetailPage({
   } | null
 
   // Initial messages, oldest first
-  const { data: messages } = await supabase
-    .from('messages')
-    .select('id, sender_id, body, created_at, read_at')
-    .eq('match_id', id)
-    .order('created_at', { ascending: true })
-    .limit(200)
+  const [{ data: messages }, { data: invites }] = await Promise.all([
+    supabase
+      .from('messages')
+      .select('id, sender_id, body, created_at, read_at')
+      .eq('match_id', id)
+      .order('created_at', { ascending: true })
+      .limit(200),
+    supabase
+      .from('workout_invites')
+      .select('id, sender_id, starts_at, workout_type, notes, status')
+      .eq('match_id', id)
+      .order('created_at', { ascending: true }),
+  ])
 
   return (
     <main className="min-h-dvh flex flex-col">
@@ -86,6 +93,7 @@ export default async function ChatDetailPage({
         currentUserId={user.id}
         otherDisplayName={other?.display_name ?? 'Member'}
         initialMessages={messages ?? []}
+        initialInvites={invites ?? []}
       />
     </main>
   )
