@@ -10,7 +10,13 @@ import { splashHero } from '../../../lib/photos'
 
 type Mode = 'signin' | 'signup'
 
-export function AuthClient({ initialMode = 'signin' as Mode }: { initialMode?: Mode }) {
+export function AuthClient({
+  initialMode = 'signin' as Mode,
+  trainerSignup = false,
+}: {
+  initialMode?: Mode
+  trainerSignup?: boolean
+}) {
   const router = useRouter()
   const [mode, setMode] = useState<Mode>(initialMode)
   const [email, setEmail] = useState('')
@@ -30,17 +36,18 @@ export function AuthClient({ initialMode = 'signin' as Mode }: { initialMode?: M
     setPending('email')
     try {
       const supabase = createClient()
+      const next = trainerSignup ? '/app/trainers/apply' : '/app/onboarding'
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
-        router.push('/app/home')
+        router.push(trainerSignup ? '/app/trainers/apply' : '/app/home')
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/app/onboarding`,
-            data: { name, age: age ? parseInt(age, 10) : undefined },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+            data: { name, age: age ? parseInt(age, 10) : undefined, role_intent: trainerSignup ? 'trainer' : 'user' },
           },
         })
         if (error) throw error
@@ -58,10 +65,11 @@ export function AuthClient({ initialMode = 'signin' as Mode }: { initialMode?: M
     setPending('google')
     try {
       const supabase = createClient()
+      const next = trainerSignup ? '/app/trainers/apply' : '/app/home'
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/app/home`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
           skipBrowserRedirect: true,
         },
       })

@@ -1,5 +1,6 @@
 // /app/auth — unified sign in / sign up page (toggles between modes).
-// Mirrors the Replit Auth split-screen layout.
+// Mirrors the Replit Auth split-screen layout. When ?role=trainer is
+// passed, sends new accounts to /app/trainers/apply after confirmation.
 import type { Metadata } from 'next'
 import { AuthClient } from './AuthClient'
 
@@ -11,9 +12,10 @@ export const metadata: Metadata = {
 export default async function AuthPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string }>
+  searchParams: Promise<{ mode?: string; role?: string }>
 }) {
-  const { mode } = await searchParams
+  const { mode, role } = await searchParams
   const initialMode = mode === 'signup' ? 'signup' : 'signin'
-  return <AuthClient initialMode={initialMode} />
+  const trainerSignup = role === 'trainer'
+  return <AuthClient initialMode={initialMode} trainerSignup={trainerSignup} />
 }
