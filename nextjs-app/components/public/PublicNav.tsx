@@ -17,7 +17,7 @@ export function PublicNav() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-white/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/[0.07] bg-[#0d0d0d]/90 backdrop-blur-xl">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center" aria-label="WorkoutPartna home">
           <Logo size={32} withWordmark />
@@ -29,7 +29,7 @@ export function PublicNav() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-[14px] font-semibold text-[var(--color-foreground)]/85 hover:text-[var(--color-primary)] transition"
+              className="text-[14px] font-semibold text-white/60 hover:text-white transition"
             >
               {l.label}
             </Link>
@@ -40,7 +40,7 @@ export function PublicNav() {
         <div className="hidden md:flex items-center gap-2">
           <Link
             href="/app/signin"
-            className="px-3 py-2 text-[13px] font-semibold text-[var(--color-foreground)]/85 hover:text-[var(--color-primary)]"
+            className="px-3 py-2 text-[13px] font-semibold text-white/60 hover:text-white transition"
           >
             Sign in
           </Link>
@@ -57,7 +57,7 @@ export function PublicNav() {
           aria-label="Menu"
           aria-expanded={open}
           onClick={() => setOpen(v => !v)}
-          className="md:hidden h-9 w-9 rounded-lg flex items-center justify-center text-[var(--color-foreground)]"
+          className="md:hidden h-9 w-9 rounded-lg flex items-center justify-center text-white/70"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
             {open ? (
@@ -78,14 +78,14 @@ export function PublicNav() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="md:hidden border-t border-[var(--color-border)] bg-white">
+        <div className="md:hidden border-t border-white/[0.07] bg-[#0d0d0d]">
           <nav className="px-4 py-3 flex flex-col gap-1">
             {links.map(l => (
               <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="px-2 py-3 text-[15px] font-semibold text-[var(--color-foreground)]"
+                className="px-2 py-3 text-[15px] font-semibold text-white/70"
               >
                 {l.label}
               </Link>
@@ -94,7 +94,7 @@ export function PublicNav() {
               <Link
                 href="/app/signin"
                 onClick={() => setOpen(false)}
-                className="h-11 rounded-full border border-[var(--color-border)] flex items-center justify-center text-[14px] font-semibold text-[var(--color-foreground)]"
+                className="h-11 rounded-full border border-white/15 flex items-center justify-center text-[14px] font-semibold text-white/70"
               >
                 Sign in
               </Link>

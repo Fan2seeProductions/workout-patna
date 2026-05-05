@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { OnboardingFrame } from '../../../../components/app/OnboardingFrame'
 import { BrandButton } from '../../../../components/app/BrandButton'
 import { PhotoUploader } from '../../../../components/app/PhotoUploader'
+import { updateMyProfile } from '../../../../lib/actions/profile'
 
 const levels = ['Beginner', 'Intermediate', 'Advanced', 'Athlete']
 const goals = [
@@ -16,9 +17,9 @@ const styles = ['Strength', 'HIIT', 'Cardio', 'Yoga', 'Run', 'Boxing', 'Calisthe
 const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 const times = ['Mornings', 'Midday', 'Evenings', 'Late night']
 const vibes = [
-  { id: 'workout',  title: 'Workout only',     subtitle: 'Show up, train, leave.' },
-  { id: 'friends',  title: 'Workouts and friends', subtitle: 'Stay connected outside the gym.' },
-  { id: 'open',     title: 'Open to dating',   subtitle: 'Open to where it goes.' },
+  { id: 'workout',   title: 'Workout only',        subtitle: 'Show up, train, leave.' },
+  { id: 'friends',   title: 'Workouts and friends', subtitle: 'Stay connected outside the gym.' },
+  { id: 'community', title: 'Build community',      subtitle: 'Grow a crew that trains together.' },
 ]
 
 export default function ProfilePage() {
@@ -30,6 +31,8 @@ export default function ProfilePage() {
   const [timeSet, setTimeSet] = useState<Set<string>>(new Set())
   const [vibe, setVibe] = useState<string>('')
   const [bio, setBio] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const toggle = (set: Set<string>, val: string, setFn: (s: Set<string>) => void) => {
     const next = new Set(set)
@@ -37,8 +40,34 @@ export default function ProfilePage() {
     setFn(next)
   }
 
-  const canContinue =
-    !!level && goalSet.size > 0 && styleSet.size > 0 && daySet.size > 0 && timeSet.size > 0 && !!vibe
+  // Only level is hard-required; everything else the user can fill at their own pace
+  const canContinue = !!level
+
+  async function handleContinue() {
+    if (!canContinue || saving) return
+    setSaving(true)
+    setError(null)
+    try {
+      const result = await updateMyProfile({
+        fitness_level: level,
+        goals: [...goalSet],
+        styles: [...styleSet],
+        schedule_days: [...daySet],
+        schedule_times: [...timeSet],
+        vibe: vibe || undefined,
+        bio: bio || undefined,
+      })
+      if (!result.ok) {
+        setError(result.error ?? 'Could not save. Please try again.')
+        setSaving(false)
+        return
+      }
+      router.push('/app/onboarding/coach-intake')
+    } catch {
+      setError('Something went wrong. Please try again.')
+      setSaving(false)
+    }
+  }
 
   return (
     <OnboardingFrame step={4} totalSteps={5} backHref="/app/onboarding/find-location">
@@ -61,7 +90,7 @@ export default function ProfilePage() {
           </div>
         </Group>
 
-        <Group label="Fitness level">
+        <Group label="Fitness level *">
           <PillRow options={levels} selected={level ? new Set([level]) : new Set()} onClick={setLevel} single />
         </Group>
 
@@ -144,13 +173,23 @@ export default function ProfilePage() {
         </Group>
       </div>
 
+      {error && (
+        <p className="mt-4 text-[13px] text-red-400 text-center">{error}</p>
+      )}
+
+      {!level && (
+        <p className="mt-4 text-[12px] text-[var(--color-text-dim)] text-center">
+          Select a fitness level to continue
+        </p>
+      )}
+
       <BrandButton
         size="lg"
-        className="w-full mt-6 mb-2"
-        disabled={!canContinue}
-        onClick={() => router.push('/app/onboarding/coach-intake')}
+        className="w-full mt-4 mb-2"
+        disabled={!canContinue || saving}
+        onClick={handleContinue}
       >
-        Continue
+        {saving ? 'Saving…' : 'Continue'}
       </BrandButton>
     </OnboardingFrame>
   )

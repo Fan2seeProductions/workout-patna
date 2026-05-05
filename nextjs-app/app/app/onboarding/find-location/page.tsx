@@ -17,7 +17,7 @@ export default async function FindLocationPage() {
       .from('gyms')
       .select('id, name, type, city, state, members')
       .order('name')
-      .limit(500),
+      .limit(1000),
   ])
 
   return (

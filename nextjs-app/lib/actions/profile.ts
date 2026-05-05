@@ -27,8 +27,7 @@ export async function updateMyProfile(patch: ProfileUpdate) {
 
   const { error } = await supabase
     .from('profiles')
-    .update(patch)
-    .eq('id', user.id)
+    .upsert({ id: user.id, ...patch }, { onConflict: 'id' })
 
   if (error) return { ok: false, error: error.message }
 
