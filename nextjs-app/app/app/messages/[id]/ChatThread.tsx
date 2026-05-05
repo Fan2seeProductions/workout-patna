@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { createClient } from '../../../../lib/supabase/client'
 import { sendMessage, markMessagesRead } from '../../../../lib/actions/messages'
+import { sendWorkoutInvite } from '../../../../lib/actions/workout-invites'
 import { ArrowRightIcon, SparkleIcon } from '../../../../components/app/icons'
 
 type Msg = {
@@ -36,6 +37,14 @@ export function ChatThread({
   const [draft, setDraft] = useState('')
   const [pending, start] = useTransition()
   const scrollerRef = useRef<HTMLDivElement>(null)
+
+  // Workout invite modal state
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [inviteDate, setInviteDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [inviteTime, setInviteTime] = useState('18:00')
+  const [inviteWorkout, setInviteWorkout] = useState('Push')
+  const [inviteNotes, setInviteNotes] = useState('')
+  const [invitePending, startInvite] = useTransition()
 
   // Subscribe to Realtime inserts for this match
   useEffect(() => {
@@ -140,30 +149,90 @@ export function ChatThread({
         </div>
       )}
 
-      {/* Composer */}
+      {/* Composer + Invite to Workout */}
       <div className="border-t border-[var(--color-border)] bg-[var(--color-surface)]/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto max-w-md px-4 py-3 flex items-center gap-2">
-          <input
-            value={draft}
-            onChange={e => setDraft(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                send(draft)
-              }
-            }}
-            placeholder="Message..."
-            disabled={pending}
-            className="flex-1 h-11 rounded-full border border-[var(--color-border)] bg-white/[0.04] px-4 text-[14px] text-white placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-brand)] disabled:opacity-50"
-          />
+        <div className="mx-auto max-w-md px-4 pt-2 pb-3 space-y-2">
           <button
-            onClick={() => send(draft)}
-            disabled={pending || !draft.trim()}
-            aria-label="Send"
-            className="shrink-0 h-11 w-11 rounded-full brand-gradient flex items-center justify-center text-white disabled:opacity-50"
+            type="button"
+            onClick={() => setInviteOpen(v => !v)}
+            className="w-full h-9 rounded-full border border-[var(--color-border-bright)] bg-white/[0.04] text-white/90 text-[12.5px] font-bold inline-flex items-center justify-center gap-1.5"
           >
-            <ArrowRightIcon width={18} height={18} />
+            📅 {inviteOpen ? 'Hide invite' : 'Invite to Workout'}
           </button>
+
+          {inviteOpen && (
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="date"
+                  value={inviteDate}
+                  onChange={e => setInviteDate(e.target.value)}
+                  className="h-10 rounded-lg border border-[var(--color-border)] bg-white/[0.04] px-2.5 text-[13px] text-white"
+                />
+                <input
+                  type="time"
+                  value={inviteTime}
+                  onChange={e => setInviteTime(e.target.value)}
+                  className="h-10 rounded-lg border border-[var(--color-border)] bg-white/[0.04] px-2.5 text-[13px] text-white"
+                />
+              </div>
+              <input
+                value={inviteWorkout}
+                onChange={e => setInviteWorkout(e.target.value)}
+                placeholder="Workout type (e.g. Legs)"
+                className="w-full h-10 rounded-lg border border-[var(--color-border)] bg-white/[0.04] px-2.5 text-[13px] text-white placeholder:text-[var(--color-text-dim)]"
+              />
+              <input
+                value={inviteNotes}
+                onChange={e => setInviteNotes(e.target.value.slice(0, 140))}
+                placeholder="Notes (optional)"
+                className="w-full h-10 rounded-lg border border-[var(--color-border)] bg-white/[0.04] px-2.5 text-[13px] text-white placeholder:text-[var(--color-text-dim)]"
+              />
+              <button
+                disabled={invitePending}
+                onClick={() => {
+                  const startsAt = new Date(`${inviteDate}T${inviteTime}:00`)
+                  startInvite(async () => {
+                    await sendWorkoutInvite({
+                      match_id: matchId,
+                      starts_at: startsAt.toISOString(),
+                      workout_type: inviteWorkout || 'Workout',
+                      notes: inviteNotes,
+                    })
+                    setInviteOpen(false)
+                    setInviteNotes('')
+                  })
+                }}
+                className="w-full h-10 rounded-full brand-gradient text-white font-bold text-[13px] disabled:opacity-50"
+              >
+                {invitePending ? 'Sending...' : 'Send invite'}
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <input
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  send(draft)
+                }
+              }}
+              placeholder="Message..."
+              disabled={pending}
+              className="flex-1 h-11 rounded-full border border-[var(--color-border)] bg-white/[0.04] px-4 text-[14px] text-white placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-brand)] disabled:opacity-50"
+            />
+            <button
+              onClick={() => send(draft)}
+              disabled={pending || !draft.trim()}
+              aria-label="Send"
+              className="shrink-0 h-11 w-11 rounded-full brand-gradient flex items-center justify-center text-white disabled:opacity-50"
+            >
+              <ArrowRightIcon width={18} height={18} />
+            </button>
+          </div>
         </div>
       </div>
     </>

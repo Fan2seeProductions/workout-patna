@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../../../lib/supabase/server'
 import { signOut } from '../../../../lib/actions/profile'
+import { profileCompletion } from '../../../../lib/profile-completion'
 
 export const metadata = { title: 'Profile', robots: { index: false, follow: false } }
 
@@ -17,6 +18,16 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
 
+  // Optionally resolve gym name from gym_id, so the profile never shows "Set your location"
+  // when the user did pick a gym.
+  let gymLabel: string | null = null
+  if (profile?.gym_id) {
+    const { data: g } = await supabase.from('gyms').select('name, city').eq('id', profile.gym_id).maybeSingle()
+    if (g?.name) gymLabel = `${g.name}${g.city ? ` · ${g.city}` : ''}`
+  }
+
+  const completion = profileCompletion(profile ?? {})
+
   const name  = profile?.display_name ?? user.email?.split('@')[0] ?? 'Member'
   const age   = profile?.age
   const bio   = profile?.bio || 'No bio yet. Tap Edit Profile to add one.'
@@ -24,7 +35,7 @@ export default async function ProfilePage() {
   const schedule = (profile?.schedule_times ?? []).join(', ') || (profile?.schedule_days ?? []).join(', ') || 'Set your schedule'
   const goals = (profile?.goals ?? []) as string[]
   const interests = (profile?.styles ?? []) as string[]
-  const location = profile?.primary_location || 'Set your location'
+  const location = gymLabel || profile?.primary_location || 'Set your location'
 
   return (
     <div className="max-w-4xl mx-auto pb-24">
@@ -80,6 +91,37 @@ export default async function ProfilePage() {
       </div>
 
       <div className="px-4 mt-8 space-y-6">
+        {/* Profile completion meter */}
+        {completion.pct < 100 && (
+          <div className="bg-white rounded-2xl p-4 border border-[var(--color-border)] shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-[var(--color-foreground)]">
+                Profile {completion.pct}% complete
+              </p>
+              <Link href="/app/profile/edit" className="text-[12px] font-bold text-[var(--color-primary)]">
+                Finish →
+              </Link>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-[var(--color-muted)] overflow-hidden">
+              <div
+                className="h-full brand-gradient transition-[width] duration-300"
+                style={{ width: `${completion.pct}%` }}
+              />
+            </div>
+            {completion.missing.length > 0 && (
+              <p className="mt-2 text-[12px] text-[var(--color-muted-foreground)]">
+                Add: {completion.missing.slice(0, 3).join(', ')}
+                {completion.missing.length > 3 ? ` +${completion.missing.length - 3} more` : ''}
+              </p>
+            )}
+            {!completion.ready && (
+              <p className="mt-2 text-[11.5px] text-[var(--color-muted-foreground)]">
+                Complete your profile to see match scores and unlock better Partnas.
+              </p>
+            )}
+          </div>
+        )}
+
         {/* About */}
         <div className="bg-white rounded-2xl p-5 border border-[var(--color-border)] shadow-sm">
           <h2 className="font-bold text-lg mb-2 text-[var(--color-primary)]">About Me</h2>
