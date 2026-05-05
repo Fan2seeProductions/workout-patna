@@ -19,8 +19,9 @@ export const profileHero = {
   marcus: cdn('1583454110551-21f2fa2afe61', 1200, 1500),
 }
 
-// Splash hero. Blonde woman doing crunches in dark moody gym, dark athletic look.
-export const splashHero = cdn('1594381898411-846e7d193883', 1600, 1000)
+// Splash hero — served from /public/hero-woman.jpg (local asset, Bruce Mars / Unsplash)
+// African American woman in fitness class, bright brick-wall studio.
+export const splashHero = '/hero-woman.jpg'
 export const splashHeroFallback = splashHero
 
 // 16:9 wide for splash and location pages

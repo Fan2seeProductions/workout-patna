@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import { PublicNav } from '../components/public/PublicNav'
 import { PublicFooter } from '../components/public/PublicFooter'
-import { splashHero } from '../lib/photos'
 
 export default function HomePage() {
   return (
@@ -14,10 +13,10 @@ export default function HomePage() {
         {/* Woman working out — right side, fades into dark left */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={splashHero}
+          src="/hero-woman.jpg"
           alt="Woman working out at the gym"
-          className="absolute inset-0 w-full h-full object-cover object-[70%_30%]"
-          style={{ opacity: 0.55 }}
+          className="absolute inset-0 w-full h-full object-cover object-[75%_25%]"
+          style={{ opacity: 0.65 }}
         />
         {/* Strong left-to-right gradient so text stays readable */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(105deg, #0d0d0d 38%, rgba(13,13,13,0.75) 58%, rgba(13,13,13,0.15) 100%)' }} />
