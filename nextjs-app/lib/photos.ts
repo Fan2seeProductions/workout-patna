@@ -19,9 +19,8 @@ export const profileHero = {
   marcus: cdn('1583454110551-21f2fa2afe61', 1200, 1500),
 }
 
-// Splash hero. Black woman in maroon sports bra, hand on chest, intimate
-// candle-lit setting (photo by Franco on Unsplash, ID hm8ODkqGQZI).
-export const splashHero = cdn('1737638699875-ae5eac03c0f0', 1500, 2000)
+// Splash hero. Blonde woman doing crunches in dark moody gym, dark athletic look.
+export const splashHero = cdn('1594381898411-846e7d193883', 1600, 1000)
 export const splashHeroFallback = splashHero
 
 // 16:9 wide for splash and location pages

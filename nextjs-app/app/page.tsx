@@ -11,11 +11,18 @@ export default function HomePage() {
 
       {/* ── 1. HERO ─────────────────────────────────────────────────────── */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
-        {/* Background image */}
+        {/* Woman working out — right side, fades into dark left */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={splashHero} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-25" />
-        {/* Dark gradient over image */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0d0d0d 40%, rgba(220,22,22,0.15) 100%)' }} />
+        <img
+          src={splashHero}
+          alt="Woman working out at the gym"
+          className="absolute inset-0 w-full h-full object-cover object-[70%_30%]"
+          style={{ opacity: 0.55 }}
+        />
+        {/* Strong left-to-right gradient so text stays readable */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(105deg, #0d0d0d 38%, rgba(13,13,13,0.75) 58%, rgba(13,13,13,0.15) 100%)' }} />
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 inset-x-0 h-40" style={{ background: 'linear-gradient(to top, #0d0d0d, transparent)' }} />
 
         <div className="relative mx-auto max-w-5xl px-5 sm:px-8 py-24">
           {/* Badge */}
