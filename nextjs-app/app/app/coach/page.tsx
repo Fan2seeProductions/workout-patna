@@ -93,7 +93,7 @@ export default async function CoachPage() {
         <Link
           href="/app/home"
           aria-label="Back"
-          className="h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.04] flex items-center justify-center text-white/85"
+          className="h-9 w-9 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] flex items-center justify-center text-[var(--color-foreground)]"
         >
           <BackIcon width={18} height={18} />
         </Link>
@@ -121,7 +121,7 @@ export default async function CoachPage() {
             <span className="shrink-0 mt-0.5 h-5 w-5 rounded-full bg-[var(--color-match)]/15 border border-[var(--color-match)]/40 flex items-center justify-center">
               <CheckIcon width={12} height={12} className="text-[var(--color-match)]" />
             </span>
-            <span className="text-[14px] text-white/85 leading-snug">{b}</span>
+            <span className="text-[14px] text-[var(--color-foreground)] leading-snug">{b}</span>
           </li>
         ))}
       </ul>
