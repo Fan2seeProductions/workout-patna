@@ -1,31 +1,13 @@
-// Home dashboard. Mirrors the Replit Workout Partna Home page:
-// daily motivation, hero, social proof strip, this-week events, suggested
-// partnas, merch promo, testimonials, floating action button.
+// Home dashboard — mobile-first app layout.
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import {
-  MapPin, ArrowRight, Users as UsersIcon, Search, Zap,
-  Star, Clock, CheckCircle2, Flame, ShoppingBag,
-} from 'lucide-react'
 import { createClient } from '../../../../lib/supabase/server'
 import { matchScore } from '../../../../lib/matching'
-import { splashHero } from '../../../../lib/photos'
 
 export const metadata: Metadata = {
   title: 'Home',
   robots: { index: false, follow: false },
 }
-
-const events = [
-  { id: 1, title: 'Early Bird Lifting Club',  type: 'Workout', time: 'Mon 6am', attendees: 12, color: 'bg-[var(--color-secondary)]' },
-  { id: 2, title: 'Cardio & Coffee Meetup',   type: 'Social',  time: 'Wed 7am', attendees: 8,  color: 'bg-[var(--color-primary)]' },
-  { id: 3, title: 'Weekend Warriors',         type: 'Group',   time: 'Sat 9am', attendees: 15, color: 'bg-[var(--color-accent)]' },
-]
-
-const testimonials = [
-  { id: 1, text: "Found my perfect gym partner in 2 days. We've been training together for 6 months now!", author: 'Marcus J.' },
-  { id: 2, text: 'Finally have someone to spot me. No more awkward gym asks!', author: 'Sarah T.' },
-]
 
 type ProfileLite = {
   id: string
@@ -35,382 +17,242 @@ type ProfileLite = {
   goals: string[] | null
   styles: string[] | null
   primary_location: string | null
+  gym_id: string | null
   schedule_days: string[] | null
   schedule_times: string[] | null
-  vibe: string | null
   photo_url: string | null
 }
 
-function greeting(now: Date) {
-  const h = now.getHours()
+function firstName(s: string | null | undefined) {
+  if (!s) return 'there'
+  return s.split(' ')[0]
+}
+
+function greeting() {
+  const h = new Date().getHours()
   if (h < 12) return 'Good morning'
   if (h < 17) return 'Good afternoon'
   return 'Good evening'
-}
-
-function firstName(s: string | null | undefined) {
-  if (!s) return 'Friend'
-  return s.split(' ')[0]
 }
 
 export default async function HomePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Pull viewer's profile, suggested partnas (top 3), today's motivation
-  const [meRes, othersRes, motivRes] = await Promise.all([
+  const [meRes, othersRes, matchesRes, messagesRes, trainingRes] = await Promise.all([
     user
       ? supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
-      : Promise.resolve({ data: null as ProfileLite | null }),
-    supabase.from('profiles').select('id, display_name, age, fitness_level, goals, styles, primary_location, schedule_days, schedule_times, vibe, photo_url').neq('id', user?.id ?? '00000000-0000-0000-0000-000000000000').limit(20),
-    supabase.from('daily_motivations').select('id, text, author').limit(8),
+      : Promise.resolve({ data: null }),
+    supabase
+      .from('profiles')
+      .select('id, display_name, age, fitness_level, goals, styles, primary_location, gym_id, schedule_days, schedule_times, photo_url')
+      .neq('id', user?.id ?? '00000000-0000-0000-0000-000000000000')
+      .limit(30),
+    user
+      ? supabase.from('matches').select('id').eq('status', 'active').or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      : Promise.resolve({ data: [] }),
+    user
+      ? supabase.from('messages').select('id').eq('read_at', null).neq('sender_id', user.id)
+      : Promise.resolve({ data: [] }),
+    user
+      ? supabase.from('training_today').select('id, workout_type, starts_at, gym_id, gyms(name)').eq('status', 'open').order('starts_at').limit(5)
+      : Promise.resolve({ data: [] }),
   ])
 
   const me = (meRes.data ?? null) as ProfileLite | null
   const others = (othersRes.data ?? []) as ProfileLite[]
-  const motivations = (motivRes.data ?? []) as { id: string; text: string; author: string }[]
-
-  // Pick a deterministic motivation for today
-  const dayIdx = motivations.length > 0
-    ? Math.floor(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()) / 86_400_000) % motivations.length
-    : 0
-  const motivation = motivations[dayIdx]
+  const activeMatches = (matchesRes.data ?? []).length
+  const unreadCount = (messagesRes.data ?? []).length
+  const trainingToday = (trainingRes.data ?? []) as any[]
 
   const suggested = others
-    .map(p => ({ ...p, score: me ? matchScore(me, p) : 80 }))
+    .map(p => ({ ...p, score: me ? (matchScore(me as any, p as any) ?? 60) : 70 }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
+    .slice(0, 6)
 
-  const inviteCount = 0 // user invites not implemented yet
-  const isPremium = false
-  const showWatermark = false // disabled — was triggering on every page
-  const userName = me?.display_name ?? user?.email?.split('@')[0] ?? 'Friend'
-  const userInitial = (firstName(userName)[0] ?? '?').toUpperCase()
+  const displayName = me?.display_name ?? user?.email?.split('@')[0] ?? ''
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 pt-8 md:pt-10 space-y-10 pb-24 relative">
-
-      {/* Watermark overlay */}
-      {showWatermark && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-40">
-          <div className="text-center opacity-[0.06] -rotate-45" style={{ fontSize: 120, fontWeight: 'bold', whiteSpace: 'nowrap', lineHeight: 1 }}>
-            Powered by<br />WorkoutPartna.com
-          </div>
-        </div>
-      )}
-
-      {/* Invite progress */}
-      {showWatermark && (
-        <section className="bg-gradient-to-r from-[var(--color-primary)]/10 to-[var(--color-secondary)]/10 border border-[var(--color-primary)]/20 rounded-2xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-primary)]/5 rounded-full blur-2xl" />
-          <div className="relative">
-            <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">Remove Watermark 🎯</h3>
-            <p className="text-sm text-[var(--color-muted-foreground)] mb-4">
-              Invite {3 - inviteCount} more friend{3 - inviteCount !== 1 ? 's' : ''} to remove the watermark!
-              Invite 5 friends to unlock <span className="font-bold text-[var(--color-secondary)]">1 week free premium</span>!
-            </p>
-            <div className="space-y-3">
-              <ProgressRow label="Remove Watermark" current={inviteCount} target={3} color="bg-[var(--color-primary)]" />
-              <ProgressRow label="Get Free Premium Week" current={inviteCount} target={5} color="bg-[var(--color-secondary)]" />
-            </div>
-            <button className="w-full mt-4 py-2.5 bg-[var(--color-primary)] text-[var(--color-primary-foreground)] rounded-xl font-bold text-sm hover:opacity-90 transition">
-              Copy Invite Link
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* Welcome */}
-      <header className="flex justify-between items-center pt-2">
+    <div className="min-h-dvh bg-[var(--color-background)]">
+      {/* ── Header ── */}
+      <header className="px-5 pt-12 pb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] font-display">
-            {greeting(new Date())}, {firstName(userName)}!
-          </h1>
-          <p className="text-[var(--color-muted-foreground)] mt-1 text-sm md:text-base flex items-center">
-            <MapPin className="w-3.5 h-3.5 mr-1 text-[var(--color-secondary)]" />
-            {me?.primary_location || 'Set your location'}
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[var(--color-primary)]">
+            {greeting()}
           </p>
+          <h1 className="text-[24px] font-extrabold tracking-tight text-[var(--color-foreground)] leading-tight">
+            {firstName(displayName)}
+          </h1>
         </div>
-        <Link href="/app/profile" className="relative h-12 w-12 group">
-          <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-[var(--color-secondary)]/50 hover:border-[var(--color-secondary)] transition-colors shadow-sm relative z-10">
+        <div className="flex items-center gap-3">
+          {unreadCount > 0 && (
+            <Link href="/app/messages" className="relative">
+              <div className="h-9 w-9 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)]">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-extrabold flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            </Link>
+          )}
+          <Link href="/app/profile">
             {me?.photo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={me.photo_url} alt="You" className="w-full h-full object-cover" />
+              <img src={me.photo_url} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-[var(--color-primary)]/30" />
             ) : (
-              <div className="w-full h-full bg-[var(--color-muted)] flex items-center justify-center">
-                <span className="text-lg font-bold text-[var(--color-muted-foreground)]">{userInitial}</span>
+              <div className="h-10 w-10 rounded-full brand-gradient flex items-center justify-center text-white font-extrabold text-[15px]">
+                {(firstName(displayName)[0] ?? '?').toUpperCase()}
               </div>
             )}
-          </div>
-          {isPremium && (
-            <div className="absolute -bottom-1 -right-1 bg-[var(--color-secondary)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[var(--color-background)] z-20">
-              PRO
-            </div>
-          )}
-        </Link>
+          </Link>
+        </div>
       </header>
 
-      {/* Daily motivation */}
-      {motivation && (
-        <section className="bg-gradient-to-r from-[var(--color-primary)]/5 to-[var(--color-secondary)]/5 rounded-2xl p-5 border border-[var(--color-primary)]/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-secondary)]/5 rounded-full blur-3xl -mr-16 -mt-16" />
-          <div className="flex items-start gap-4 relative">
-            <div className="h-12 w-12 rounded-full bg-[var(--color-secondary)]/20 flex items-center justify-center text-[var(--color-secondary)] shrink-0">
-              <Flame className="w-6 h-6" />
-            </div>
-            <div className="flex-1">
-              <p className="text-xs font-bold text-[var(--color-secondary)] uppercase tracking-wider mb-2">Daily Motivation</p>
-              <p className="text-lg font-medium text-[var(--color-foreground)] leading-relaxed italic">
-                &ldquo;{motivation.text}&rdquo;
-              </p>
-            </div>
-          </div>
-        </section>
+      {/* ── Quick stats ── */}
+      <div className="px-5 pb-5 grid grid-cols-3 gap-3">
+        <StatChip label="Matches" value={activeMatches} href="/app/matches" />
+        <StatChip label="Messages" value={unreadCount} href="/app/messages" badge />
+        <StatChip label="Discover" value={suggested.length} href="/app/discover" />
+      </div>
+
+      {/* ── Location ── */}
+      {me?.primary_location && (
+        <div className="mx-5 mb-4 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-[var(--color-primary)]/8 border border-[var(--color-primary)]/15">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)] shrink-0">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span className="text-[13px] font-semibold text-[var(--color-foreground)]">{me.primary_location}</span>
+          <Link href="/app/onboarding/find-location" className="ml-auto text-[11px] font-bold text-[var(--color-primary)]">Change</Link>
+        </div>
       )}
 
-      {/* Upgrade banner */}
-      {!isPremium && (
-        <section className="bg-gradient-to-r from-[var(--color-secondary)]/10 to-[var(--color-secondary)]/5 border border-[var(--color-secondary)]/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-secondary)]/10 rounded-full blur-2xl" />
-          <div className="flex items-center gap-4 relative">
-            <div className="h-12 w-12 rounded-full bg-[var(--color-secondary)]/20 flex items-center justify-center text-[var(--color-secondary)] shrink-0">
-              <Zap className="w-6 h-6 fill-[var(--color-secondary)]" />
-            </div>
-            <div>
-              <h3 className="font-display font-bold text-lg text-[var(--color-foreground)]">Upgrade to Unlimited</h3>
-              <p className="text-sm text-[var(--color-muted-foreground)]">Get unlimited matches, messages, and priority visibility.</p>
-            </div>
-          </div>
-          <Link
-            href="/app/coach"
-            className="w-full md:w-auto px-6 py-2.5 bg-[var(--color-secondary)] text-white rounded-xl font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all whitespace-nowrap text-center"
-          >
-            Upgrade for $10/mo
-          </Link>
-        </section>
-      )}
-
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-xl group">
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-primary)]/90 via-[var(--color-primary)]/80 to-[var(--color-primary)]/40 z-10 mix-blend-multiply" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={splashHero} alt="Gym Community" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" />
-        <div className="relative z-20 p-6 md:p-10 flex flex-col items-start gap-5">
-          <div className="flex gap-2">
-            <span className="bg-[var(--color-secondary)] text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm animate-pulse">New</span>
-            <span className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-white/10">Community First</span>
-          </div>
-          <div className="space-y-2 max-w-lg">
-            <h2 className="text-3xl md:text-4xl font-display font-bold leading-tight">
-              Most people stop going to the gym because they go alone.
-            </h2>
-            <p className="text-xl md:text-2xl font-light text-white/90 italic">
-              Find someone who shows up for you.
+      {/* ── Train today banner ── */}
+      <div className="mx-5 mb-6">
+        <div className="rounded-2xl brand-gradient p-5 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-white/70">Today</p>
+            <p className="text-[17px] font-extrabold text-white leading-tight mt-0.5">
+              Training today?
             </p>
+            <p className="text-[12px] text-white/80 mt-0.5">Let your gym know you're showing up.</p>
           </div>
           <Link
-            href="/app/browse"
-            className="mt-4 bg-white text-[var(--color-primary)] px-8 py-4 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2"
+            href="/app/training-today/new"
+            className="shrink-0 h-10 px-4 rounded-full bg-white text-[var(--color-primary)] font-extrabold text-[13px] flex items-center"
           >
-            <Search className="w-5 h-5" />
-            Meet Your Gym Person
+            Post
           </Link>
         </div>
-      </section>
+      </div>
 
-      {/* Social proof */}
-      <section className="-mt-2">
-        <p className="text-xs font-bold text-[var(--color-muted-foreground)] uppercase tracking-widest text-center mb-4">Trusted by members at</p>
-        <div className="flex flex-wrap justify-center gap-6 md:gap-12 opacity-60 hover:opacity-100 transition-opacity">
-          {["GOLD'S GYM", '24 HOUR FITNESS', 'LA FITNESS', 'EQUINOX', 'EOS FITNESS'].map(b => (
-            <span key={b} className="font-display font-black text-xl text-[var(--color-foreground)]/70">{b}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* Happening this week */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold font-display text-[var(--color-foreground)] flex items-center gap-2">
-            <Zap className="w-5 h-5 text-[var(--color-secondary)] fill-[var(--color-secondary)]" />
-            Happening This Week
-          </h3>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-          {events.map(event => (
-            <div key={event.id} className="min-w-[260px] bg-[var(--color-card)] rounded-2xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer relative overflow-hidden group">
-              <div className={`absolute top-0 left-0 w-1.5 h-full ${event.color}`} />
-              <div className="space-y-3">
-                <span className="text-xs font-bold text-[var(--color-muted-foreground)] uppercase tracking-wider border border-[var(--color-border)] px-2 py-0.5 rounded-md bg-[var(--color-muted)]/30">{event.type}</span>
-                <h4 className="font-bold text-lg leading-tight text-[var(--color-foreground)] group-hover:text-[var(--color-primary)] transition-colors">{event.title}</h4>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-[var(--color-foreground)]">{event.time}</span>
-                  <span className="text-[var(--color-muted-foreground)] flex items-center text-xs bg-[var(--color-muted)] px-2 py-1 rounded-full">
-                    <UsersIcon className="w-3 h-3 mr-1" /> {event.attendees} going
-                  </span>
-                </div>
+      {/* ── Training today at your gym ── */}
+      {trainingToday.length > 0 && (
+        <section className="mb-6">
+          <div className="px-5 flex items-center justify-between mb-3">
+            <h2 className="text-[15px] font-extrabold text-[var(--color-foreground)]">At your gym today</h2>
+            <Link href="/app/discover?tab=training" className="text-[12px] font-bold text-[var(--color-primary)]">See all</Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto no-scrollbar px-5">
+            {trainingToday.map((t: any) => (
+              <div key={t.id} className="shrink-0 w-[150px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-3.5">
+                <p className="text-[13px] font-extrabold text-[var(--color-foreground)] truncate">{t.workout_type ?? 'Training'}</p>
+                <p className="text-[11px] text-[var(--color-muted-foreground)] mt-0.5 truncate">
+                  {t.gyms?.name ?? 'Your gym'}
+                </p>
+                {t.starts_at && (
+                  <p className="text-[11px] font-bold text-[var(--color-primary)] mt-1.5">
+                    {new Date(t.starts_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                  </p>
+                )}
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Suggested Partnas */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold font-display text-[var(--color-foreground)]">Suggested Partnas</h3>
-          <Link href="/app/browse" className="text-[var(--color-primary)] text-sm font-bold hover:underline flex items-center">
-            View All <ArrowRight className="w-4 h-4 ml-1" />
-          </Link>
+      {/* ── Suggested partnas ── */}
+      <section className="mb-6">
+        <div className="px-5 flex items-center justify-between mb-3">
+          <h2 className="text-[15px] font-extrabold text-[var(--color-foreground)]">Suggested Partnas</h2>
+          <Link href="/app/discover" className="text-[12px] font-bold text-[var(--color-primary)]">See all</Link>
         </div>
 
         {suggested.length === 0 ? (
-          <div className="bg-[var(--color-card)] rounded-3xl p-8 border border-[var(--color-border)] text-center">
-            <div className="w-16 h-16 bg-[var(--color-muted)] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-[var(--color-muted-foreground)]" />
-            </div>
-            <h4 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">No Partnas Yet</h4>
-            <p className="text-[var(--color-muted-foreground)] text-sm mb-4">Complete your profile to see workout partners near you.</p>
-            <Link href="/app/onboarding" className="inline-block px-6 py-2 bg-[var(--color-primary)] text-[var(--color-primary-foreground)] rounded-xl font-bold text-sm">
+          <div className="mx-5 rounded-2xl border border-dashed border-[var(--color-border)] p-6 text-center">
+            <p className="text-[14px] font-bold text-[var(--color-foreground)]">No suggestions yet</p>
+            <p className="text-[12px] text-[var(--color-muted-foreground)] mt-1">Complete your profile to see compatible partnas.</p>
+            <Link href="/app/onboarding" className="mt-3 inline-flex h-9 px-5 rounded-full brand-gradient text-white items-center font-bold text-[12px]">
               Complete Profile
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar px-5">
             {suggested.map(p => (
-              <div key={p.id} className="bg-[var(--color-card)] rounded-3xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-lg hover:border-[var(--color-secondary)]/20 transition-all duration-300 group">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-[var(--color-muted-foreground)] uppercase tracking-wider">Compatibility</span>
-                    <span className="text-xl font-black text-[var(--color-accent)] flex items-center gap-1">
-                      {p.score}% <CheckCircle2 className="w-4 h-4" />
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2 py-1 rounded-lg text-[10px] font-bold border border-green-100">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    Active
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="relative h-20 w-20 rounded-2xl overflow-hidden shrink-0 border-2 border-white shadow-md group-hover:scale-105 transition-transform">
-                    {p.photo_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.photo_url} alt={p.display_name ?? ''} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-secondary)]/20 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-[var(--color-primary)]">{(p.display_name ?? '?')[0]?.toUpperCase()}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-lg text-[var(--color-foreground)] truncate">
-                      {firstName(p.display_name)}{p.age ? `, ${p.age}` : ''}
-                    </h4>
-                    <p className="text-xs text-[var(--color-muted-foreground)] flex items-center mt-1 truncate">
-                      <MapPin className="w-3 h-3 mr-1" /> {p.primary_location || 'Your area'}
-                    </p>
-                    {p.fitness_level && (
-                      <div className="flex gap-1 mt-2">
-                        <span className="text-[10px] font-bold bg-[var(--color-muted)] text-[var(--color-muted-foreground)] px-2 py-0.5 rounded-md">
-                          {p.fitness_level}
-                        </span>
-                      </div>
-                    )}
+              <Link key={p.id} href={`/app/profile/${p.id}`} className="shrink-0 w-[140px]">
+                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-3.5 text-center">
+                  {p.photo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.photo_url} alt="" className="w-14 h-14 rounded-full object-cover mx-auto" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full brand-gradient flex items-center justify-center text-white font-extrabold text-[20px] mx-auto">
+                      {(p.display_name?.[0] ?? '?').toUpperCase()}
+                    </div>
+                  )}
+                  <p className="mt-2 text-[13px] font-extrabold text-[var(--color-foreground)] truncate">
+                    {firstName(p.display_name)}
+                  </p>
+                  <p className="text-[11px] text-[var(--color-muted-foreground)] truncate">
+                    {p.goals?.[0] ?? p.fitness_level ?? 'Active'}
+                  </p>
+                  <div className="mt-2 text-[11px] font-extrabold text-[var(--color-primary)]">
+                    {p.score}% match
                   </div>
                 </div>
-
-                <div className="space-y-3 pt-3 border-t border-dashed border-[var(--color-border)]">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-[var(--color-muted-foreground)] font-medium">Goal</span>
-                    <span className="font-bold text-[var(--color-foreground)]">{p.goals?.[0] || 'Get fit'}</span>
-                  </div>
-                  <div className="w-full bg-[var(--color-muted)] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[var(--color-secondary)] h-full rounded-full" style={{ width: `${p.score}%` }} />
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-muted-foreground)]">
-                    <Clock className="w-3.5 h-3.5" />
-                    {p.vibe || 'Friendly Chat'}
-                  </div>
-                </div>
-
-                <Link
-                  href={`/app/profile/${p.id}`}
-                  className="block w-full mt-4 py-2.5 rounded-xl border border-[var(--color-border)] font-bold text-sm text-center hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)] transition-all shadow-sm"
-                >
-                  Connect
-                </Link>
-              </div>
+              </Link>
             ))}
           </div>
         )}
       </section>
 
-      {/* Merch promo */}
-      <section className="bg-gradient-to-r from-[var(--color-foreground)] to-[var(--color-foreground)]/90 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-secondary)]/20 rounded-full blur-3xl -mr-20 -mt-20" />
-        <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-white/10 flex items-center justify-center">
-              <ShoppingBag className="w-7 h-7 text-[var(--color-secondary)]" />
-            </div>
-            <div>
-              <h3 className="font-display font-bold text-xl">Workout Partna Gear</h3>
-              <p className="text-white/70 text-sm">Rep the mindset. Wear the commitment.</p>
-            </div>
-          </div>
-          <Link
-            href="/app/merch"
-            className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-xl font-bold hover:opacity-90 transition flex items-center gap-2"
-          >
-            Shop Now <ArrowRight className="w-4 h-4" />
+      {/* ── No location set nudge ── */}
+      {!me?.primary_location && (
+        <div className="mx-5 mb-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
+          <p className="text-[14px] font-extrabold text-[var(--color-foreground)]">Set your gym or location</p>
+          <p className="text-[12px] text-[var(--color-muted-foreground)] mt-1">
+            We match you with people who train where you train.
+          </p>
+          <Link href="/app/onboarding/find-location" className="mt-3 inline-flex h-9 px-5 rounded-full brand-gradient text-white items-center font-bold text-[12px]">
+            Find my gym
           </Link>
         </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="bg-[var(--color-primary)]/5 -mx-4 px-4 py-8 md:rounded-3xl md:mx-0">
-        <h3 className="text-center text-lg font-bold font-display mb-6 flex items-center justify-center gap-2 text-[var(--color-foreground)]">
-          <Star className="w-5 h-5 text-[var(--color-secondary)] fill-[var(--color-secondary)]" />
-          Real Success Stories
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {testimonials.map(t => (
-            <div key={t.id} className="bg-[var(--color-card)] p-6 rounded-2xl shadow-sm border border-white relative">
-              <div className="absolute -top-3 -left-2 text-6xl font-serif text-[var(--color-primary)]/10 leading-none">&ldquo;</div>
-              <p className="text-[var(--color-foreground)]/80 font-medium italic relative mb-4">{t.text}</p>
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)]" />
-                <span className="text-xs font-bold text-[var(--color-muted-foreground)]">{t.author}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FAB */}
-      <Link
-        href="/app/browse"
-        className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-40 bg-[var(--color-secondary)] text-white px-6 py-3.5 rounded-full font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all flex items-center gap-2 border-2 border-white/20"
-      >
-        <Zap className="w-5 h-5 fill-white" />
-        Find Partnas
-      </Link>
+      )}
     </div>
   )
 }
 
-function ProgressRow({ label, current, target, color }: { label: string; current: number; target: number; color: string }) {
-  const pct = Math.min(current / target, 1) * 100
+function StatChip({
+  label,
+  value,
+  href,
+  badge = false,
+}: {
+  label: string
+  value: number
+  href: string
+  badge?: boolean
+}) {
   return (
-    <div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs font-bold text-[var(--color-muted-foreground)]">{label}</span>
-        <span className="text-xs font-bold text-[var(--color-primary)]">{current}/{target}</span>
+    <Link href={href}>
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-3 text-center">
+        <p className={`text-[22px] font-extrabold ${badge && value > 0 ? 'text-red-500' : 'text-[var(--color-primary)]'}`}>
+          {value}
+        </p>
+        <p className="text-[10.5px] font-bold uppercase tracking-wide text-[var(--color-muted-foreground)] mt-0.5">
+          {label}
+        </p>
       </div>
-      <div className="w-full bg-[var(--color-muted)] h-2 rounded-full overflow-hidden">
-        <div className={`${color} h-full rounded-full transition-all`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
+    </Link>
   )
 }
