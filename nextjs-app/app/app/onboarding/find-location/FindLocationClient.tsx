@@ -128,7 +128,7 @@ export function FindLocationClient({
           Find your spot
         </h1>
         <p className="mt-1.5 text-[14px] text-[var(--color-text-muted)]">
-          Pick where you train — gym, apartment fitness center, or community center.
+          Pick where you train: gym, apartment fitness center, or community center.
           This powers every match.
         </p>
       </div>

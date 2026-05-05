@@ -13,7 +13,7 @@ const steps = [
   {
     n: '01',
     title: 'Choose Your Location',
-    body: 'Select the place you actually train — commercial gym, apartment fitness center, community center, or any public fitness space. This becomes the center of your experience.',
+    body: 'Select the place you actually train: commercial gym, apartment fitness center, community center, or any public fitness space. This becomes the center of your experience.',
     detail: 'Locations include Planet Fitness, LA Fitness, YMCA, apartment complex fitness centers, and any local fitness space. Don\'t see yours? We\'ll add it.',
   },
   {
@@ -45,7 +45,7 @@ const values = [
   {
     emoji: '🤝',
     title: 'Real accountability',
-    body: 'We\'re not a tracking app. We\'re built around the one thing proven to keep people consistent — having someone else counting on you.',
+    body: 'We\'re not a tracking app. We\'re built around the one thing proven to keep people consistent: having someone else counting on you.',
   },
   {
     emoji: '🏘️',
@@ -75,7 +75,7 @@ export default function AboutPage() {
         </h1>
         <p className="mt-6 text-[17px] sm:text-[19px] text-white/60 max-w-2xl leading-relaxed">
           WorkoutPartna is a fitness accountability platform that connects people at the same gym,
-          apartment fitness center, or community space — so nobody has to train alone.
+          apartment fitness center, or community space so nobody has to train alone.
         </p>
       </section>
 
@@ -91,13 +91,13 @@ export default function AboutPage() {
             </div>
             <div className="space-y-4 text-[15px] text-white/60 leading-relaxed">
               <p>
-                80% of people who join a gym quit within the first five months. Not because they don't want to be fit — because showing up alone is hard.
+                80% of people who join a gym quit within the first five months. Not because they don't want to be fit. Because showing up alone is hard.
               </p>
               <p>
                 A workout partner changes everything. People who train with a partner are twice as likely to stick with it. The problem is finding one who trains where you train, when you train.
               </p>
               <p>
-                That's what WorkoutPartna is. A simple way to find the person three treadmills down who has the exact same schedule and goals as you — and would absolutely show up if you asked.
+                That's what WorkoutPartna is. A simple way to find the person three treadmills down who has the exact same schedule and goals as you, and would absolutely show up if you asked.
               </p>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function AboutPage() {
                 Starting in Houston.<br />Growing everywhere.
               </h2>
               <p className="mt-5 text-[15px] text-white/55 leading-relaxed">
-                WorkoutPartna launched in Houston, Texas — including Cypress, Katy, Spring,
+                WorkoutPartna launched in Houston, Texas, including Cypress, Katy, Spring,
                 The Woodlands, Sugar Land, and Pearland. We've expanded to cover the full US,
                 Central America, and the Caribbean.
               </p>

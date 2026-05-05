@@ -50,7 +50,7 @@ export function ClaimForm() {
           We'll email <strong>{form.contactEmail}</strong> within 1 business day to verify your property and walk you through next steps.
         </p>
         <p className="mt-4 text-xs text-[var(--color-muted-foreground)]">
-          Talk to you soon. — The WorkoutPartna team
+          Talk to you soon. The WorkoutPartna team
         </p>
       </div>
     )

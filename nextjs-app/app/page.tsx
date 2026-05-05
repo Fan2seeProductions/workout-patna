@@ -33,7 +33,7 @@ export default function HomePage() {
 
           <p className="mt-6 text-[18px] sm:text-[22px] text-white/70 max-w-xl leading-relaxed font-medium">
             Find people at <strong className="text-white">your exact gym</strong> who
-            show up, stay consistent, and push harder — together.
+            show up, stay consistent, and push harder. Together.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
@@ -79,7 +79,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-6 text-[17px] text-white/55 max-w-2xl mx-auto leading-relaxed">
             Not because of lack of motivation. Because there's no one holding them accountable.
-            A partner changes everything — <span className="text-white font-semibold">people who work out with a partner are 2x more likely to stick with it.</span>
+            A partner changes everything. <span className="text-white font-semibold">People who work out with a partner are 2x more likely to stick with it.</span>
           </p>
         </div>
 
@@ -263,7 +263,7 @@ export default function HomePage() {
               className="h-14 px-10 rounded-full text-white font-black text-[16px] inline-flex items-center gap-2 shadow-[0_8px_40px_-4px_rgba(220,22,22,0.55)] transition hover:scale-[1.03] active:scale-[0.98]"
               style={{ background: 'linear-gradient(135deg, #b91010 0%, #dc1616 100%)' }}
             >
-              Get Started — It's Free
+              Get Started, It's Free
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
           </div>
@@ -273,7 +273,7 @@ export default function HomePage() {
           <div className="mt-16 grid sm:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
             {[
               { q: 'Is it free?', a: 'Yes. Finding and messaging Partnas is 100% free. Optional AI coaching is $9.99/mo.' },
-              { q: 'What cities?', a: 'Houston TX area to start — Cypress, Katy, The Woodlands, Sugar Land, Pearland, Spring.' },
+              { q: 'What cities?', a: 'Houston TX area to start: Cypress, Katy, The Woodlands, Sugar Land, Pearland, Spring.' },
               { q: 'What gyms are on it?', a: 'Any gym, apartment fitness center, or community space. Search by name during onboarding.' },
               { q: 'How is matching done?', a: 'Location (40 pts), schedule overlap (25 pts), goals, fitness level, and workout style.' },
             ].map(f => (

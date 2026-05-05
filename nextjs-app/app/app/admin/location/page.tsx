@@ -140,7 +140,7 @@ export default async function LocationAdminPage() {
                 <Stat label="Onboarded"      value={s.onboarded.toString()} />
                 <Stat label="Training today" value={s.openTraining.toString()} />
                 <Stat label="Trainers"       value={s.activeTrainers.toString()} />
-                <Stat label="Verified"       value={'—'} />
+                <Stat label="Verified"       value={'N/A'} />
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-2">
