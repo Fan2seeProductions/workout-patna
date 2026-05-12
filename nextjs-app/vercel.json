@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/daily-workouts",
+      "schedule": "0 12 * * *"
+    },
+    {
       "path": "/api/cron/intake-nudge",
       "schedule": "0 10 * * *"
     }
