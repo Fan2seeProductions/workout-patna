@@ -41,7 +41,7 @@ export function ClaimForm() {
 
   if (submitted) {
     return (
-      <div className="bg-white rounded-3xl p-8 text-center text-[var(--color-foreground)]">
+      <div className="bg-white rounded-3xl p-8 text-center text-gray-900">
         <div className="h-14 w-14 rounded-full bg-[var(--color-accent)]/15 flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-7 h-7 text-[var(--color-accent)]" />
         </div>
@@ -57,7 +57,7 @@ export function ClaimForm() {
   }
 
   return (
-    <form onSubmit={submit} className="bg-white text-[var(--color-foreground)] rounded-3xl p-6 md:p-8 space-y-5 shadow-2xl">
+    <form onSubmit={submit} className="bg-white text-gray-900 rounded-3xl p-6 md:p-8 space-y-5 shadow-2xl">
       <Field label="Property name *">
         <input
           required
@@ -136,7 +136,7 @@ export function ClaimForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full bg-[var(--color-secondary)] text-white font-bold text-base py-4 rounded-xl hover:opacity-90 transition disabled:opacity-60 flex items-center justify-center gap-2"
+        className="w-full bg-[var(--color-primary)] text-white font-bold text-base py-4 rounded-xl hover:opacity-90 transition disabled:opacity-60 flex items-center justify-center gap-2"
       >
         {pending ? 'Submitting...' : <>Claim my property <ArrowRight className="w-4 h-4" /></>}
       </button>

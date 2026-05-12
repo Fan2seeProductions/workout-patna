@@ -3,6 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '../supabase/server'
+import { notifyIntake } from '../email/intake-notify'
 
 export type TrainerApplicationInput = {
   name: string
@@ -43,55 +44,25 @@ export async function submitTrainerApplication(input: TrainerApplicationInput) {
 
   if (error) return { ok: false, error: error.message }
 
-  await sendTrainerApplicationEmail({
-    name,
-    specialties: input.specialties ?? [],
-    certifications: input.certifications,
-    years_experience: input.years_experience,
+  await notifyIntake({
+    kind: 'Trainer application',
+    category: 'trainers',
+    who: name,
+    replyTo: user.email ?? undefined,
+    adminUrl: 'https://workoutpartna.com/app/admin/trainers',
+    fields: [
+      { label: 'Name', value: name },
+      { label: 'Email', value: user.email ?? null },
+      { label: 'Specialties', value: input.specialties ?? null },
+      { label: 'Certifications', value: input.certifications ?? null },
+      { label: 'Years experience', value: input.years_experience ?? null },
+      { label: 'Booking link', value: input.booking_link ?? null },
+      { label: 'Bio', value: input.bio ?? null },
+    ],
   })
 
   revalidatePath('/app/trainers/apply')
   return { ok: true }
-}
-
-async function sendTrainerApplicationEmail(app: {
-  name: string
-  specialties: string[]
-  certifications?: string
-  years_experience?: number | null
-}) {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) return
-
-  const to = process.env.PARTNER_LEAD_EMAIL_TO ?? 'sales@fan2seeproductions.com'
-  const from = process.env.PARTNER_LEAD_EMAIL_FROM ?? 'WorkoutPartna <noreply@workoutpartna.com>'
-
-  const lines = [
-    `Name: ${app.name}`,
-    app.specialties.length ? `Specialties: ${app.specialties.join(', ')}` : null,
-    app.certifications ? `Certifications: ${app.certifications}` : null,
-    app.years_experience != null ? `Experience: ${app.years_experience}+ years` : null,
-    '',
-    'Review at: https://workoutpartna.com/app/admin/trainers',
-  ].filter(Boolean).join('\n')
-
-  try {
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject: `New trainer application: ${app.name}`,
-        text: lines,
-      }),
-    })
-  } catch {
-    // Never fail the form on a transient email error.
-  }
 }
 
 export async function reviewTrainerApplication(

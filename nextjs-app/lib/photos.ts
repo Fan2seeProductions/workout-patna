@@ -1,36 +1,66 @@
-// Curated Unsplash fitness photo IDs.
-// All from unsplash.com, served via images.unsplash.com CDN.
-// Quality bumped to 90, dimensions doubled for Retina screens.
+// Curated Unsplash fitness photos — all verified to feature Black athletes.
+// WorkoutPartna is a Black-owned company; our imagery reflects our community.
+// All photos are free to use under the Unsplash License.
+// Served via images.unsplash.com CDN. q=90, 2× dimensions for Retina.
 
 const cdn = (id: string, w: number, h: number, q = 90) =>
   `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&auto=format&q=${q}`
 
-// 3:4 portraits for match cards (rendered at ~80px wide; serve 360x480 for Retina)
+// ── Demo / match card portraits (3:4, serve 480×640 for Retina) ─────────────
+//
+// marcus  — Black man, muscular build, gym setting, San Francisco
+//           Photo: Edgar Chaparro, unsplash.com/photos/AVOADaTBtT4
+// jasmine — Black woman, squats in gym, Los Angeles
+//           Photo: SUNDAY II SUNDAY, unsplash.com/photos/snM3yEpvklU
+// priya   — Black woman in athletic wear, Houston TX (our home city)
+//           Photo: Corey Watson, unsplash.com/photos/2qgOFsZEC4w
+// ethan   — Black man doing pull-ups outdoors
+//           Photo: Fortune Vieyra, unsplash.com/photos/yaPv5sQ91PI
+// david   — Black athlete on cable machine, smiling
+//           Photo: unsplash.com/photos/zJ-_r7sdJ2A
 export const matchPhotos = {
-  marcus:  cdn('1583454110551-21f2fa2afe61', 480, 640),
-  jasmine: cdn('1518611012118-696072aa579a', 480, 640),
-  priya:   cdn('1571019613454-1cb2f99b2d8b', 480, 640),
-  ethan:   cdn('1517836357463-d25dfeac3438', 480, 640),
-  david:   cdn('1581009146145-b5ef050c2e1e', 480, 640),
+  marcus:  cdn('1572459815549-873917ec8c0a', 480, 640),
+  jasmine: cdn('1649887974297-4be052375a67', 480, 640),
+  priya:   cdn('1600069109571-4a033ae54be2', 480, 640),
+  ethan:   cdn('1616803928273-39775ac000ca', 480, 640),
+  david:   cdn('1733342446364-c09a55c4d3ec', 480, 640),
 }
 
-// 4:5 hero portrait for profile detail (rendered full-bleed; serve 1200x1500)
+// ── Full-bleed profile hero portraits (4:5, 1200×1500 for Retina) ───────────
 export const profileHero = {
-  marcus: cdn('1583454110551-21f2fa2afe61', 1200, 1500),
+  marcus: cdn('1572459815549-873917ec8c0a', 1200, 1500),
 }
 
-// Splash hero — served from /public/hero-woman.jpg (local asset, Bruce Mars / Unsplash)
-// African American woman in fitness class, bright brick-wall studio.
+// ── Additional verified Black athlete portraits ──────────────────────────────
+// Available for seeded profiles or UI previews
+export const extraPortraits = {
+  // Black woman with curly hair, gym portrait — SUNDAY II SUNDAY
+  woman1: cdn('1661401995801-4d86ba65d034', 480, 640),
+  // Black man doing push-ups outdoors — Fortune Vieyra
+  man1:   cdn('1616803689943-5601631c7fec', 480, 640),
+  // Black woman boxing, punching bag, Los Angeles — SUNDAY II SUNDAY
+  woman2: cdn('1649888137201-491856105a1a', 480, 640),
+}
+
+// ── Splash / hero ────────────────────────────────────────────────────────────
+// hero-woman.jpg — African American woman in fitness class, bright studio
+// (local asset in /public, original: Bruce Mars / Unsplash)
 export const splashHero = '/hero-woman.jpg'
 export const splashHeroFallback = splashHero
 
-// 16:9 wide for splash and location pages
-export const heroWide = cdn('1534438327276-14e5300c3a48', 1600, 900)
+// ── Wide / landscape (16:9, 1600×900) ───────────────────────────────────────
+// Black man doing pull-ups outdoors — Fortune Vieyra
+export const heroWide = cdn('1616803928273-39775ac000ca', 1600, 900)
 
-// Location placeholders
+// ── Location card placeholders (4:3, 1200×675) ──────────────────────────────
+// All verified Black athletes or Black-led group shots
 export const locationPhotos = {
-  gym:      cdn('1534438327276-14e5300c3a48', 1200, 675),
-  runclub:  cdn('1571008887538-b36bb32f4571', 1200, 675),
-  yoga:     cdn('1545205597-3d9d02c29597', 1200, 675),
-  park:     cdn('1538805060514-97d9cc17730c', 1200, 675),
+  // Gym interior — Black man, muscular, San Francisco
+  gym:     cdn('1572459815549-873917ec8c0a', 1200, 675),
+  // Run / outdoor — Black man doing pull-ups, natural light
+  runclub: cdn('1616803928273-39775ac000ca', 1200, 675),
+  // Yoga — Two Black women on yoga mats, Los Angeles (SUNDAY II SUNDAY)
+  yoga:    cdn('1649888187589-552bfa7bf681', 1200, 675),
+  // Park / outdoor — Black man push-ups, outdoor fitness
+  park:    cdn('1616803689943-5601631c7fec', 1200, 675),
 }

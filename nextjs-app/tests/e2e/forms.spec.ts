@@ -2,28 +2,28 @@ import { test, expect } from '@playwright/test'
 import { SAMPLE_BUSINESS_LEAD } from './helpers/test-data'
 
 test.describe('Forms', () => {
-  test.describe('apartment lead form', () => {
+  test.describe('partner lead form (/for-gyms-apartments)', () => {
+    // /business/apartments now redirects here; form is PartnerLeadForm
     test('required fields block submit', async ({ page }) => {
-      await page.goto('/business/apartments#claim')
+      await page.goto('/for-gyms-apartments#partner')
       const form = page.locator('form')
-      const submit = form.getByRole('button', { name: /claim my property/i })
+      const submit = form.getByRole('button', { name: /request partnership/i })
       await submit.scrollIntoViewIfNeeded()
       await submit.click()
-      // HTML5 validation should keep us on the same page; success card shouldn't appear
-      await expect(page.getByText(/you're in line/i)).toBeHidden()
+      // HTML5 validation keeps us on the same page; success card shouldn't appear
+      await expect(page.getByText(/we'll be in touch/i)).toBeHidden()
     })
 
     test('successful submission shows confirmation card', async ({ page }) => {
-      await page.goto('/business/apartments#claim')
+      await page.goto('/for-gyms-apartments#partner')
       const form = page.locator('form')
-      await form.getByLabel(/property name/i).fill(SAMPLE_BUSINESS_LEAD.proposedName + '-' + Date.now())
       await form.getByLabel(/your name/i).fill(SAMPLE_BUSINESS_LEAD.contactName)
       await form.getByLabel(/^email/i).fill(SAMPLE_BUSINESS_LEAD.contactEmail)
+      await form.getByLabel(/organization name/i).fill(SAMPLE_BUSINESS_LEAD.proposedName + '-' + Date.now())
       await form.getByLabel(/^city/i).fill(SAMPLE_BUSINESS_LEAD.city)
       await form.getByLabel(/^state/i).fill(SAMPLE_BUSINESS_LEAD.state)
-      await form.getByLabel(/anything we should know/i).fill(SAMPLE_BUSINESS_LEAD.message)
-      await form.getByRole('button', { name: /claim my property/i }).click()
-      await expect(page.getByText(/you're in line/i)).toBeVisible({ timeout: 10_000 })
+      await form.getByRole('button', { name: /request partnership/i }).click()
+      await expect(page.getByText(/we'll be in touch/i)).toBeVisible({ timeout: 10_000 })
     })
   })
 

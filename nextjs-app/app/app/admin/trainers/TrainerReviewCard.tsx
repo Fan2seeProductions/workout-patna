@@ -39,7 +39,7 @@ export function TrainerReviewCard({
 
   if (decided) {
     return (
-      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 text-center">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-center">
         <p className="text-[14px] font-bold text-[var(--color-foreground)]">
           {app.name} {decided === 'approved' ? 'approved' : 'rejected'}
         </p>
@@ -48,7 +48,7 @@ export function TrainerReviewCard({
   }
 
   return (
-    <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
       <div className="flex items-start gap-3">
         {app.photo_url ? (
           // eslint-disable-next-line @next/next/no-img-element

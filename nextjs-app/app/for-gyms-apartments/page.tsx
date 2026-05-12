@@ -141,7 +141,7 @@ export default function ForGymsApartmentsPage() {
         </Section>
 
         {/* Pricing */}
-        <section id="partner" className="bg-white border-y border-[var(--color-border)]">
+        <section id="partner" className="bg-white border-y border-[var(--color-border)] scroll-mt-24">
           <Section>
             <Eyebrow>Beta partner pricing</Eyebrow>
             <H2>Simple plans built around your location size.</H2>
@@ -160,7 +160,7 @@ export default function ForGymsApartmentsPage() {
                   }`}
                 >
                   {t.highlight && (
-                    <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-[var(--color-secondary)] text-white text-[10px] uppercase font-extrabold tracking-wider">
+                    <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-[var(--color-primary)] text-white text-[10px] uppercase font-extrabold tracking-wider">
                       Most popular
                     </span>
                   )}
@@ -179,7 +179,7 @@ export default function ForGymsApartmentsPage() {
                   <ul className="mt-5 space-y-2">
                     {t.features.map(f => (
                       <li key={f} className="flex items-start gap-2 text-[13.5px]">
-                        <span className={`shrink-0 mt-0.5 ${t.highlight ? 'text-[var(--color-secondary)]' : 'text-[var(--color-accent)]'}`}>
+                        <span className={`shrink-0 mt-0.5 ${t.highlight ? 'text-white' : 'text-[var(--color-accent)]'}`}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M5 12l5 5L20 6" />
                           </svg>
@@ -196,7 +196,7 @@ export default function ForGymsApartmentsPage() {
         </section>
 
         {/* Lead form */}
-        <Section id="contact">
+        <Section id="contact" className="scroll-mt-24">
           <div className="grid gap-10 lg:grid-cols-2 items-start">
             <div>
               <Eyebrow>Get in touch</Eyebrow>

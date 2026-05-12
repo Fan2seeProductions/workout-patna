@@ -92,8 +92,8 @@ export function MerchClient({ products }: { products: Product[] }) {
     <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-8 pb-24">
 
       <header className="text-center pt-2">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-[var(--color-secondary)]/20 mb-4">
-          <ShoppingBag className="w-8 h-8 text-[var(--color-secondary)]" />
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-[var(--color-primary)]/20 mb-4">
+          <ShoppingBag className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-3xl md:text-4xl font-bold font-display text-[var(--color-foreground)]">
           Workout Partna Gear
@@ -101,7 +101,7 @@ export function MerchClient({ products }: { products: Product[] }) {
         <p className="text-[var(--color-muted-foreground)] mt-2 text-lg">
           Built for people who actually show up.
         </p>
-        <p className="text-[var(--color-secondary)] font-medium mt-1">
+        <p className="text-white font-medium mt-1">
           Wear the mindset. Rep the consistency.
         </p>
       </header>
@@ -110,7 +110,7 @@ export function MerchClient({ products }: { products: Product[] }) {
       {featured.length > 0 && (
         <section className="bg-gradient-to-r from-[var(--color-secondary)]/10 via-[var(--color-secondary)]/5 to-[var(--color-primary)]/5 rounded-3xl p-6 md:p-8">
           <div className="flex items-center gap-2 mb-6">
-            <Star className="w-5 h-5 text-[var(--color-secondary)] fill-[var(--color-secondary)]" />
+            <Star className="w-5 h-5 text-white fill-white" />
             <h2 className="text-xl font-bold font-display text-[var(--color-foreground)]">Featured Gear</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -119,7 +119,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                 key={p.id}
                 type="button"
                 onClick={() => setSelected(p)}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition cursor-pointer text-left group"
+                className="bg-white/[0.04] rounded-2xl overflow-hidden border border-white/10 hover:bg-white/[0.06] transition cursor-pointer text-left group"
               >
                 <div className="aspect-square bg-gradient-to-br from-[var(--color-muted)] to-[var(--color-muted)]/50 flex items-center justify-center relative overflow-hidden">
                   {p.image ? (
@@ -128,7 +128,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                   ) : (
                     <span className="text-6xl">{emojiFor(p)}</span>
                   )}
-                  <div className="absolute top-3 right-3 bg-[var(--color-secondary)] text-white text-xs font-bold px-2 py-1 rounded-full">
+                  <div className="absolute top-3 right-3 bg-[var(--color-primary)] text-white text-xs font-bold px-2 py-1 rounded-full">
                     Featured
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                   <h3 className="font-bold text-lg text-[var(--color-foreground)] group-hover:text-[var(--color-primary)] transition-colors">{p.name}</h3>
                   <p className="text-[var(--color-muted-foreground)] text-sm mt-1 line-clamp-2">{p.description}</p>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-xl font-bold text-[var(--color-secondary)]">{formatPrice(p.price)}</span>
+                    <span className="text-xl font-bold text-white">{formatPrice(p.price)}</span>
                     <span className="text-xs text-[var(--color-muted-foreground)] uppercase tracking-wider">{p.category}</span>
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export function MerchClient({ products }: { products: Product[] }) {
               className={cn(
                 'flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2',
                 on
-                  ? 'bg-white shadow-sm text-[var(--color-foreground)]'
+                  ? 'bg-[var(--color-primary)] text-white shadow-sm'
                   : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
               )}
             >
@@ -173,7 +173,7 @@ export function MerchClient({ products }: { products: Product[] }) {
       {/* Product grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {filtered.length === 0 ? (
-          <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-[var(--color-border)]">
+          <div className="col-span-full text-center py-12 bg-white/[0.04] rounded-2xl border border-white/10">
             <Package className="w-12 h-12 text-[var(--color-muted-foreground)] mx-auto mb-4" />
             <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">No products yet</h3>
             <p className="text-[var(--color-muted-foreground)] text-sm">Check back soon for new gear!</p>
@@ -183,7 +183,7 @@ export function MerchClient({ products }: { products: Product[] }) {
             key={p.id}
             type="button"
             onClick={() => setSelected(p)}
-            className="bg-white rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-sm hover:shadow-md transition cursor-pointer text-left group"
+            className="bg-white/[0.04] rounded-2xl overflow-hidden border border-white/10 hover:bg-white/[0.06] transition cursor-pointer text-left group"
           >
             <div className="aspect-square bg-gradient-to-br from-[var(--color-muted)] to-[var(--color-muted)]/50 flex items-center justify-center relative overflow-hidden">
               {p.image ? (
@@ -194,14 +194,14 @@ export function MerchClient({ products }: { products: Product[] }) {
               )}
               {p.featured && (
                 <div className="absolute top-2 right-2">
-                  <Star className="w-4 h-4 text-[var(--color-secondary)] fill-[var(--color-secondary)]" />
+                  <Star className="w-4 h-4 text-white fill-white" />
                 </div>
               )}
             </div>
             <div className="p-3">
               <h3 className="font-bold text-sm leading-tight text-[var(--color-foreground)] group-hover:text-[var(--color-primary)] transition line-clamp-2">{p.name}</h3>
               <div className="flex items-center justify-between mt-2">
-                <span className="font-bold text-[var(--color-secondary)]">{formatPrice(p.price)}</span>
+                <span className="font-bold text-white">{formatPrice(p.price)}</span>
                 {p.colors && p.colors.length > 0 && (
                   <div className="flex gap-1">
                     {p.colors.slice(0, 3).map((c, i) => (
@@ -230,7 +230,7 @@ export function MerchClient({ products }: { products: Product[] }) {
       {/* Product modal */}
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={close}>
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-[#141414] border border-white/10 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="aspect-square bg-gradient-to-br from-[var(--color-muted)] to-[var(--color-muted)]/50 flex items-center justify-center relative overflow-hidden">
               {selected.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -242,7 +242,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                 type="button"
                 onClick={close}
                 aria-label="Close"
-                className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/80 flex items-center justify-center text-[var(--color-foreground)] hover:bg-white transition"
+                className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/90 flex items-center justify-center text-gray-900 hover:bg-white transition"
               >
                 ✕
               </button>
@@ -250,16 +250,16 @@ export function MerchClient({ products }: { products: Product[] }) {
             <div className="p-6 space-y-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold text-[var(--color-secondary)] uppercase tracking-wider">{selected.category}</span>
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">{selected.category}</span>
                   {selected.featured && (
-                    <span className="text-xs font-bold text-white bg-[var(--color-secondary)] px-2 py-0.5 rounded-full">Featured</span>
+                    <span className="text-xs font-bold text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-full">Featured</span>
                   )}
                 </div>
                 <h2 className="text-2xl font-bold text-[var(--color-foreground)]">{selected.name}</h2>
                 <p className="text-[var(--color-muted-foreground)] mt-2">{selected.description}</p>
               </div>
 
-              <div className="text-3xl font-bold text-[var(--color-secondary)]">{formatPrice(selected.price)}</div>
+              <div className="text-3xl font-bold text-white">{formatPrice(selected.price)}</div>
 
               {selected.sizes && selected.sizes.length > 0 && (
                 <div>
@@ -274,7 +274,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                           'px-4 py-2 rounded-lg border font-medium text-sm transition',
                           size === s
                             ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
-                            : 'bg-white text-[var(--color-foreground)] border-[var(--color-border)] hover:border-[var(--color-primary)]',
+                            : 'bg-white/[0.04] text-white border-white/15 hover:border-[var(--color-primary)] hover:bg-white/[0.08]',
                         )}
                       >
                         {s}
@@ -297,7 +297,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                           'px-4 py-2 rounded-lg border font-medium text-sm transition',
                           color === c
                             ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
-                            : 'bg-white text-[var(--color-foreground)] border-[var(--color-border)] hover:border-[var(--color-primary)]',
+                            : 'bg-white/[0.04] text-white border-white/15 hover:border-[var(--color-primary)] hover:bg-white/[0.08]',
                         )}
                       >
                         {c}
@@ -310,7 +310,7 @@ export function MerchClient({ products }: { products: Product[] }) {
               <button
                 type="button"
                 onClick={() => addToCart(selected)}
-                className="w-full py-4 bg-[var(--color-secondary)] text-white rounded-xl font-bold text-lg hover:opacity-90 transition flex items-center justify-center gap-2"
+                className="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-lg hover:opacity-90 transition flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-5 h-5" />
                 Add to Cart, Show Up Anyway

@@ -15,6 +15,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '../../../../lib/supabase/server'
 import { generateWorkout, type Intake, type AdaptationContext } from '../../../../lib/ai/workout'
 import { formatWorkoutMessage } from '../../../../lib/actions/coach-chat'
+import { sendPushToAll, type PushSubscription } from '../../../../lib/push/send'
+import { sendSms } from '../../../../lib/sms/sms'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300   // up to 5 min for large member batches
@@ -23,6 +25,9 @@ type MemberRow = {
   user_id: string
   first_name: string | null
   display_name: string | null
+  is_premium: boolean
+  phone_number: string | null
+  sms_opt_in: boolean
   // intake fields
   goals: string[] | null
   fitness_level: string | null
@@ -164,6 +169,28 @@ export async function GET(request: Request) {
 
       generated++
       console.log(`[cron/daily-workouts] ✓ ${member.display_name ?? member.user_id}`)
+
+      // ── Push notification (all members with a subscription) ──────
+      const { data: pushSubs } = await supabase
+        .rpc('get_push_subscriptions_for_user', { p_user_id: member.user_id })
+
+      if (pushSubs?.length) {
+        sendPushToAll(pushSubs as PushSubscription[], {
+          title: '💪 Your workout is ready!',
+          body: `${plan.focus} — tap to open your plan`,
+          url: '/app/messages',
+          tag: `workout-${today}`,
+        }).catch(() => {})
+      }
+
+      // ── SMS delivery (premium members only) ──────────────────────
+      if (member.is_premium && member.sms_opt_in && member.phone_number) {
+        const smsText =
+          `💪 ${firstName ? `${firstName}, ` : ''}your WorkoutPartna plan is ready!\n\n` +
+          `📌 ${plan.focus}\n\n` +
+          `Open the app for your full workout → workoutpartna.com/app/messages`
+        sendSms(member.phone_number, smsText).catch(() => {})
+      }
     } catch (err) {
       console.error(`[cron/daily-workouts] unexpected error for ${member.user_id}:`, err)
       failed++

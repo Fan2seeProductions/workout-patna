@@ -31,7 +31,11 @@ export default function TermsPage() {
           WorkoutPartna.com and the WorkoutPartna App
         </p>
         <p className="text-[13px] text-[var(--color-text-dim)]">
-          <strong>Last Updated:</strong> May 1, 2026
+          <strong>Last Updated:</strong> May 6, 2026
+        </p>
+        <p className="text-[13px] text-[var(--color-text-dim)]">
+          <strong>Contact:</strong>{' '}
+          <a href="mailto:sales@fan2seeproductions.com" className="text-[var(--color-brand-bright)] underline">sales@fan2seeproductions.com</a>
         </p>
 
         <p className="mt-6">
@@ -199,9 +203,12 @@ export default function TermsPage() {
         </Section>
 
         <Section n="12" title="Payments, Subscriptions, and Refunds">
-          <p>If WorkoutPartna offers paid subscriptions, premium features, events, promotions, or in-app purchases, all payment terms will be disclosed at the time of purchase.</p>
-          <p>Unless otherwise stated, all purchases are final and non-refundable to the fullest extent permitted by law.</p>
-          <p>WorkoutPartna may change pricing, features, subscription plans, or payment terms at any time. Any changes will apply prospectively unless otherwise required by law.</p>
+          <p>WorkoutPartna currently offers an optional paid feature called the <strong>AI Daily Coach</strong>, billed as a recurring monthly subscription at <strong>$9.99 USD per month</strong>. All payment terms will be disclosed at the time of purchase.</p>
+          <p><strong>Free trial.</strong> New AI Daily Coach subscribers receive a free trial period (currently 7 days) before the first charge. Promotion codes (such as <code>PARTNA14</code>) may extend or replace the first billing cycle with a free month at our discretion. The applicable trial length and any active promo discount are shown on the Stripe checkout page before you confirm your subscription.</p>
+          <p><strong>Cancellation.</strong> You may cancel the AI Daily Coach at any time. Cancellation takes effect at the end of the current paid billing period; you will retain access through the period you have already paid for, but no further charges will be made after cancellation.</p>
+          <p><strong>Payment processor.</strong> All payments are processed by <strong>Stripe, Inc.</strong> Card numbers and full payment details are collected and stored by Stripe under their own terms; WorkoutPartna does not see or store your full card number. Use of Stripe is also subject to the <a href="https://stripe.com/legal/consumer" className="text-[var(--color-brand-bright)] underline">Stripe Services Agreement</a>.</p>
+          <p><strong>Refunds.</strong> Unless otherwise stated or required by law, all purchases are final and non-refundable. We may, at our discretion, issue refunds in cases of duplicate charges, billing errors, or other reasonable circumstances.</p>
+          <p><strong>Pricing changes.</strong> WorkoutPartna may change pricing, features, subscription plans, or payment terms at any time. Material changes will apply only to billing periods after the change and will be communicated by email or in-app notice before they take effect, except where required to apply immediately by law.</p>
           <p>Third-party app stores, payment processors, or platforms may have their own terms and refund policies.</p>
         </Section>
 

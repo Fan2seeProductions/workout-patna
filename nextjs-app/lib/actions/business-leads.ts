@@ -3,6 +3,7 @@
 'use server'
 
 import { createClient } from '../supabase/server'
+import { notifyIntake } from '../email/intake-notify'
 
 export type LeadInput = {
   proposedName: string
@@ -55,6 +56,26 @@ export async function submitBusinessLead(input: LeadInput) {
       .update({ claim_status: 'pending', claim_email: input.contactEmail.trim().toLowerCase() })
       .eq('id', existing.id)
   }
+
+  // Notify sales@ + info@ via the shared intake helper.
+  await notifyIntake({
+    kind: `Business lead (${input.propertyType})`,
+    category: 'partners',
+    who: `${input.contactName.trim()} · ${input.proposedName.trim()}`,
+    replyTo: input.contactEmail.trim(),
+    fields: [
+      { label: 'Property name', value: input.proposedName.trim() },
+      { label: 'Type', value: input.propertyType },
+      { label: 'Contact name', value: input.contactName.trim() },
+      { label: 'Contact role', value: input.contactRole ?? null },
+      { label: 'Contact email', value: input.contactEmail.trim() },
+      { label: 'Contact phone', value: input.contactPhone ?? null },
+      { label: 'Property size', value: input.propertySize ?? null },
+      { label: 'Location', value: [input.city, input.state].filter(Boolean).join(', ') || null },
+      { label: 'Message', value: input.message ?? null },
+      { label: 'Matched existing gym', value: existing?.id ? 'Yes (claim pending)' : 'No' },
+    ],
+  })
 
   return { ok: true }
 }

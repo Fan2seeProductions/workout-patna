@@ -2,6 +2,7 @@
 'use client'
 
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { acceptMatchRequest, declineMatchRequest, cancelMatchRequest } from '../../../../lib/actions/matches'
 
 export function MatchActions({
@@ -11,6 +12,7 @@ export function MatchActions({
   matchId: string
   direction: 'incoming' | 'outgoing'
 }) {
+  const router = useRouter()
   const [pending, start] = useTransition()
 
   if (direction === 'outgoing') {
@@ -35,11 +37,19 @@ export function MatchActions({
         Decline
       </button>
       <button
-        onClick={() => start(async () => { await acceptMatchRequest(matchId) })}
+        onClick={() =>
+          start(async () => {
+            const res = await acceptMatchRequest(matchId)
+            if (res.ok) {
+              // Navigate to the chat so the user can start messaging immediately
+              router.push(`/app/messages/${matchId}`)
+            }
+          })
+        }
         disabled={pending}
         className="h-10 rounded-full brand-gradient text-[13px] font-bold text-white disabled:opacity-50"
       >
-        {pending ? 'Working...' : 'Accept'}
+        {pending ? 'Matching...' : 'Accept'}
       </button>
     </div>
   )

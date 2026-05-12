@@ -9,22 +9,30 @@ const isCI = !!process.env.CI
 export default defineConfig({
   testDir: './tests/e2e',
   outputDir: './tests/e2e/.results',
-  timeout: 30_000,
-  expect: { timeout: 7_000 },
+  snapshotDir: './tests/e2e/screenshots/snapshots',
+  timeout: 45_000,
+  expect: {
+    timeout: 10_000,
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05,
+    },
+  },
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   // Next.js dev server compiles on demand; multiple parallel workers
   // overload it. Stay at 1 locally, bump to 2 on CI where Vercel handles load.
   workers: isCI ? 2 : 1,
-  reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
+  reporter: isCI
+    ? [['github'], ['html', { open: 'never' }], ['json', { outputFile: 'tests/e2e/reports/test-results.json' }]]
+    : [['list'], ['html', { open: 'never' }], ['json', { outputFile: 'tests/e2e/reports/test-results.json' }]],
   use: {
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 10_000,
-    navigationTimeout: 15_000,
+    navigationTimeout: 20_000,
   },
   // All 3 projects use Chromium so we don't need to install WebKit/Firefox.
   // Mobile + tablet just emulate viewport + user agent.

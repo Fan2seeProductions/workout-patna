@@ -43,7 +43,7 @@ export default async function TrainerProfilePage({
       </header>
 
       {/* Hero */}
-      <section className="rounded-2xl overflow-hidden border border-[var(--color-border)] bg-white">
+      <section className="rounded-2xl overflow-hidden border border-white/10 bg-white/[0.04]">
         <div className="h-32 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)]" />
         <div className="px-5 -mt-12 pb-5">
           <div className="h-24 w-24 rounded-2xl border-4 border-white overflow-hidden bg-[var(--color-muted)] shadow-md">
@@ -82,7 +82,7 @@ export default async function TrainerProfilePage({
       )}
 
       {/* Pricing placeholder */}
-      <section className="mt-5 rounded-2xl border border-[var(--color-border)] bg-white p-4">
+      <section className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
         <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-muted-foreground)]">Pricing</p>
         <p className="mt-1 text-[13.5px] text-[var(--color-foreground)]">Contact for pricing</p>
         <p className="mt-1 text-[11.5px] text-[var(--color-muted-foreground)]">

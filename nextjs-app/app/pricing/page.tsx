@@ -64,7 +64,7 @@ export default function PricingPage() {
                 }`}
               >
                 {p.highlight && (
-                  <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-[var(--color-secondary)] text-white text-[10px] uppercase font-extrabold tracking-wider">
+                  <span className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-[var(--color-primary)] text-white text-[10px] uppercase font-extrabold tracking-wider">
                     Premium
                   </span>
                 )}
@@ -79,7 +79,7 @@ export default function PricingPage() {
                 <ul className="mt-5 space-y-2">
                   {p.features.map(f => (
                     <li key={f} className="flex items-start gap-2 text-[13.5px]">
-                      <span className={`shrink-0 mt-0.5 ${p.highlight ? 'text-[var(--color-secondary)]' : 'text-[var(--color-accent)]'}`}>
+                      <span className={`shrink-0 mt-0.5 ${p.highlight ? 'text-white' : 'text-[var(--color-accent)]'}`}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M5 12l5 5L20 6" />
                         </svg>

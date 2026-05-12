@@ -13,6 +13,38 @@ export type Intake = {
   target_areas?: string[] | null
   training_style?: string | null
   coaching_tone?: string | null
+
+  // Tier 1: programming safety (added 2026-05-08)
+  age?: number | null
+  sex?: string | null
+  height_inches?: number | null
+  weight_lbs?: number | null
+  medical_conditions?: string[] | null
+  medications?: string | null
+  pregnancy_status?: string | null
+
+  // Tier 2: programming quality
+  training_years?: number | null
+  pr_bench_lbs?: number | null
+  pr_squat_lbs?: number | null
+  pr_deadlift_lbs?: number | null
+  pr_mile_time?: string | null
+  body_fat_pct?: number | null
+  goal_target?: string | null
+  goal_target_date?: string | null
+  sleep_hours_avg?: number | null
+  stress_level?: string | null
+  occupation_activity?: string | null
+
+  // Tier 3: personalization
+  liked_exercises?: string | null
+  disliked_exercises?: string | null
+  cardio_preference?: string[] | null
+  mobility_issues?: string | null
+
+  // SMS delivery opt-in (TCPA-compliant)
+  phone_number?: string | null
+  sms_opt_in?: boolean | null
 }
 
 export type WorkoutPlan = {
@@ -21,6 +53,13 @@ export type WorkoutPlan = {
   main: string
   finisher: string
   notes: string
+}
+
+export type AdaptationContext = {
+  yesterdayFocus?: string | null
+  yesterdayFeedback?: 'too_easy' | 'too_hard' | 'sore' | 'skipped' | 'completed' | null
+  /** When set, instructs Claude to produce a different plan than what the user already saw today. */
+  regenerateReason?: string | null
 }
 
 const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
@@ -54,7 +93,10 @@ const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
   },
 }
 
-export async function generateWorkout(intake: Intake | null): Promise<WorkoutPlan> {
+export async function generateWorkout(
+  intake: Intake | null,
+  ctx: AdaptationContext = {},
+): Promise<WorkoutPlan> {
   const styleKey = (intake?.training_style ?? 'mixed').toLowerCase()
   const fallback = FALLBACK_TEMPLATES[styleKey] ?? FALLBACK_TEMPLATES.mixed
 
@@ -65,17 +107,75 @@ export async function generateWorkout(intake: Intake | null): Promise<WorkoutPla
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    const sys = `You are an experienced strength and conditioning coach. Generate a single day's workout plan based on the user's intake. Return ONLY valid minified JSON in this exact shape, no markdown, no commentary:
+    const sys = `You are an experienced strength and conditioning coach (NSCA-CSCS, NASM-CPT certified). Generate a single day's workout plan based on the user's intake and any feedback from their previous session. Return ONLY valid minified JSON in this exact shape, no markdown, no commentary:
 {"focus":"...","warm_up":"...","main":"...","finisher":"...","notes":"..."}
 Rules:
 - focus: short title for the day (e.g., "Lower body strength")
 - warm_up: 2 to 4 lines, comma separated
-- main: the actual workout with sets x reps notation
+- main: the actual workout with sets x reps notation. When you have the user's
+  current PRs (bench/squat/deadlift), prescribe loads as % of those PRs
+  (e.g., "Back squat 4 x 6 @ 75% (≈225 lbs based on 300 lb PR)").
 - finisher: 3 to 5 minutes of higher-intensity work or core
 - notes: 1 to 2 lines of coaching cues or substitutions
 - Match the user's coaching tone if provided
-- Respect injuries and equipment constraints
-- Keep the whole plan completable in the user's available minutes`
+- Respect injuries, medical conditions, mobility issues, equipment constraints
+- Keep the whole plan completable in the user's available minutes
+- AGE-APPROPRIATE programming: under 25 → tolerate higher volume; 26–45 →
+  standard; 46+ → reduce impact/volume, longer warm-ups, more recovery work
+- SLEEP-AWARE: if user reports <6 hrs sleep avg → reduce volume 15–25%
+- HIGH STRESS or HEAVY OCCUPATION ACTIVITY → reduce volume, prioritize recovery
+- PREGNANCY: avoid supine positions after 1st trimester, no high-impact, no
+  abdominal flexion in 2nd/3rd trimester, defer to OB clearance
+- DISLIKED EXERCISES: do not prescribe (substitute with similar movement pattern)
+- LIKED EXERCISES: include when they fit the day's focus
+- ADAPT to yesterday's feedback when given:
+  * "too_hard" or "sore"  → deload 10–15%, swap to lower-impact movements
+  * "too_easy"            → add 1–2 sets, 5–10% more weight, or harder progressions
+  * "skipped"             → keep load similar, treat as a fresh start
+  * "completed"           → progress slightly, vary movement patterns
+- Avoid hitting the same primary movement pattern as yesterday`
+
+    const adaptation = ctx.yesterdayFocus || ctx.yesterdayFeedback
+      ? `\n\nYesterday's session:\n- Focus: ${ctx.yesterdayFocus ?? 'unknown'}\n- User feedback: ${ctx.yesterdayFeedback ?? 'none recorded'}`
+      : ''
+
+    const regen = ctx.regenerateReason
+      ? `\n\nIMPORTANT: The user requested a different workout for today. Reason: "${ctx.regenerateReason}". Produce a meaningfully different plan — different focus area or movement style — not just a reworded version.`
+      : ''
+
+    // Build conditional sections so we don't pollute the prompt with empty fields
+    const fmt = (v: unknown): string =>
+      v == null || v === '' ? '(not provided)'
+      : Array.isArray(v) ? (v.length ? v.join(', ') : '(not provided)')
+      : String(v)
+
+    const tier1 = `\n\n— Demographics & safety —
+- Age: ${fmt(intake?.age)}
+- Sex: ${fmt(intake?.sex)}
+- Height (in): ${fmt(intake?.height_inches)}
+- Weight (lbs): ${fmt(intake?.weight_lbs)}
+- Medical conditions: ${fmt(intake?.medical_conditions)}
+- Medications: ${fmt(intake?.medications)}
+- Pregnancy/postpartum status: ${fmt(intake?.pregnancy_status)}`
+
+    const tier2 = `\n\n— Training history & current state —
+- Years training: ${fmt(intake?.training_years)}
+- PR bench (lbs): ${fmt(intake?.pr_bench_lbs)}
+- PR squat (lbs): ${fmt(intake?.pr_squat_lbs)}
+- PR deadlift (lbs): ${fmt(intake?.pr_deadlift_lbs)}
+- PR mile time: ${fmt(intake?.pr_mile_time)}
+- Body fat %: ${fmt(intake?.body_fat_pct)}
+- Specific goal target: ${fmt(intake?.goal_target)}
+- Goal target date: ${fmt(intake?.goal_target_date)}
+- Avg sleep (hrs): ${fmt(intake?.sleep_hours_avg)}
+- Stress level: ${fmt(intake?.stress_level)}
+- Occupation activity level: ${fmt(intake?.occupation_activity)}`
+
+    const tier3 = `\n\n— Personalization —
+- Liked exercises: ${fmt(intake?.liked_exercises)}
+- Disliked exercises (DO NOT prescribe): ${fmt(intake?.disliked_exercises)}
+- Cardio preference: ${fmt(intake?.cardio_preference)}
+- Mobility issues: ${fmt(intake?.mobility_issues)}`
 
     const user = `User intake:
 - Goals: ${(intake?.goals ?? []).join(', ') || 'general fitness'}
@@ -86,7 +186,7 @@ Rules:
 - Target areas: ${(intake?.target_areas ?? []).join(', ') || 'full body'}
 - Training style: ${intake?.training_style ?? 'mixed'}
 - Coaching tone: ${intake?.coaching_tone ?? 'encouraging'}
-- Injuries: ${intake?.injuries ?? 'none'}
+- Injuries: ${intake?.injuries ?? 'none'}${tier1}${tier2}${tier3}${adaptation}${regen}
 
 Generate today's workout.`
 

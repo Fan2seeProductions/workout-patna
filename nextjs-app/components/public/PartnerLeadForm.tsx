@@ -180,7 +180,7 @@ export function PartnerLeadForm() {
 }
 
 const inputCls =
-  'w-full h-11 rounded-xl border border-[var(--color-border)] bg-white px-3.5 text-[14px] text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20'
+  'w-full h-11 rounded-xl border border-[var(--color-border)] bg-white px-3.5 text-[14px] text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20'
 
 function Field({
   label,

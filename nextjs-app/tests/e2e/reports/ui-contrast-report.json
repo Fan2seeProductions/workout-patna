@@ -1,0 +1,40 @@
+[
+  {
+    "selector": "a.text-[var(--color-brand-bright)].underline",
+    "textContent": "sales@fan2seeproductions.com",
+    "textColor": "rgb(231, 64, 64)",
+    "backgroundColor": "rgb(13, 13, 13)",
+    "fontSize": "13px",
+    "fontWeight": "400",
+    "dimensions": {
+      "width": 197.453125,
+      "height": 16,
+      "x": 338.46875,
+      "y": 200.5
+    },
+    "opacity": 1,
+    "issue": "LOW-CONTRAST: ratio 4.36 (need 4.5) — text may be hard to read",
+    "pageUrl": "http://localhost:3002/terms",
+    "severity": "serious",
+    "recommendation": "Increase contrast ratio to at least 4.5:1 for normal text or 3:1 for large text"
+  },
+  {
+    "selector": "a.text-[var(--color-brand-bright)].underline",
+    "textContent": "sales@fan2seeproductions.com",
+    "textColor": "rgb(231, 64, 64)",
+    "backgroundColor": "rgb(13, 13, 13)",
+    "fontSize": "13px",
+    "fontWeight": "400",
+    "dimensions": {
+      "width": 197.453125,
+      "height": 16,
+      "x": 476.34375,
+      "y": 200.5
+    },
+    "opacity": 1,
+    "issue": "LOW-CONTRAST: ratio 4.36 (need 4.5) — text may be hard to read",
+    "pageUrl": "http://localhost:3002/privacy",
+    "severity": "serious",
+    "recommendation": "Increase contrast ratio to at least 4.5:1 for normal text or 3:1 for large text"
+  }
+]

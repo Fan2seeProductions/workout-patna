@@ -3,6 +3,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '../supabase/server'
+import { notifyIntake } from '../email/intake-notify'
 
 // Legacy quick-claim flow used by the old Browse page.
 // One free consultation per user per gym (enforced by query check below).
@@ -72,6 +73,28 @@ export async function requestConsultation(input: ConsultationInput) {
   })
 
   if (error) return { ok: false, error: error.message }
+
+  // Look up trainer name for a friendlier subject line
+  const { data: trainerInfo } = await supabase
+    .from('trainers')
+    .select('name')
+    .eq('id', trainer.id)
+    .maybeSingle()
+
+  await notifyIntake({
+    kind: 'Trainer consultation request',
+    category: 'consultations',
+    who: `${input.user_name?.trim() || user.email || '(unknown)'} → ${trainerInfo?.name ?? 'trainer'}`,
+    replyTo: user.email ?? undefined,
+    adminUrl: `https://workoutpartna.com/app/trainers/${trainer.id}`,
+    fields: [
+      { label: 'Requester name', value: input.user_name ?? null },
+      { label: 'Requester email', value: user.email ?? null },
+      { label: 'Trainer', value: trainerInfo?.name ?? null },
+      { label: 'Preferred date/time', value: input.preferred_at ?? null },
+      { label: 'Message', value: input.message ?? null },
+    ],
+  })
 
   revalidatePath(`/app/trainers/${trainer.id}`)
   return { ok: true }

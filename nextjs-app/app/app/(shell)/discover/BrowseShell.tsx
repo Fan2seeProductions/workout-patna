@@ -8,6 +8,9 @@ import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { sendMatchRequest } from '../../../../lib/actions/matches'
+import { PremiumBadgeIf } from '../../../../components/app/PremiumBadge'
+import { sanitizePrompts, findPrompt } from '../../../../lib/profile/prompts'
+import { SwipeDeck } from './SwipeDeck'
 
 export type GymLite = { id: string; name: string; type: string; city: string; state: string }
 export type TrainerLite = {
@@ -46,9 +49,11 @@ export type BrowseProfile = {
   gym_id: string | null
   photo_url: string | null
   is_premium?: boolean | null
+  premium_until?: string | null
   gym: GymLite | null
   score: number | null
   badges: string[]
+  profile_prompts?: unknown  // raw jsonb from DB
 }
 
 type Me = {
@@ -107,12 +112,16 @@ export function BrowseShell({
     return list
   }, [profiles, tab, query, goal, level, time, me.gym_id])
 
+  const isPeopleTab = tab === 'At My Location' || tab === 'Nearby'
+
   // ── Empty state when no gym yet ────────────────────────────────────
   if (!me.gym_id && tab === 'At My Location') {
     return (
-      <main className="mx-auto max-w-md px-5 pt-3 pb-2">
-        <Header />
-        <Tabs tab={tab} setTab={setTab} />
+      <main className="mx-auto max-w-md px-4 pt-3 pb-24">
+        <TopBar
+          tab={tab} setTab={setTab}
+          filterOpen={filterOpen} setFilterOpen={setFilterOpen}
+        />
         <div className="mt-8 rounded-2xl border border-dashed border-[var(--color-border-bright)] p-8 text-center">
           <p className="text-[16px] font-bold text-[var(--color-foreground)]">Choose your location first</p>
           <p className="mt-2 text-[13.5px] text-[var(--color-muted-foreground)]">
@@ -130,37 +139,18 @@ export function BrowseShell({
   }
 
   return (
-    <main className="mx-auto max-w-md px-5 pt-3 pb-2">
-      <Header />
-      <Tabs tab={tab} setTab={setTab} />
+    <main className="mx-auto max-w-md pb-24" style={{ paddingLeft: isPeopleTab ? 0 : 20, paddingRight: isPeopleTab ? 0 : 20 }}>
+      {/* Top bar */}
+      <div className={isPeopleTab ? 'px-4 pt-3' : 'pt-3'}>
+        <TopBar
+          tab={tab} setTab={setTab}
+          filterOpen={filterOpen} setFilterOpen={setFilterOpen}
+        />
+      </div>
 
-      {/* Search + filter (people / training today only) */}
-      {(tab === 'At My Location' || tab === 'Nearby' || tab === 'Trainers') && (
-        <div className="mt-3 relative">
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search by name, goal, gym, vibe, or workout style"
-            className="w-full h-11 rounded-2xl border border-[var(--color-border)] bg-white pl-10 pr-12 text-[14px] text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-primary)]"
-          />
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-muted-foreground)]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <button
-            onClick={() => setFilterOpen(o => !o)}
-            aria-label="Filters"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
-              <circle cx="9" cy="6" r="2" fill="currentColor" /><circle cx="14" cy="12" r="2" fill="currentColor" /><circle cx="7" cy="18" r="2" fill="currentColor" />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {filterOpen && (
-        <div className="mt-3 rounded-2xl border border-[var(--color-border)] bg-white p-4 space-y-3">
+      {/* Filters panel (list tabs only) */}
+      {filterOpen && !isPeopleTab && (
+        <div className="mt-3 mx-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 space-y-3">
           <FilterRow label="Goal" value={goal} setValue={setGoal} options={FILTER_GOALS} />
           <FilterRow label="Time" value={time} setValue={setTime} options={FILTER_TIMES} />
           <FilterRow label="Level" value={level} setValue={setLevel} options={FILTER_LEVEL} />
@@ -176,9 +166,22 @@ export function BrowseShell({
       )}
 
       {/* ── Tab content ───────────────────────────────────────────── */}
-      <div className="mt-4">
-        {(tab === 'At My Location' || tab === 'Nearby') && (
-          <PeopleList list={peopleList} myGym={me.gym} />
+      <div className={isPeopleTab ? 'mt-3 px-3' : 'mt-4 px-4'}>
+        {/* Swipe deck for people tabs */}
+        {isPeopleTab && (
+          peopleList.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[var(--color-border-bright)] p-7 text-center mt-4">
+              <p className="text-[15px] font-bold text-[var(--color-foreground)]">No Partnas found yet</p>
+              <p className="mt-1 text-[12.5px] text-[var(--color-muted-foreground)]">
+                Invite people from your gym or apartment community to help grow this location.
+              </p>
+              <Link href="/app/profile" className="mt-4 inline-flex h-10 px-5 rounded-full brand-gradient text-white items-center font-bold text-[13px]">
+                Invite Members
+              </Link>
+            </div>
+          ) : (
+            <SwipeDeck profiles={peopleList} />
+          )
         )}
         {tab === 'Training Today' && (
           <TrainingTodayList posts={trainingToday} myGymId={me.gym_id} />
@@ -194,36 +197,90 @@ export function BrowseShell({
 
 // ─── Sub-components ───────────────────────────────────────────────────────
 
-function Header() {
+/** Bumble-style top bar: filter icon | tab toggle | post CTA */
+function TopBar({
+  tab, setTab, filterOpen, setFilterOpen,
+}: {
+  tab: Tab
+  setTab: (t: Tab) => void
+  filterOpen: boolean
+  setFilterOpen: (v: boolean) => void
+}) {
+  const isPeople = tab === 'At My Location' || tab === 'Nearby'
   return (
-    <header className="pt-2 pb-3 flex items-center justify-between">
-      <h1 className="text-[24px] font-extrabold tracking-tight text-[var(--color-foreground)]">Find Partnas</h1>
-      <Link
-        href="/app/training-today/new"
-        className="text-[12px] font-bold text-[var(--color-primary)] inline-flex items-center gap-1"
-      >
-        + Post Training Today
-      </Link>
-    </header>
-  )
-}
-
-function Tabs({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
-  return (
-    <div className="flex gap-1 overflow-x-auto no-scrollbar -mx-5 px-5 pb-1">
-      {TABS.map(t => (
+    <div className="space-y-3">
+      {/* Row 1 — filter + mode toggle + post */}
+      <div className="flex items-center gap-2">
+        {/* Filter button */}
         <button
-          key={t}
-          onClick={() => setTab(t)}
-          className={`shrink-0 h-9 px-4 rounded-full text-[12.5px] font-semibold whitespace-nowrap transition ${
-            tab === t
-              ? 'brand-gradient text-white shadow-[0_4px_12px_-2px_rgba(30,99,233,0.5)]'
-              : 'bg-white border border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]'
+          onClick={() => setFilterOpen(!filterOpen)}
+          aria-label="Filters"
+          className={`shrink-0 h-10 w-10 rounded-full border flex items-center justify-center transition ${
+            filterOpen
+              ? 'bg-[var(--color-primary)]/15 border-[var(--color-primary)]/40 text-[var(--color-primary)]'
+              : 'bg-white/[0.04] border-white/10 text-white/60 hover:bg-white/[0.08] hover:text-white'
           }`}
         >
-          {t}
+          {/* Sliders icon */}
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
+            <circle cx="9" cy="6" r="2.2" fill="currentColor" stroke="none" /><circle cx="15" cy="12" r="2.2" fill="currentColor" stroke="none" /><circle cx="8" cy="18" r="2.2" fill="currentColor" stroke="none" />
+          </svg>
         </button>
-      ))}
+
+        {/* Bumble-style pill toggle — "At My Gym | Nearby" for people tabs */}
+        {isPeople ? (
+          <div className="flex-1 flex items-center bg-white/[0.05] rounded-full p-1 border border-white/10">
+            <button
+              onClick={() => setTab('At My Location')}
+              className={`flex-1 h-8 rounded-full text-[12.5px] font-bold transition ${
+                tab === 'At My Location'
+                  ? 'bg-[var(--color-primary)] text-white shadow-md'
+                  : 'text-white/55 hover:text-white'
+              }`}
+            >
+              My Gym
+            </button>
+            <button
+              onClick={() => setTab('Nearby')}
+              className={`flex-1 h-8 rounded-full text-[12.5px] font-bold transition ${
+                tab === 'Nearby'
+                  ? 'bg-[var(--color-primary)] text-white shadow-md'
+                  : 'text-white/55 hover:text-white'
+              }`}
+            >
+              Nearby
+            </button>
+          </div>
+        ) : (
+          <p className="flex-1 text-[20px] font-extrabold tracking-tight text-white">Find Partnas</p>
+        )}
+
+        {/* Post training today */}
+        <Link
+          href="/app/training-today/new"
+          className="shrink-0 h-10 px-3.5 rounded-full bg-white/[0.06] border border-white/10 text-white/80 text-[12px] font-bold inline-flex items-center gap-1.5 hover:bg-white/[0.1] transition"
+        >
+          <span className="text-[15px]">+</span> Post
+        </Link>
+      </div>
+
+      {/* Row 2 — remaining tabs (Training Today, Groups, Trainers) */}
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 pb-0.5">
+        {(['Training Today', 'Groups', 'Trainers'] as Tab[]).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`shrink-0 h-8 px-3.5 rounded-full text-[12px] font-semibold whitespace-nowrap transition border ${
+              tab === t
+                ? 'bg-[var(--color-primary)]/15 border-[var(--color-primary)]/40 text-[var(--color-primary)]'
+                : 'bg-white/[0.03] border-white/[0.08] text-white/50 hover:text-white/80 hover:bg-white/[0.06]'
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -249,7 +306,7 @@ function FilterRow({
               className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition ${
                 on
                   ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                  : 'border-[var(--color-border)] bg-white text-[var(--color-foreground)]/85'
+                  : 'border-white/15 bg-white/[0.04] text-white/85 hover:bg-white/[0.08]'
               }`}
             >
               {o}
@@ -312,10 +369,10 @@ function PersonCard({ p, sameGym }: { p: BrowseProfile; sameGym: boolean }) {
   return (
     <Link
       href={`/app/profile/${p.id}`}
-      className="block rounded-2xl border border-[var(--color-border)] bg-white p-3 hover:border-[var(--color-primary)]/40 transition"
+      className="block rounded-2xl border border-white/10 bg-white/[0.04] p-3 hover:border-[var(--color-primary)]/40 transition"
     >
       <div className="flex items-start gap-3">
-        <div className="relative shrink-0 h-16 w-16 rounded-2xl overflow-hidden bg-[var(--color-muted)]">
+        <div className="relative shrink-0 h-20 w-20 rounded-2xl overflow-hidden bg-[var(--color-muted)]">
           {p.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
@@ -327,8 +384,9 @@ function PersonCard({ p, sameGym }: { p: BrowseProfile; sameGym: boolean }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="font-bold text-[14px] truncate text-[var(--color-foreground)]">
+            <p className="font-bold text-[14px] truncate text-[var(--color-foreground)] inline-flex items-center gap-1.5 flex-wrap">
               {(p.display_name ?? 'Member').split(' ')[0]}{p.age ? `, ${p.age}` : ''}
+              <PremiumBadgeIf isPremium={p.is_premium} premiumUntil={p.premium_until} size="sm" />
             </p>
             {p.score === null ? (
               <span className="shrink-0 text-[10px] font-semibold text-[var(--color-muted-foreground)]">
@@ -339,7 +397,7 @@ function PersonCard({ p, sameGym }: { p: BrowseProfile; sameGym: boolean }) {
                 p.score >= 70
                   ? 'bg-[var(--color-accent)]/15 text-[var(--color-accent)]'
                   : p.score >= 40
-                  ? 'bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]'
+                  ? 'bg-[var(--color-primary)]/15 text-white'
                   : 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)]'
               }`}>
                 {p.score}% Match
@@ -370,6 +428,25 @@ function PersonCard({ p, sameGym }: { p: BrowseProfile; sameGym: boolean }) {
         </div>
       </div>
 
+      {/* Hinge-style prompt preview */}
+      {(() => {
+        const saved = sanitizePrompts(p.profile_prompts)
+        if (saved.length === 0) return null
+        const first = saved[0]
+        const meta = findPrompt(first.id)
+        if (!meta) return null
+        return (
+          <div className="mt-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2">
+            <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-primary)] mb-0.5">
+              {meta.question}
+            </p>
+            <p className="text-[13px] text-white/85 leading-snug font-medium line-clamp-2">
+              {first.answer}
+            </p>
+          </div>
+        )
+      })()}
+
       <div className="mt-3 grid grid-cols-2 gap-2">
         <button
           onClick={(e) => { e.preventDefault(); connect() }}
@@ -378,7 +455,7 @@ function PersonCard({ p, sameGym }: { p: BrowseProfile; sameGym: boolean }) {
         >
           {sent === 'sent' ? 'Request sent' : sent === 'matched' ? 'Message →' : pending ? 'Connecting...' : 'Connect'}
         </button>
-        <span className="h-9 rounded-full border border-[var(--color-border)] bg-white text-[var(--color-foreground)] text-[12.5px] font-bold inline-flex items-center justify-center">
+        <span className="h-9 rounded-full border border-white/15 bg-white/[0.06] text-white text-[12.5px] font-bold inline-flex items-center justify-center">
           View Profile
         </span>
       </div>
@@ -403,7 +480,7 @@ function TrainingTodayList({
   return (
     <div>
       {myGymId && (
-        <div className="mb-3 inline-flex p-1 rounded-full bg-white border border-[var(--color-border)] text-[12px] font-semibold">
+        <div className="mb-3 inline-flex p-1 rounded-full bg-white/[0.04] border border-white/10 text-[12px] font-semibold">
           <button
             onClick={() => setScope('mine')}
             className={`px-3 py-1.5 rounded-full ${scope === 'mine' ? 'brand-gradient text-white' : 'text-[var(--color-muted-foreground)]'}`}
@@ -435,7 +512,7 @@ function TrainingTodayList({
             const time = new Date(t.starts_at)
             const timeLabel = time.toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })
             return (
-              <div key={t.id} className="rounded-2xl border border-[var(--color-border)] bg-white p-4">
+              <div key={t.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <div className="flex items-start gap-3">
                   <div className="shrink-0 h-12 w-12 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-extrabold flex items-center justify-center">
                     {(t.user?.display_name ?? '?')[0]?.toUpperCase()}
@@ -522,7 +599,7 @@ function TrainerList({
   return (
     <div className="space-y-2.5">
       {list.map(t => (
-        <Link key={t.id} href={`/app/trainers/${t.id}`} className="block rounded-2xl border border-[var(--color-border)] bg-white p-3">
+        <Link key={t.id} href={`/app/trainers/${t.id}`} className="block rounded-2xl border border-white/10 bg-white/[0.04] p-3">
           <div className="flex items-start gap-3">
             <div className="shrink-0 h-14 w-14 rounded-xl overflow-hidden bg-[var(--color-muted)]">
               {t.photo_url ? (

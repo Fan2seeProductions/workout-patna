@@ -114,7 +114,7 @@ export default function AboutPage() {
               <div key={v.title} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6">
                 <p className="text-3xl mb-3">{v.emoji}</p>
                 <h3 className="text-[16px] font-black mb-2">{v.title}</h3>
-                <p className="text-[14px] text-white/50 leading-relaxed">{v.body}</p>
+                <p className="text-[14px] text-white/60 leading-relaxed">{v.body}</p>
               </div>
             ))}
           </div>
@@ -137,7 +137,7 @@ export default function AboutPage() {
                 <div>
                   <h3 className="font-black text-[17px] mb-1.5">{s.title}</h3>
                   <p className="text-[14px] text-white/70 leading-relaxed">{s.body}</p>
-                  <p className="mt-2 text-[12.5px] text-white/40 leading-relaxed">{s.detail}</p>
+                  <p className="mt-2 text-[12.5px] text-white/60 leading-relaxed">{s.detail}</p>
                 </div>
               </li>
             ))}
@@ -154,16 +154,16 @@ export default function AboutPage() {
               <h2 className="text-[28px] sm:text-[36px] font-black leading-tight tracking-tight">
                 Starting in Houston.<br />Growing everywhere.
               </h2>
-              <p className="mt-5 text-[15px] text-white/55 leading-relaxed">
+              <p className="mt-5 text-[15px] text-white/65 leading-relaxed">
                 WorkoutPartna launched in Houston, Texas, including Cypress, Katy, Spring,
                 The Woodlands, Sugar Land, and Pearland. We've expanded to cover the full US,
                 Central America, and the Caribbean.
               </p>
-              <p className="mt-3 text-[15px] text-white/55 leading-relaxed">
+              <p className="mt-3 text-[15px] text-white/65 leading-relaxed">
                 If your gym, apartment, or community center isn't listed, email us and we'll add it within 24 hours.
               </p>
-              <a href="mailto:hello@workoutpartna.com" className="mt-5 inline-flex items-center gap-2 text-[14px] font-bold text-[hsl(0,78%,58%)] hover:underline">
-                hello@workoutpartna.com →
+              <a href="mailto:sales@fan2seeproductions.com?subject=Add%20my%20location%20to%20WorkoutPartna" className="mt-5 inline-flex items-center gap-2 text-[14px] font-bold text-[hsl(0,78%,58%)] hover:underline">
+                sales@fan2seeproductions.com →
               </a>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -189,7 +189,7 @@ export default function AboutPage() {
           <h2 className="text-[32px] sm:text-[44px] font-black leading-tight tracking-tight">
             Ready to find your Partna?
           </h2>
-          <p className="mt-4 text-[16px] text-white/50">Free to join. No credit card needed.</p>
+          <p className="mt-4 text-[16px] text-white/60">Free to join. No credit card needed.</p>
           <div className="mt-8 flex flex-wrap gap-4 justify-center">
             <Link
               href="/app/signup"

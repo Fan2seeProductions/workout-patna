@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowRight, Check, Dumbbell, Heart, Building2, Users, Plus, X,
-  MapPin, Loader2,
+  MapPin, Loader2, Search,
 } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import { addGym } from '../../../lib/actions/gyms'
@@ -45,6 +45,24 @@ const vibes = [
   { label: 'Social Butterfly', desc: 'Love meeting new people' },
 ]
 
+/** Map common full state names to 2-letter abbreviations for DB matching. */
+function stateToAbbr(full: string): string | null {
+  const map: Record<string, string> = {
+    alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA',
+    colorado: 'CO', connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA',
+    hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA',
+    kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD',
+    massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS', missouri: 'MO',
+    montana: 'MT', nebraska: 'NE', nevada: 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ',
+    'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND',
+    ohio: 'OH', oklahoma: 'OK', oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI',
+    'south carolina': 'SC', 'south dakota': 'SD', tennessee: 'TN', texas: 'TX',
+    utah: 'UT', vermont: 'VT', virginia: 'VA', washington: 'WA', 'west virginia': 'WV',
+    wisconsin: 'WI', wyoming: 'WY',
+  }
+  return map[full.toLowerCase()] ?? (full.length === 2 ? full.toUpperCase() : null)
+}
+
 export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -54,6 +72,7 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
   const [newGym, setNewGym] = useState({ name: '', city: '', state: 'TX', type: 'gym' as 'gym' | 'apartment' | 'community_center', address: '' })
   const [locationLoading, setLocationLoading] = useState(false)
   const [userCity, setUserCity] = useState<string | null>(null)
+  const [gymSearch, setGymSearch] = useState('')
   const [pending, start] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -112,14 +131,28 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
             const data = await res.json()
             const city: string | undefined = data.address?.city || data.address?.town || data.address?.village || data.address?.county
             const state: string | undefined = data.address?.state
+            // Map full state name → abbreviation for comparison with DB
+            const stateAbbr = state ? stateToAbbr(state) : null
             if (city) {
               setUserCity(city)
-              setGyms(prev => [...prev].sort((a, b) => {
-                const aMatch = a.city.toLowerCase().includes(city.toLowerCase()) ? -1 : 1
-                const bMatch = b.city.toLowerCase().includes(city.toLowerCase()) ? -1 : 1
-                return aMatch - bMatch
-              }))
-              setNewGym(prev => ({ ...prev, city, state: state ?? 'TX' }))
+              setNewGym(prev => ({ ...prev, city, state: stateAbbr ?? 'TX' }))
+              // Filter gyms to same state, sort by city match first
+              setGyms(prev => {
+                const sameState = prev.filter(g =>
+                  stateAbbr
+                    ? g.state.toLowerCase() === stateAbbr.toLowerCase()
+                    : g.state.toLowerCase() === (state ?? '').toLowerCase()
+                )
+                // If we have gyms in the same state, show only those (sorted by city match)
+                const list = sameState.length > 0 ? sameState : prev
+                return [...list].sort((a, b) => {
+                  const cityLower = city.toLowerCase()
+                  const aCity = a.city.toLowerCase().includes(cityLower) ? 0 : 1
+                  const bCity = b.city.toLowerCase().includes(cityLower) ? 0 : 1
+                  if (aCity !== bCity) return aCity - bCity
+                  return a.name.localeCompare(b.name)
+                })
+              })
             }
           }
         } finally {
@@ -148,24 +181,63 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
     }
   }
 
+  // Filter gyms by search text (name, city, or state)
+  const filteredGyms = gymSearch.trim()
+    ? gyms.filter(g => {
+        const q = gymSearch.toLowerCase()
+        return (
+          g.name.toLowerCase().includes(q) ||
+          g.city.toLowerCase().includes(q) ||
+          g.state.toLowerCase().includes(q)
+        )
+      })
+    : gyms
+
   const canContinue =
     (step === 1 && !!form.gymId) ||
     (step === 2 && !!form.level) ||
     (step === 3 && form.goals.length > 0) ||
     (step === 4 && !!form.vibe)
 
+  function back() {
+    if (step > 1) {
+      setStep(step - 1)
+    } else {
+      // On step 1, exit onboarding — back to home (or wherever the user came from)
+      router.push('/app/home')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-background)] flex flex-col justify-between p-6 max-w-lg mx-auto">
 
+      {/* Header with back button */}
+      <div className="w-full pt-4 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={back}
+          aria-label={step > 1 ? 'Previous step' : 'Exit onboarding'}
+          className="h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.04] flex items-center justify-center text-white/85 hover:bg-white/[0.08] transition"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <span className="text-[11px] uppercase font-bold tracking-wider text-white/50">
+          Step {step} of 4
+        </span>
+        <span className="w-9" />
+      </div>
+
       {/* Progress */}
-      <div className="w-full pt-8 pb-12">
+      <div className="w-full pt-4 pb-12">
         <div className="flex gap-2">
           {[1, 2, 3, 4].map(i => (
             <div
               key={i}
               className={cn(
                 'h-1.5 flex-1 rounded-full transition-all',
-                i <= step ? 'bg-[var(--color-secondary)]' : 'bg-[var(--color-muted)]',
+                i <= step ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-muted)]',
               )}
             />
           ))}
@@ -179,14 +251,14 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
             <p className="text-[var(--color-muted-foreground)]">Find your workout Partna at gyms, apartment complexes, or community centers.</p>
 
             {!userCity && (
-              <div className="bg-[var(--color-secondary)]/10 rounded-xl p-4 border border-[var(--color-secondary)]/20">
+              <div className="bg-[var(--color-primary)]/10 rounded-xl p-4 border border-[var(--color-primary)]/20">
                 <p className="text-sm font-medium text-[var(--color-foreground)] mb-2">Find gyms near you</p>
                 <p className="text-xs text-[var(--color-muted-foreground)] mb-3">Allow location access to show gyms close to you. You can always add your gym manually.</p>
                 <button
                   onClick={handleUseLocation}
                   disabled={locationLoading}
                   type="button"
-                  className="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg font-semibold text-sm hover:opacity-90 transition disabled:opacity-50"
                 >
                   {locationLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Finding your location...</> : <><MapPin className="w-4 h-4" /> Use my location</>}
                 </button>
@@ -194,19 +266,33 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
             )}
 
             {userCity && (
-              <div className="bg-green-50 rounded-xl p-3 border border-green-200 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-800">Showing gyms near <strong>{userCity}</strong></span>
+              <div className="bg-green-500/10 rounded-xl p-3 border border-green-500/30 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-green-400" />
+                <span className="text-sm text-green-300">Showing gyms near <strong>{userCity}</strong></span>
               </div>
             )}
 
+            {/* Search input for gym name, city, or zip */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted-foreground)]" />
+              <input
+                type="text"
+                value={gymSearch}
+                onChange={e => setGymSearch(e.target.value)}
+                placeholder="Search by gym name or city..."
+                className="w-full pl-9 pr-4 py-2.5 bg-[#1a1a1a] rounded-xl border border-white/10 focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] outline-none transition text-white placeholder:text-white/40 text-sm"
+              />
+            </div>
+
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-              {gyms.length === 0 && (
+              {filteredGyms.length === 0 && (
                 <p className="text-sm text-[var(--color-muted-foreground)] text-center py-6">
-                  No gyms in the database yet. Use &ldquo;Add my gym&rdquo; below to register yours.
+                  {gymSearch.trim()
+                    ? `No gyms found for "${gymSearch}". Try a different search or add your gym below.`
+                    : 'No gyms in the database yet. Use "Add my gym" below to register yours.'}
                 </p>
               )}
-              {gyms.map(gym => {
+              {filteredGyms.map(gym => {
                 const cfg = locationTypeConfig[gym.type] ?? locationTypeConfig.gym
                 const Icon = cfg.icon
                 const selected = form.gymId === gym.id
@@ -218,8 +304,8 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
                     className={cn(
                       'w-full p-4 rounded-2xl border-2 text-left transition flex justify-between items-center shadow-sm',
                       selected
-                        ? 'border-[var(--color-secondary)] bg-[var(--color-secondary)]/5 shadow-md'
-                        : 'border-[var(--color-border)] bg-white hover:border-[var(--color-secondary)]/30',
+                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 shadow-md'
+                        : 'border-white/15 bg-white/[0.04] hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08]',
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -234,7 +320,7 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
                         </span>
                       </div>
                     </div>
-                    {selected && <Check className="w-5 h-5 text-[var(--color-secondary)] shrink-0" />}
+                    {selected && <Check className="w-5 h-5 text-[var(--color-primary)] shrink-0" />}
                   </button>
                 )
               })}
@@ -245,7 +331,7 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
               <button
                 type="button"
                 onClick={() => setShowAddGym(true)}
-                className="flex items-center gap-2 text-[var(--color-secondary)] font-semibold hover:underline"
+                className="flex items-center gap-2 text-[var(--color-primary)] font-semibold hover:underline"
               >
                 <Plus className="w-4 h-4" />
                 Add my gym
@@ -259,7 +345,7 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
             <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-[var(--color-primary)]">Add Your Gym</h2>
-                <button type="button" onClick={() => setShowAddGym(false)} className="text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]">
+                <button type="button" onClick={() => setShowAddGym(false)} className="text-gray-400 hover:text-gray-700">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -291,7 +377,7 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
                   type="button"
                   onClick={handleAddGym}
                   disabled={addingGym || !newGym.name || !newGym.city || !newGym.state}
-                  className="w-full py-3 bg-[var(--color-secondary)] text-white rounded-xl font-bold hover:opacity-90 transition disabled:opacity-50"
+                  className="w-full py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold hover:opacity-90 transition disabled:opacity-50"
                 >
                   {addingGym ? 'Adding...' : 'Add Gym'}
                 </button>
@@ -315,8 +401,8 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
                     className={cn(
                       'w-full p-5 rounded-2xl border-2 text-left transition shadow-sm',
                       selected
-                        ? 'border-[var(--color-secondary)] bg-[var(--color-secondary)]/5 shadow-md'
-                        : 'border-[var(--color-border)] bg-white hover:border-[var(--color-secondary)]/30',
+                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 shadow-md'
+                        : 'border-white/15 bg-white/[0.04] hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08]',
                     )}
                   >
                     <div className="font-bold text-lg mb-1 text-[var(--color-foreground)]">{level.label}</div>
@@ -343,8 +429,8 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
                     className={cn(
                       'px-5 py-3 rounded-xl border-2 font-bold transition shadow-sm',
                       on
-                        ? 'border-[var(--color-secondary)] bg-[var(--color-secondary)] text-white shadow-md'
-                        : 'border-[var(--color-border)] bg-white text-[var(--color-muted-foreground)] hover:border-[var(--color-secondary)]/30 hover:text-[var(--color-foreground)]',
+                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-md'
+                        : 'border-white/15 bg-white/[0.04] text-white/70 hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08] hover:text-white',
                     )}
                   >
                     {goal}
@@ -370,13 +456,13 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
                     className={cn(
                       'w-full p-4 rounded-2xl border-2 text-left transition flex items-center gap-4 shadow-sm',
                       on
-                        ? 'border-[var(--color-secondary)] bg-[var(--color-secondary)]/5 shadow-md'
-                        : 'border-[var(--color-border)] bg-white hover:border-[var(--color-secondary)]/30',
+                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 shadow-md'
+                        : 'border-white/15 bg-white/[0.04] hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08]',
                     )}
                   >
                     <div className={cn(
                       'h-10 w-10 rounded-full flex items-center justify-center transition',
-                      on ? 'bg-[var(--color-secondary)] text-white' : 'bg-[var(--color-muted)]',
+                      on ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-muted)]',
                     )}>
                       <Heart className="w-5 h-5" />
                     </div>
@@ -408,12 +494,12 @@ export function OnboardingClient({ initialGyms }: { initialGyms: GymOption[] }) 
   )
 }
 
-const inputClass = 'w-full p-3 border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-[var(--color-foreground)]'
+const inputClass = 'w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] text-gray-900 bg-white placeholder:text-gray-400'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1 text-[var(--color-foreground)]">{label}</label>
+      <label className="block text-sm font-medium mb-1 text-gray-700">{label}</label>
       {children}
     </div>
   )

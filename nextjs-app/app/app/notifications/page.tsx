@@ -1,21 +1,20 @@
-// Notifications page. Shows the user's last 50 notifications.
+// Notifications page — dark cinematic redesign.
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { ChevronLeft } from 'lucide-react'
 import { createClient } from '../../../lib/supabase/server'
-import { Logo } from '../../../components/app/Logo'
-import { BackIcon } from '../../../components/app/icons'
 
 export const metadata = { title: 'Notifications', robots: { index: false, follow: false } }
 
-const KIND_ICON: Record<string, string> = {
-  match_request:     '👋',
-  match_accepted:    '🎉',
-  message:           '💬',
-  challenge_reminder:'⏰',
-  challenge_won:     '🏆',
-  workout_ready:     '🏋️',
-  offer_nearby:      '🏷️',
-  event_nearby:      '📅',
+const KIND_META: Record<string, { icon: string; color: string }> = {
+  match_request:      { icon: '👋', color: 'rgba(220,22,22,0.12)' },
+  match_accepted:     { icon: '🎉', color: 'rgba(220,22,22,0.12)' },
+  message:            { icon: '💬', color: 'rgba(255,255,255,0.06)' },
+  challenge_reminder: { icon: '⏰', color: 'rgba(251,191,36,0.10)' },
+  challenge_won:      { icon: '🏆', color: 'rgba(251,191,36,0.12)' },
+  workout_ready:      { icon: '🏋️', color: 'rgba(220,22,22,0.10)' },
+  offer_nearby:       { icon: '🏷️', color: 'rgba(255,255,255,0.06)' },
+  event_nearby:       { icon: '📅', color: 'rgba(255,255,255,0.06)' },
 }
 
 export default async function NotificationsPage() {
@@ -39,45 +38,86 @@ export default async function NotificationsPage() {
       .in('id', unreadIds)
   }
 
+  const list = rows ?? []
+  const unreadCount = unreadIds.length
+
   return (
-    <main className="mx-auto max-w-md px-5 pt-3 pb-6 min-h-dvh">
-      <header className="flex items-center gap-3 py-3">
-        <Link href="/app/home" aria-label="Back" className="h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.04] flex items-center justify-center text-white/85">
-          <BackIcon width={18} height={18} />
+    <main className="mx-auto max-w-md px-5 pt-5 pb-24" style={{ background: '#0d0d0d', minHeight: '100dvh' }}>
+
+      {/* Header */}
+      <header className="flex items-center gap-3 mb-6">
+        <Link
+          href="/app/home"
+          aria-label="Back"
+          className="h-9 w-9 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/85 hover:bg-white/[0.08] transition"
+        >
+          <ChevronLeft className="w-5 h-5" />
         </Link>
-        <Logo size={24} withWordmark />
+        <div className="flex-1">
+          <h1 className="text-[22px] font-extrabold tracking-tight text-white">Notifications</h1>
+          {unreadCount > 0 && (
+            <p className="text-[11px] text-white/40 mt-0.5">{unreadCount} new</p>
+          )}
+        </div>
       </header>
 
-      <h1 className="text-[24px] font-extrabold tracking-tight">Notifications</h1>
-
-      <div className="mt-4 space-y-2">
-        {(rows ?? []).length === 0 && (
-          <div className="rounded-2xl border border-dashed border-[var(--color-border-bright)] p-6 text-center text-[13px] text-[var(--color-text-muted)]">
-            No notifications yet. They'll show up here when there's match or message activity.
+      {/* Empty state */}
+      {list.length === 0 && (
+        <div className="mt-16 flex flex-col items-center text-center">
+          <div className="h-20 w-20 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-3xl mb-4">
+            🔔
           </div>
-        )}
-
-        {(rows ?? []).map(n => (
+          <p className="text-[16px] font-bold text-white">All caught up</p>
+          <p className="mt-1.5 text-[13px] text-white/50">
+            Notifications show up here when you get matches, messages, or activity.
+          </p>
           <Link
-            key={n.id}
-            href={n.link ?? '#'}
-            className={`flex items-start gap-3 p-3.5 rounded-2xl border transition ${
-              n.read_at
-                ? 'border-[var(--color-border)] bg-white/[0.02]'
-                : 'border-[var(--color-brand)]/30 bg-[var(--color-brand)]/8'
-            } hover:border-[var(--color-border-bright)]`}
+            href="/app/discover"
+            className="mt-6 inline-flex h-10 px-6 rounded-full brand-gradient text-white text-[13px] font-extrabold items-center"
           >
-            <span className="shrink-0 h-10 w-10 rounded-xl bg-white/[0.05] flex items-center justify-center text-lg">
-              {KIND_ICON[n.kind] ?? '🔔'}
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[14px] text-white truncate">{n.title}</p>
-              {n.body && <p className="mt-0.5 text-[12.5px] text-[var(--color-text-muted)] line-clamp-2">{n.body}</p>}
-              <p className="mt-1 text-[10px] text-[var(--color-text-dim)]">{timeAgo(n.created_at)}</p>
-            </div>
-            {!n.read_at && <span className="shrink-0 mt-2 h-2 w-2 rounded-full bg-[var(--color-brand-bright)]" />}
+            Find Partnas
           </Link>
-        ))}
+        </div>
+      )}
+
+      {/* Notification list */}
+      <div className="space-y-2">
+        {list.map(n => {
+          const meta = KIND_META[n.kind] ?? { icon: '🔔', color: 'rgba(255,255,255,0.04)' }
+          const isUnread = !n.read_at
+          return (
+            <Link
+              key={n.id}
+              href={n.link ?? '#'}
+              className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all ${
+                isUnread
+                  ? 'border-[rgba(220,22,22,0.25)] bg-[rgba(220,22,22,0.05)] hover:border-[rgba(220,22,22,0.4)]'
+                  : 'border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12]'
+              }`}
+            >
+              <span
+                className="shrink-0 h-11 w-11 rounded-2xl flex items-center justify-center text-xl"
+                style={{ background: meta.color }}
+              >
+                {meta.icon}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className={`font-bold text-[14px] leading-snug ${isUnread ? 'text-white' : 'text-white/80'}`}>
+                  {n.title}
+                </p>
+                {n.body && (
+                  <p className="mt-0.5 text-[12.5px] text-white/50 line-clamp-2">{n.body}</p>
+                )}
+                <p className="mt-1.5 text-[10px] font-semibold text-white/30 uppercase tracking-wider">
+                  {timeAgo(n.created_at)}
+                </p>
+              </div>
+              {isUnread && (
+                <span className="shrink-0 mt-1.5 h-2.5 w-2.5 rounded-full bg-[var(--color-primary)]" />
+              )}
+            </Link>
+          )
+        })}
       </div>
     </main>
   )

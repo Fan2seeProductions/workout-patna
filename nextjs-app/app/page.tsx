@@ -81,9 +81,9 @@ export default function HomePage() {
           <p className="text-[13px] uppercase tracking-[0.2em] font-bold text-[hsl(0,78%,58%)] mb-5">The problem</p>
           <h2 className="text-[32px] sm:text-[48px] font-black leading-tight tracking-tight">
             80% of people quit the gym<br />
-            <span className="text-white/40">within the first 5 months.</span>
+            <span className="text-white/60">within the first 5 months.</span>
           </h2>
-          <p className="mt-6 text-[17px] text-white/55 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-[17px] text-white/65 max-w-2xl mx-auto leading-relaxed">
             Not because of lack of motivation. Because there's no one holding them accountable.
             A partner changes everything. <span className="text-white font-semibold">People who work out with a partner are 2x more likely to stick with it.</span>
           </p>
@@ -98,7 +98,7 @@ export default function HomePage() {
           ].map(s => (
             <div key={s.stat} className="text-center">
               <p className="text-[40px] sm:text-[52px] font-black" style={{ background: 'linear-gradient(135deg, #dc1616 0%, #ff5555 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{s.stat}</p>
-              <p className="mt-1 text-[12px] sm:text-[13px] text-white/50 leading-snug">{s.label}</p>
+              <p className="mt-1 text-[12px] sm:text-[13px] text-white/60 leading-snug">{s.label}</p>
             </div>
           ))}
         </div>
@@ -151,10 +151,10 @@ export default function HomePage() {
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[hsl(0,78%,58%)]" style={{ background: 'hsl(0,78%,48%,0.12)' }}>
                     {step.icon}
                   </div>
-                  <span className="text-[40px] font-black text-white/[0.06] leading-none">{step.n}</span>
+                  <span aria-hidden="true" className="text-[40px] font-black text-white/[0.06] leading-none">{step.n}</span>
                 </div>
                 <h3 className="text-[18px] font-black mb-2">{step.title}</h3>
-                <p className="text-[14px] text-white/50 leading-relaxed">{step.body}</p>
+                <p className="text-[14px] text-white/60 leading-relaxed">{step.body}</p>
               </div>
             ))}
           </div>
@@ -172,7 +172,7 @@ export default function HomePage() {
               <h2 className="text-[30px] sm:text-[40px] font-black leading-tight tracking-tight">
                 Only people who train<br />where <em className="not-italic text-[hsl(0,78%,58%)]">you</em> train.
               </h2>
-              <p className="mt-5 text-[16px] text-white/55 leading-relaxed">
+              <p className="mt-5 text-[16px] text-white/65 leading-relaxed">
                 No driving across town. No ghost matches. Everyone you see is at your gym, your apartment fitness center, or your community space. Same spot, same schedule.
               </p>
             </div>
@@ -187,7 +187,7 @@ export default function HomePage() {
                 <div key={f.label} className={`flex items-center justify-between rounded-2xl px-4 py-3 border ${f.active ? 'border-[hsl(0,78%,48%)]/30 bg-[hsl(0,78%,48%)]/8' : 'border-white/[0.06] bg-white/[0.02]'}`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full ${f.active ? 'bg-[hsl(0,78%,58%)]' : 'bg-white/20'}`} />
-                    <span className={`text-[14px] font-semibold ${f.active ? 'text-white' : 'text-white/40'}`}>{f.label}</span>
+                    <span className={`text-[14px] font-semibold ${f.active ? 'text-white' : 'text-white/60'}`}>{f.label}</span>
                   </div>
                   <span className={`text-[13px] font-black ${f.active ? 'text-[hsl(0,78%,58%)]' : 'text-white/25'}`}>{f.pts}</span>
                 </div>
@@ -220,7 +220,7 @@ export default function HomePage() {
               <h2 className="text-[30px] sm:text-[40px] font-black leading-tight tracking-tight">
                 More than matching.<br />Built to keep you<br /><span className="text-[hsl(0,78%,58%)]">showing up.</span>
               </h2>
-              <p className="mt-5 text-[16px] text-white/55 leading-relaxed">
+              <p className="mt-5 text-[16px] text-white/65 leading-relaxed">
                 Workout invites, streaks, local challenges, and a direct line to your Partna. The whole system is built around one thing: making sure both of you show up.
               </p>
             </div>
@@ -238,16 +238,20 @@ export default function HomePage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { emoji: '🏋️', label: 'Gym members', body: 'Stop training alone at your commercial gym.' },
-              { emoji: '🏢', label: 'Apartment residents', body: 'Meet neighbors who use the same fitness center.' },
-              { emoji: '🏃', label: 'Community centers', body: 'Connect with locals at rec centers and parks.' },
-              { emoji: '💪', label: 'Trainers', body: 'Get discovered by people who need you.' },
+              { emoji: '🏋️', label: 'Gym members', body: 'Stop training alone at your commercial gym.', href: '/app/signup' },
+              { emoji: '🏢', label: 'Apartment residents', body: 'Meet neighbors who use the same fitness center.', href: '/for-gyms-apartments#partner' },
+              { emoji: '🏃', label: 'Community centers', body: 'Connect with locals at rec centers and parks.', href: '/for-gyms-apartments#partner' },
+              { emoji: '💪', label: 'Trainers', body: 'Get discovered by people who need you.', href: '/trainers' },
             ].map(a => (
-              <div key={a.label} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 hover:border-[hsl(0,78%,48%)]/40 transition">
+              <Link
+                key={a.label}
+                href={a.href}
+                className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 hover:border-[hsl(0,78%,48%)]/40 hover:bg-white/[0.05] transition group block"
+              >
                 <p className="text-3xl mb-3">{a.emoji}</p>
-                <p className="text-[15px] font-black mb-1.5">{a.label}</p>
-                <p className="text-[13px] text-white/50 leading-snug">{a.body}</p>
-              </div>
+                <p className="text-[15px] font-black mb-1.5 group-hover:text-[hsl(0,78%,58%)] transition">{a.label}</p>
+                <p className="text-[13px] text-white/60 leading-snug">{a.body}</p>
+              </Link>
             ))}
           </div>
         </div>
@@ -260,7 +264,7 @@ export default function HomePage() {
           <h2 className="text-[36px] sm:text-[56px] font-black leading-tight tracking-tight">
             Your gym is full of<br />potential Partnas.
           </h2>
-          <p className="mt-5 text-[17px] text-white/55 max-w-xl mx-auto">
+          <p className="mt-5 text-[17px] text-white/65 max-w-xl mx-auto">
             None of them know you exist yet.
           </p>
           <div className="mt-10 flex flex-wrap gap-4 justify-center">

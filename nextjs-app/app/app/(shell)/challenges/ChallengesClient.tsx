@@ -83,8 +83,8 @@ export function ChallengesClient({
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-8 pb-24">
       <header className="pt-2">
         <h1 className="text-2xl md:text-3xl font-bold font-display text-[var(--color-foreground)] flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-[var(--color-secondary)]/20 flex items-center justify-center">
-            <Trophy className="w-5 h-5 text-[var(--color-secondary)]" />
+          <div className="h-10 w-10 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center">
+            <Trophy className="w-5 h-5 text-white" />
           </div>
           Challenges
         </h1>
@@ -93,14 +93,14 @@ export function ChallengesClient({
 
       {activeJoined.length > 0 && (
         <section className="bg-gradient-to-r from-[var(--color-secondary)]/10 to-[var(--color-secondary)]/5 rounded-2xl p-5 border border-[var(--color-secondary)]/20">
-          <h3 className="font-bold text-sm uppercase tracking-wider text-[var(--color-secondary)] mb-4 flex items-center gap-2">
+          <h3 className="font-bold text-sm uppercase tracking-wider text-white mb-4 flex items-center gap-2">
             <Zap className="w-4 h-4" /> Your Active Challenges
           </h3>
           <div className="space-y-3">
             {activeJoined.map(({ challenge, status }) => {
               const pct = Math.min((status.progress / challenge.target_count) * 100, 100)
               return (
-                <div key={challenge.id} className="bg-white rounded-xl p-4 border border-[var(--color-border)] shadow-sm">
+                <div key={challenge.id} className="bg-white/[0.04] rounded-xl p-4 border border-white/10">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{challenge.badge ?? '🏆'}</span>
@@ -112,20 +112,20 @@ export function ChallengesClient({
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-[var(--color-secondary)]">
+                      <p className="text-lg font-bold text-white">
                         {status.progress}/{challenge.target_count}
                       </p>
                       <p className="text-xs text-[var(--color-muted-foreground)]">progress</p>
                     </div>
                   </div>
                   <div className="w-full bg-[var(--color-muted)] h-2 rounded-full overflow-hidden mb-3">
-                    <div className="bg-[var(--color-secondary)] h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    <div className="bg-[var(--color-primary)] h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleCheckin(challenge.id)}
                     disabled={pending && busyId === challenge.id || status.checked_today}
-                    className="w-full py-2 bg-[var(--color-secondary)] text-white rounded-lg font-bold text-sm hover:opacity-90 transition disabled:opacity-60"
+                    className="w-full py-2 bg-[var(--color-primary)] text-white rounded-lg font-bold text-sm hover:opacity-90 transition disabled:opacity-60"
                   >
                     {status.checked_today ? '✓ Checked in today' : (pending && busyId === challenge.id ? 'Logging...' : 'Log Check-in')}
                   </button>
@@ -148,7 +148,7 @@ export function ChallengesClient({
               className={cn(
                 'flex-1 py-3 px-4 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2',
                 on
-                  ? 'bg-white shadow-sm text-[var(--color-foreground)]'
+                  ? 'bg-[var(--color-primary)] text-white shadow-sm'
                   : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
               )}
             >
@@ -161,7 +161,7 @@ export function ChallengesClient({
 
       <div className="space-y-4">
         {filtered.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-[var(--color-border)]">
+          <div className="text-center py-12 bg-white/[0.04] rounded-2xl border border-white/10">
             <Trophy className="w-12 h-12 text-[var(--color-muted-foreground)] mx-auto mb-4" />
             <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">No {activeTab} challenges yet</h3>
             <p className="text-[var(--color-muted-foreground)] text-sm">Check back soon for new challenges!</p>
@@ -170,7 +170,7 @@ export function ChallengesClient({
           const joined = joinedMap.has(challenge.id)
           const status = joinedMap.get(challenge.id)
           return (
-            <div key={challenge.id} className="bg-white rounded-2xl p-5 border border-[var(--color-border)] shadow-sm hover:shadow-md transition">
+            <div key={challenge.id} className="bg-white/[0.04] rounded-2xl p-5 border border-white/10 hover:shadow-md transition">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-4">
                   <div className={cn('h-14 w-14 rounded-xl flex items-center justify-center text-2xl', typeColors[challenge.type] + '/10')}>
@@ -210,7 +210,7 @@ export function ChallengesClient({
 
               {challenge.reward && (
                 <div className="flex items-center gap-2 mb-4 text-sm">
-                  <span className="text-[var(--color-secondary)] font-medium flex items-center gap-1">
+                  <span className="text-white font-medium flex items-center gap-1">
                     <Trophy className="w-4 h-4" /> Reward:
                   </span>
                   <span className="text-[var(--color-foreground)]">{challenge.reward}</span>

@@ -124,7 +124,7 @@ const organizationSchema = {
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer support',
-    email: 'hello@workoutpatna.com',  // update to real address
+    email: 'sales@fan2seeproductions.com',
   },
 }
 

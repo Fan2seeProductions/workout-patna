@@ -31,3 +31,4 @@ design_extracted
 nextjs-app/tests/e2e/.results/
 nextjs-app/playwright-report/
 nextjs-app/test-results/
+.vercel

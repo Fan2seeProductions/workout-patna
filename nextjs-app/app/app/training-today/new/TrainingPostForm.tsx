@@ -147,8 +147,8 @@ export function TrainingPostForm({
                 onClick={() => setWorkoutType(w)}
                 className={`px-3.5 py-2 rounded-full text-[12.5px] font-medium border transition ${
                   workoutType === w
-                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                    : 'border-[var(--color-border)] bg-white text-[var(--color-foreground)]/85'
+                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/15 text-[var(--color-primary)]'
+                    : 'border-white/15 bg-white/[0.04] text-white/85 hover:bg-white/[0.08]'
                 }`}
               >
                 {w}
@@ -168,8 +168,8 @@ export function TrainingPostForm({
                   onClick={() => toggle(l.id)}
                   className={`px-3.5 py-2 rounded-full text-[12.5px] font-medium border transition ${
                     on
-                      ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                      : 'border-[var(--color-border)] bg-white text-[var(--color-foreground)]/85'
+                      ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/15 text-[var(--color-primary)]'
+                      : 'border-white/15 bg-white/[0.04] text-white/85 hover:bg-white/[0.08]'
                   }`}
                 >
                   {l.label}
@@ -206,7 +206,7 @@ export function TrainingPostForm({
 }
 
 const inputCls =
-  'w-full h-11 rounded-xl border border-[var(--color-border)] bg-white px-3.5 text-[14px] text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-primary)]'
+  'w-full h-11 rounded-xl border border-white/10 bg-[#1a1a1a] px-3.5 text-[14px] text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

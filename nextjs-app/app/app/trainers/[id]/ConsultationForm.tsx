@@ -49,7 +49,7 @@ export function ConsultationForm({
         </p>
         {bookingLink && (
           <a href={bookingLink} target="_blank" rel="noreferrer"
-             className="mt-3 inline-flex h-10 px-4 rounded-full border border-[var(--color-border)] bg-white text-[12.5px] font-bold items-center text-[var(--color-foreground)]">
+             className="mt-3 inline-flex h-10 px-4 rounded-full border border-white/15 bg-white/[0.06] text-[12.5px] font-bold items-center text-white">
             Or book directly →
           </a>
         )}
@@ -58,7 +58,7 @@ export function ConsultationForm({
   }
 
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-[var(--color-border)] bg-white p-4 space-y-3">
+    <form onSubmit={submit} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 space-y-3">
       <Field label="Your name">
         <input
           value={name}
@@ -102,7 +102,7 @@ export function ConsultationForm({
 }
 
 const inputCls =
-  'w-full h-11 rounded-xl border border-[var(--color-border)] bg-white px-3.5 text-[14px] text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-primary)]'
+  'w-full h-11 rounded-xl border border-white/10 bg-[#1a1a1a] px-3.5 text-[14px] text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

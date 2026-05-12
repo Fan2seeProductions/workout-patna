@@ -8,6 +8,8 @@ import { generateTodayWorkout } from '../../../lib/actions/coach'
 import { BackIcon, BrainIcon, CheckIcon, SparkleIcon } from '../../../components/app/icons'
 import { CoachCheckout } from './CoachCheckout'
 import { WorkoutFeedback } from './WorkoutFeedback'
+import { RegenerateButton } from './RegenerateButton'
+import { PushNotificationSetup } from '../../../components/app/PushNotificationSetup'
 
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
 
@@ -68,6 +70,9 @@ export default async function CoachPage() {
         </header>
 
         <div className="mx-auto max-w-md px-5 py-6 space-y-5">
+          {/* Push notification opt-in */}
+          <PushNotificationSetup />
+
           {!workout ? (
             <p className="text-[14px] text-[var(--color-text-muted)] text-center">
               Generating your workout...
@@ -79,6 +84,7 @@ export default async function CoachPage() {
               <Block label="Finisher" body={workout.finisher} />
               {workout.notes && <Block label="Coach's notes" body={workout.notes} dim />}
               <WorkoutFeedback workoutId={workout.id} current={workout.feedback ?? null} />
+              <RegenerateButton />
             </>
           )}
         </div>

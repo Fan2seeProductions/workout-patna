@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
 import { Logo } from '../../../../components/app/Logo'
 import { MatchActions } from './MatchActions'
+import { PremiumBadgeIf } from '../../../../components/app/PremiumBadge'
 
 export const metadata = { title: 'Matches', robots: { index: false, follow: false } }
 
@@ -24,6 +25,8 @@ type ProfileLite = {
   display_name: string | null
   photo_url: string | null
   primary_location: string | null
+  is_premium: boolean | null
+  premium_until: string | null
 }
 
 export default async function MatchesPage({
@@ -41,8 +44,8 @@ export default async function MatchesPage({
     .from('matches')
     .select(`
       id, status, sender_id, receiver_id, created_at, updated_at,
-      sender:profiles!matches_sender_id_fkey(id, display_name, photo_url, primary_location),
-      receiver:profiles!matches_receiver_id_fkey(id, display_name, photo_url, primary_location)
+      sender:profiles!matches_sender_id_fkey(id, display_name, photo_url, primary_location, is_premium, premium_until),
+      receiver:profiles!matches_receiver_id_fkey(id, display_name, photo_url, primary_location, is_premium, premium_until)
     `)
     .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
     .order('updated_at', { ascending: false })
@@ -146,7 +149,10 @@ export default async function MatchesPage({
                   >
                     <Avatar profile={other} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-[14px] truncate">{other?.display_name ?? 'Member'}</p>
+                      <p className="font-semibold text-[14px] truncate inline-flex items-center gap-1.5 max-w-full">
+                        <span className="truncate">{other?.display_name ?? 'Member'}</span>
+                        <PremiumBadgeIf isPremium={other?.is_premium} premiumUntil={other?.premium_until} size="sm" />
+                      </p>
                       <p className="text-[12px] text-[var(--color-text-muted)] truncate">
                         Tap to message
                       </p>
@@ -173,7 +179,10 @@ export default async function MatchesPage({
                   >
                     <Avatar profile={other} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-[14px] truncate">{other?.display_name ?? 'Member'}</p>
+                      <p className="font-semibold text-[14px] truncate inline-flex items-center gap-1.5 max-w-full">
+                        <span className="truncate">{other?.display_name ?? 'Member'}</span>
+                        <PremiumBadgeIf isPremium={other?.is_premium} premiumUntil={other?.premium_until} size="sm" />
+                      </p>
                       <p className="text-[12px] text-[var(--color-text-muted)] capitalize">{m.status}</p>
                     </div>
                   </div>
@@ -240,7 +249,10 @@ function RequestCard({
       <div className="flex items-center gap-3">
         <Avatar profile={profile} />
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-[14px] truncate">{profile?.display_name ?? 'Member'}</p>
+          <p className="font-semibold text-[14px] truncate inline-flex items-center gap-1.5 max-w-full">
+            <span className="truncate">{profile?.display_name ?? 'Member'}</span>
+            <PremiumBadgeIf isPremium={profile?.is_premium} premiumUntil={profile?.premium_until} size="sm" />
+          </p>
           <p className="text-[12px] text-[var(--color-text-muted)] truncate">
             {profile?.primary_location ?? 'WorkoutPartna member'}
           </p>

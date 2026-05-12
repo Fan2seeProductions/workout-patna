@@ -12,8 +12,9 @@ test.describe('Core flow', () => {
     // so we just navigate directly to the final URL and assert the form.
     const href = await cta.getAttribute('href')
     expect(href).toMatch(/\/app\/(signup|auth)/)
-    await page.goto(href!)
-    await expect(page).toHaveURL(/\/app\/auth/, { timeout: 10_000 })
+    // /app/signup 307s to /app/auth — allow extra time for first-compile on dev
+    await page.goto(href!, { timeout: 30_000 })
+    await expect(page).toHaveURL(/\/app\/auth/, { timeout: 15_000 })
     await expect(page.getByLabel(/^email/i).first()).toBeVisible({ timeout: 10_000 })
     await expect(page.getByLabel(/^password/i).first()).toBeVisible()
   })

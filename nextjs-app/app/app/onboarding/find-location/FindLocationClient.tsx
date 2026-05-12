@@ -226,7 +226,7 @@ export function FindLocationClient({
             <p className="text-[13px] text-white/85 font-semibold">No matching location found</p>
             <p className="mt-1 text-[11.5px] text-[var(--color-text-muted)]">
               Try a different search or tab, or email{' '}
-              <a href="mailto:hello@workoutpartna.com" className="underline">hello@workoutpartna.com</a>
+              <a href="mailto:sales@fan2seeproductions.com" className="underline">sales@fan2seeproductions.com</a>
               {' '}to add your location.
             </p>
           </div>

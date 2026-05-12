@@ -29,7 +29,7 @@ export default async function DiscoverPage() {
   // Anyone without a gym yet sees everyone (so first-run isn't empty).
   let q = supabase
     .from('profiles')
-    .select('id, display_name, age, bio, fitness_level, goals, styles, schedule_days, schedule_times, vibe, primary_location, gym_id, photo_url, is_premium, onboarded')
+    .select('id, display_name, age, bio, fitness_level, goals, styles, schedule_days, schedule_times, vibe, primary_location, gym_id, photo_url, is_premium, premium_until, onboarded, profile_prompts')
     .neq('id', user.id)
     .limit(100)
 
@@ -86,6 +86,7 @@ export default async function DiscoverPage() {
       gym,
       score: breakdown?.total ?? null,
       badges: breakdown?.badges ?? [],
+      profile_prompts: p.profile_prompts,
     })
   }
 

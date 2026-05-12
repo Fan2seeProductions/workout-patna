@@ -108,10 +108,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {/* Email form */}
       <form onSubmit={onEmailSubmit} className="space-y-3">
         <div>
-          <label className="text-[12px] font-semibold text-[var(--color-text-muted)] mb-1.5 block">
+          <label htmlFor="auth-email" className="text-[12px] font-semibold text-[var(--color-text-muted)] mb-1.5 block">
             Email
           </label>
           <input
+            id="auth-email"
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -124,7 +125,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-[12px] font-semibold text-[var(--color-text-muted)]">
+            <label htmlFor="auth-password" className="text-[12px] font-semibold text-[var(--color-text-muted)]">
               Password
             </label>
             {mode === 'signin' && (
@@ -134,6 +135,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             )}
           </div>
           <input
+            id="auth-password"
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}

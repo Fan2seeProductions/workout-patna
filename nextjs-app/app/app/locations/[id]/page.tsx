@@ -72,7 +72,7 @@ export default async function LocationHubPage({
               {(members?.length ?? 0) + 1} members
             </span>
             {gym.verified && (
-              <span className="rounded-full bg-[var(--color-secondary)]/30 px-2.5 py-1 text-[11px] font-bold">
+              <span className="rounded-full bg-[var(--color-primary)]/30 px-2.5 py-1 text-[11px] font-bold">
                 ✓ Verified
               </span>
             )}
@@ -89,7 +89,7 @@ export default async function LocationHubPage({
             {(training as unknown as { id: string; starts_at: string; workout_type: string | null; notes: string | null; user: { id: string; display_name: string | null; photo_url: string | null } | null }[]).map(t => {
               const time = new Date(t.starts_at).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })
               return (
-                <div key={t.id} className="rounded-2xl border border-[var(--color-border)] bg-white p-3 flex items-start gap-3">
+                <div key={t.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 flex items-start gap-3">
                   <div className="shrink-0 h-11 w-11 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-extrabold flex items-center justify-center">
                     {(t.user?.display_name ?? '?')[0]?.toUpperCase()}
                   </div>
@@ -142,7 +142,7 @@ export default async function LocationHubPage({
               <Link
                 key={t.id}
                 href={`/app/trainers/${t.id}`}
-                className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white p-3"
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3"
               >
                 <div className="shrink-0 h-11 w-11 rounded-xl overflow-hidden bg-[var(--color-muted)]">
                   {t.photo_url ? (
@@ -169,7 +169,7 @@ export default async function LocationHubPage({
 
       {/* Invite link */}
       <Section title="Invite to this location">
-        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-4">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
           <p className="text-[13px] text-[var(--color-foreground)]">
             Share this link with anyone at <strong>{gym.name}</strong>:
           </p>

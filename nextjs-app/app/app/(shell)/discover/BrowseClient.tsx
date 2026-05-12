@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { cn } from '../../../../lib/utils'
 import { sendMatchRequest } from '../../../../lib/actions/matches'
+import { PremiumBadgeIf } from '../../../../components/app/PremiumBadge'
 import { claimConsultation } from '../../../../lib/actions/consultations'
 
 type Profile = {
@@ -23,7 +24,8 @@ type Profile = {
   vibe: string | null
   photo_url: string | null
   gym_id: string | null
-  is_premium?: boolean
+  is_premium?: boolean | null
+  premium_until?: string | null
   score: number
 }
 
@@ -116,9 +118,9 @@ export function BrowseClient({
           {!isPremium && (
             <Link
               href="/app/coach"
-              className="text-xs font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[var(--color-secondary)]/20 transition"
+              className="text-xs font-bold bg-[var(--color-primary)]/10 text-white px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-[var(--color-primary)]/20 transition"
             >
-              <Star className="w-3 h-3 fill-[var(--color-secondary)]" />
+              <Star className="w-3 h-3 fill-white" />
               Upgrade
             </Link>
           )}
@@ -139,7 +141,7 @@ export function BrowseClient({
             </div>
             <Link
               href="/app/coach"
-              className="shrink-0 text-[11px] font-bold bg-[var(--color-secondary)] text-white px-3 py-1.5 rounded-full hover:opacity-90 flex items-center gap-1"
+              className="shrink-0 text-[11px] font-bold bg-[var(--color-primary)] text-white px-3 py-1.5 rounded-full hover:opacity-90 flex items-center gap-1"
             >
               <Globe className="w-3 h-3" /> Expand
             </Link>
@@ -182,7 +184,7 @@ export function BrowseClient({
             className={cn(
               'flex-1 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2',
               mode === 'partner'
-                ? 'bg-white text-[var(--color-primary)] shadow-sm'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
                 : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
             )}
           >
@@ -194,7 +196,7 @@ export function BrowseClient({
             className={cn(
               'flex-1 py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2',
               mode === 'trainer'
-                ? 'bg-white text-[var(--color-secondary)] shadow-sm'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
                 : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]',
             )}
           >
@@ -211,13 +213,13 @@ export function BrowseClient({
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search by name, goal, or vibe..."
-              className="w-full pl-9 pr-4 py-3 bg-white rounded-xl border border-[var(--color-border)] shadow-sm focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] outline-none transition text-sm"
+              className="w-full pl-9 pr-4 py-3 bg-white/[0.04] rounded-xl border border-white/10 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] outline-none transition text-sm"
             />
           </div>
-          <button className="p-3 bg-white rounded-xl border border-[var(--color-border)] shadow-sm hover:bg-gray-50 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition relative">
+          <button className="p-3 bg-white/[0.06] rounded-xl border border-white/10 hover:bg-white/[0.1] text-white/70 hover:text-white transition relative">
             <Filter className="w-5 h-5" />
             {!isPremium && (
-              <div className="absolute -top-1 -right-1 bg-[var(--color-secondary)] text-white rounded-full p-0.5 border border-white">
+              <div className="absolute -top-1 -right-1 bg-[var(--color-primary)] text-white rounded-full p-0.5 border border-white">
                 <Lock className="w-2.5 h-2.5" />
               </div>
             )}
@@ -236,7 +238,7 @@ export function BrowseClient({
                   'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border',
                   filter === level
                     ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md'
-                    : 'bg-white text-[var(--color-muted-foreground)] border-[var(--color-border)] hover:border-[var(--color-primary)]/30',
+                    : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08] hover:text-white',
                 )}
               >
                 {level}
@@ -260,8 +262,8 @@ export function BrowseClient({
                   className={cn(
                     'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border flex items-center gap-1.5',
                     facility === f
-                      ? 'bg-[var(--color-secondary)] text-white border-[var(--color-secondary)] shadow-md'
-                      : 'bg-white text-[var(--color-muted-foreground)] border-[var(--color-border)] hover:border-[var(--color-secondary)]/30',
+                      ? 'bg-[var(--color-primary)] text-white border-[var(--color-secondary)] shadow-md'
+                      : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-white/30 hover:bg-white/[0.08] hover:text-white',
                   )}
                 >
                   {f === 'Gym' && <Dumbbell className="w-3.5 h-3.5" />}
@@ -290,10 +292,10 @@ export function BrowseClient({
             {trainers.map(t => {
               const hasClaimed = claimed.has(t.gym_id)
               return (
-                <div key={t.id} className="bg-white rounded-2xl border border-[var(--color-border)] shadow-sm overflow-hidden">
+                <div key={t.id} className="bg-white/[0.04] rounded-2xl border border-white/10 overflow-hidden">
                   <div className="p-4">
                     <div className="flex gap-4">
-                      <div className="h-16 w-16 rounded-full bg-gradient-to-br from-[var(--color-secondary)]/30 to-[var(--color-primary)]/30 flex items-center justify-center text-xl font-bold text-[var(--color-secondary)] shrink-0">
+                      <div className="h-16 w-16 rounded-full bg-gradient-to-br from-[var(--color-secondary)]/30 to-[var(--color-primary)]/30 flex items-center justify-center text-xl font-bold text-white shrink-0">
                         {t.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -303,7 +305,7 @@ export function BrowseClient({
                     </div>
                     <div className="flex flex-wrap gap-1.5 mt-3">
                       {t.specialties?.map((s, i) => (
-                        <span key={i} className="bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] text-xs font-bold px-2 py-0.5 rounded-full capitalize">
+                        <span key={i} className="bg-[var(--color-primary)]/10 text-white text-xs font-bold px-2 py-0.5 rounded-full capitalize">
                           {s.replace(/_/g, ' ')}
                         </span>
                       ))}
@@ -325,7 +327,7 @@ export function BrowseClient({
                           })
                         }}
                         disabled={pending && busyId === t.id}
-                        className="w-full py-2.5 bg-[var(--color-secondary)] text-white rounded-xl font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
+                        className="w-full py-2.5 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60"
                       >
                         <Gift className="w-4 h-4" />
                         {pending && busyId === t.id ? 'Claiming...' : 'Claim Free Consultation'}
@@ -357,7 +359,7 @@ export function BrowseClient({
             {myGym && !isPremium && (
               <Link
                 href="/app/coach"
-                className="inline-flex items-center gap-1.5 px-5 py-2 bg-[var(--color-secondary)] text-white rounded-xl text-sm font-bold hover:opacity-90"
+                className="inline-flex items-center gap-1.5 px-5 py-2 bg-[var(--color-primary)] text-white rounded-xl text-sm font-bold hover:opacity-90"
               >
                 <Globe className="w-4 h-4" /> Expand network · $9.99/mo
               </Link>
@@ -369,7 +371,7 @@ export function BrowseClient({
               const isLocked = !isPremium && idx >= DISPLAY_LIMIT
               if (isLocked) {
                 return (
-                  <div key={p.id} className="relative bg-white rounded-3xl p-4 border border-dashed border-[var(--color-muted-foreground)]/30 shadow-sm overflow-hidden flex flex-col justify-center items-center gap-3 min-h-[200px]">
+                  <div key={p.id} className="relative bg-white/[0.04] rounded-3xl p-4 border border-dashed border-[var(--color-muted-foreground)]/30 shadow-sm overflow-hidden flex flex-col justify-center items-center gap-3 min-h-[200px]">
                     <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10" />
                     <div className="absolute inset-0 p-4 opacity-20 blur-sm">
                       <div className="flex gap-4">
@@ -381,15 +383,15 @@ export function BrowseClient({
                       </div>
                     </div>
                     <div className="relative z-20 flex flex-col items-center text-center p-6">
-                      <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center mb-3">
-                        <Lock className="w-6 h-6 text-[var(--color-secondary)]" />
+                      <div className="w-12 h-12 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mb-3">
+                        <Lock className="w-6 h-6 text-white" />
                       </div>
                       <h3 className="font-bold text-lg font-display text-[var(--color-foreground)]">Expand Your Network</h3>
                       <p className="text-sm text-[var(--color-muted-foreground)] mb-1">See Partnas at other gyms across Houston.</p>
                       <p className="text-xs text-[var(--color-muted-foreground)] mb-4">$9.99 / month</p>
                       <Link
                         href="/app/coach"
-                        className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-xl text-sm font-bold hover:opacity-90 transition shadow-sm"
+                        className="px-5 py-2 bg-[var(--color-primary)] text-white rounded-xl text-sm font-bold hover:opacity-90 transition shadow-sm"
                       >
                         Upgrade Now
                       </Link>
@@ -399,7 +401,7 @@ export function BrowseClient({
               }
 
               return (
-                <div key={p.id} className="bg-white rounded-3xl p-4 border border-[var(--color-border)] shadow-sm hover:shadow-lg transition-all">
+                <div key={p.id} className="bg-white/[0.04] rounded-3xl p-4 border border-white/10 hover:bg-white/[0.06] transition-all">
                   <div className="flex gap-4">
                     <div className="relative h-24 w-24 rounded-2xl overflow-hidden shrink-0 bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-secondary)]/20">
                       {p.photo_url ? (
@@ -416,8 +418,9 @@ export function BrowseClient({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="font-bold text-lg font-display text-[var(--color-foreground)]">
+                          <h3 className="font-bold text-lg font-display text-[var(--color-foreground)] inline-flex items-center gap-1.5 flex-wrap">
                             {p.display_name?.split(' ')[0] ?? 'Anonymous'}{p.age ? `, ${p.age}` : ''}
+                            <PremiumBadgeIf isPremium={p.is_premium} premiumUntil={p.premium_until} size="sm" />
                           </h3>
                           <div className="flex items-center gap-1 text-xs text-[var(--color-muted-foreground)]">
                             <Dumbbell className="w-3 h-3" />
@@ -456,7 +459,7 @@ export function BrowseClient({
                         type="button"
                         onClick={() => connect(p.id)}
                         disabled={pending && busyId === p.id}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-secondary)] text-white rounded-xl text-xs font-bold hover:opacity-90 transition shadow-sm disabled:opacity-60"
+                        className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-primary)] text-white rounded-xl text-xs font-bold hover:opacity-90 transition shadow-sm disabled:opacity-60"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
                         {pending && busyId === p.id ? 'Connecting...' : 'Connect'}

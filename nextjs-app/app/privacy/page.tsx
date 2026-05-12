@@ -31,7 +31,11 @@ export default function PrivacyPage() {
           WorkoutPartna.com and the WorkoutPartna App
         </p>
         <p className="text-[13px] text-[var(--color-text-dim)]">
-          <strong>Last Updated:</strong> May 2, 2026
+          <strong>Last Updated:</strong> May 6, 2026
+        </p>
+        <p className="text-[13px] text-[var(--color-text-dim)]">
+          <strong>Contact for privacy questions:</strong>{' '}
+          <a href="mailto:sales@fan2seeproductions.com" className="text-[var(--color-brand-bright)] underline">sales@fan2seeproductions.com</a>
         </p>
 
         <p className="mt-6">
@@ -162,6 +166,23 @@ export default function PrivacyPage() {
             <li>Authentication token</li>
           </ul>
           <p>Your use of third-party services is also governed by their privacy policies.</p>
+
+          <h3 className="text-[16px] font-bold text-white mt-5">I. Google Sign-In Data (Limited Use)</h3>
+          <p>When you choose to sign in with Google, we request only the minimum scopes needed to identify you:</p>
+          <ul>
+            <li><code>openid</code> &mdash; required for OAuth identity</li>
+            <li><code>email</code> &mdash; your Google account email address</li>
+            <li><code>profile</code> &mdash; your name and profile picture URL</li>
+          </ul>
+          <p>We do <strong>not</strong> request or receive access to your Gmail, Google Drive, Google Calendar, contacts, photos, YouTube, or any other Google data.</p>
+          <p>WorkoutPartna&rsquo;s use and transfer of information received from Google APIs adheres to the <Link href="https://developers.google.com/terms/api-services-user-data-policy" className="text-[var(--color-brand-bright)] underline">Google API Services User Data Policy</Link>, including the Limited Use requirements. Specifically, we:</p>
+          <ul>
+            <li>Use Google account data only to create your WorkoutPartna account, sign you in, and personalize your in-app experience.</li>
+            <li>Do not sell Google account data to anyone.</li>
+            <li>Do not use Google account data for advertising or any retargeting purposes.</li>
+            <li>Do not transfer Google account data to third parties except as necessary to provide or improve user-facing features (e.g., our hosting provider stores it as part of your account record), to comply with applicable law, or as part of a merger, acquisition, or sale of assets with appropriate notice.</li>
+            <li>Do not allow humans to read your Google account data unless we have your explicit consent, it is necessary for security purposes (such as investigating abuse), to comply with applicable law, or for internal operations where the data has been aggregated and de-identified.</li>
+          </ul>
         </Section>
 
         <Section n="2" title="How We Use Your Information">
@@ -208,21 +229,17 @@ export default function PrivacyPage() {
           </ul>
           <p>Do not post information you do not want other users to see.</p>
 
-          <h3 className="text-[16px] font-bold text-white mt-5">B. With Service Providers</h3>
-          <p>We may share information with trusted vendors that help us operate the Platform, such as:</p>
+          <h3 className="text-[16px] font-bold text-white mt-5">B. With Service Providers (Sub-processors)</h3>
+          <p>We share information with trusted vendors that help us operate the Platform. Each provider is contractually bound to use your information only to deliver services to us. The current list of sub-processors that may receive personal information is:</p>
           <ul>
-            <li>Hosting providers</li>
-            <li>Cloud storage providers</li>
-            <li>Analytics tools</li>
-            <li>App performance tools</li>
-            <li>Payment processors</li>
-            <li>Email and SMS providers</li>
-            <li>Customer support tools</li>
-            <li>Authentication providers</li>
-            <li>Security tools</li>
-            <li>Database providers</li>
-            <li>Push notification providers</li>
+            <li><strong>Vercel, Inc.</strong> &mdash; web hosting, deployment, and edge infrastructure for WorkoutPartna.com.</li>
+            <li><strong>Supabase Inc.</strong> &mdash; authentication, account database, and file storage for profile content.</li>
+            <li><strong>Stripe, Inc.</strong> &mdash; payment processing, subscription billing, and invoice generation for paid features such as the AI Daily Coach. Card numbers are entered directly with Stripe and are never stored on our servers.</li>
+            <li><strong>Resend, Inc.</strong> &mdash; transactional email delivery (account confirmation, password reset, welcome, billing receipts).</li>
+            <li><strong>Anthropic PBC</strong> &mdash; AI inference for the optional AI Daily Coach feature. We send only your fitness intake fields (goals, fitness level, schedule, equipment, training style, injuries, coaching tone) to generate your daily plan. We do not send your name, email, profile photo, messages with other users, payment information, or Google account data.</li>
+            <li><strong>Google LLC</strong> &mdash; only when you choose to sign in with Google. See Section 1(I) for the limited scopes we request and how we use Google account data.</li>
           </ul>
+          <p>This list may be updated as the Platform evolves. The most recent version of this Privacy Policy at <Link href="/privacy" className="text-[var(--color-brand-bright)] underline">workoutpartna.com/privacy</Link> always reflects the active sub-processors.</p>
           <p>These providers may only use your information to provide services to us, unless otherwise disclosed.</p>
 
           <h3 className="text-[16px] font-bold text-white mt-5">C. With App Stores and Payment Platforms</h3>
@@ -416,7 +433,25 @@ export default function PrivacyPage() {
           <p>Your continued use of WorkoutPartna means you accept the updated Privacy Policy.</p>
         </Section>
 
-        <Section n="20" title="Contact Us">
+        <Section n="20" title="Google API Services Compliance">
+          <p>WorkoutPartna&rsquo;s use and transfer of any information received from Google APIs to any other app will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" className="text-[var(--color-brand-bright)] underline">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+          <p>The Google scopes WorkoutPartna requests when you sign in with Google are limited to:</p>
+          <ul>
+            <li><code>openid</code></li>
+            <li><code>email</code></li>
+            <li><code>profile</code></li>
+          </ul>
+          <p>WorkoutPartna does not access, store, or transmit any data from Gmail, Google Drive, Google Calendar, Google Contacts, Google Photos, YouTube, or any other Google service. We use the data we receive solely to:</p>
+          <ul>
+            <li>Create and authenticate your WorkoutPartna account</li>
+            <li>Display your name and profile picture inside the app to you and to users you choose to interact with</li>
+            <li>Send transactional emails related to your account</li>
+          </ul>
+          <p>We do not sell, license, or otherwise monetize Google account data, and we do not use it for advertising. You may revoke WorkoutPartna&rsquo;s access to your Google account at any time at <a href="https://myaccount.google.com/permissions" className="text-[var(--color-brand-bright)] underline">myaccount.google.com/permissions</a>.</p>
+          <p>If you delete your WorkoutPartna account, the Google account data we hold (your Google email, account ID, and profile fields cached at sign-in) is deleted within 30 days, except where retention is required by law.</p>
+        </Section>
+
+        <Section n="21" title="Contact Us">
           <p>If you have questions about this Privacy Policy or want to make a privacy request, contact us at:</p>
           <p>
             <strong>WorkoutPartna</strong>
@@ -429,7 +464,7 @@ export default function PrivacyPage() {
           </p>
         </Section>
 
-        <Section n="21" title="Suggested App Consent Language">
+        <Section n="22" title="Suggested App Consent Language">
           <p>When creating an account, WorkoutPartna may require users to confirm:</p>
           <blockquote className="border-l-4 border-[var(--color-brand)] pl-4 italic text-white/85 my-3">
             &ldquo;I agree to the WorkoutPartna <Link href="/terms" className="text-[var(--color-brand-bright)] underline not-italic">Terms &amp; Conditions</Link>, Privacy Policy, and Liability Waiver. I understand that WorkoutPartna may collect and use my profile, fitness preference, communication, device, and location-related information to provide app features and connect me with potential workout partners.&rdquo;

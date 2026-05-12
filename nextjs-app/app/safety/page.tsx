@@ -99,10 +99,10 @@ export default function SafetyPage() {
               Reach out and we'll review within 24 hours. Anything dangerous is escalated immediately.
             </p>
             <a
-              href="mailto:safety@workoutpartna.com"
+              href="mailto:sales@fan2seeproductions.com?subject=WorkoutPartna%20Safety%20Concern"
               className="mt-5 inline-flex h-11 px-6 rounded-full brand-gradient text-white items-center font-bold text-[14px] shadow-glow"
             >
-              safety@workoutpartna.com
+              sales@fan2seeproductions.com
             </a>
           </div>
         </Section>

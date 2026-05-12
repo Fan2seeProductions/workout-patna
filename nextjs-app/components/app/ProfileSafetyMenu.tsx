@@ -71,7 +71,7 @@ export function ProfileSafetyMenu({ targetId, targetName }: { targetId: string; 
       {modal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end md:items-center justify-center p-0 md:p-4" onClick={close}>
           <div
-            className="bg-white rounded-t-3xl md:rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto"
+            className="bg-[#141414] border border-white/10 rounded-t-3xl md:rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center p-5 border-b border-[var(--color-border)]">
@@ -119,7 +119,7 @@ export function ProfileSafetyMenu({ targetId, targetName }: { targetId: string; 
                       onChange={e => setComment(e.target.value.slice(0, 500))}
                       rows={3}
                       placeholder="Showed up on time. Pushed me hard. Would train again."
-                      className="w-full p-3 border border-[var(--color-border)] rounded-xl text-sm text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-secondary)]"
+                      className="w-full p-3 border border-[var(--color-border)] rounded-xl text-sm text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
                   {info && <p className="text-sm text-[var(--color-muted-foreground)] text-center">{info}</p>}
@@ -127,7 +127,7 @@ export function ProfileSafetyMenu({ targetId, targetName }: { targetId: string; 
                     type="button"
                     onClick={submitRating}
                     disabled={pending}
-                    className="w-full py-3 bg-[var(--color-secondary)] text-white rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-60"
+                    className="w-full py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-60"
                   >
                     {pending ? 'Submitting...' : 'Submit rating'}
                   </button>
@@ -148,7 +148,7 @@ export function ProfileSafetyMenu({ targetId, targetName }: { targetId: string; 
                             'w-full text-left p-3 rounded-xl border text-sm font-medium transition',
                             reason === r
                               ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 text-[var(--color-foreground)]'
-                              : 'border-[var(--color-border)] bg-white text-[var(--color-foreground)] hover:border-[var(--color-primary)]/30',
+                              : 'border-white/15 bg-white/[0.04] text-white hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08]',
                           )}
                         >
                           {r}
@@ -165,7 +165,7 @@ export function ProfileSafetyMenu({ targetId, targetName }: { targetId: string; 
                         onChange={e => setDetails(e.target.value.slice(0, 800))}
                         rows={3}
                         placeholder="What happened?"
-                        className="w-full p-3 border border-[var(--color-border)] rounded-xl text-sm text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-secondary)]"
+                        className="w-full p-3 border border-[var(--color-border)] rounded-xl text-sm text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-primary)]"
                       />
                     </div>
                   )}
@@ -178,7 +178,7 @@ export function ProfileSafetyMenu({ targetId, targetName }: { targetId: string; 
                     disabled={pending}
                     className={cn(
                       'w-full py-3 rounded-xl font-bold text-sm text-white disabled:opacity-60',
-                      modal === 'block' ? 'bg-red-600 hover:bg-red-700' : 'bg-[var(--color-secondary)] hover:opacity-90',
+                      modal === 'block' ? 'bg-red-600 hover:bg-red-700' : 'bg-[var(--color-primary)] hover:opacity-90',
                     )}
                   >
                     {pending ? 'Working...' : (modal === 'block' ? 'Block user' : 'Submit report')}
@@ -209,7 +209,7 @@ function MenuRow({
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3 p-4 rounded-2xl border border-[var(--color-border)] bg-white hover:bg-[var(--color-muted)]/50 transition text-left',
+        'w-full flex items-center gap-3 p-4 rounded-2xl border border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08] transition text-left',
         danger ? 'text-red-600' : 'text-[var(--color-foreground)]',
       )}
     >

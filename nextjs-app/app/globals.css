@@ -17,8 +17,10 @@
   --color-primary:           hsl(0 78% 48%);
   --color-primary-foreground:hsl(0 0% 100%);
 
-  --color-secondary:         hsl(0 0% 100%);
-  --color-secondary-foreground: hsl(0 0% 5%);
+  /* Secondary: was white (caused white-on-white bugs). Now a charcoal surface so
+     `bg-secondary text-white` always reads. Use --color-primary (red) for CTA. */
+  --color-secondary:         hsl(0 0% 13%);
+  --color-secondary-foreground: hsl(0 0% 96%);
 
   --color-accent:            hsl(0 78% 48%);
   --color-accent-foreground: hsl(0 0% 100%);
@@ -41,7 +43,7 @@
   --color-border-bright:     hsl(0 0% 22%);
   --color-text:              hsl(0 0% 96%);
   --color-text-muted:        hsl(0 0% 55%);
-  --color-text-dim:          hsl(0 0% 40%);
+  --color-text-dim:          hsl(0 0% 60%);
   --color-brand:             hsl(0 78% 48%);
   --color-brand-bright:      hsl(0 78% 58%);
   --color-teal:              hsl(0 78% 58%);
@@ -80,6 +82,109 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
+/* ─── Safe form-control defaults ─────────────────────────────────────────
+   Prevents white-on-white invisibility regressions. Any <input>, <textarea>,
+   or <select> that doesn't explicitly set its own colors falls back to a
+   readable dark-themed style. Components that DO set bg/text classes still
+   override these defaults via specificity. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+textarea,
+select {
+  color: var(--color-foreground);
+  background-color: hsl(0 0% 10%);
+  caret-color: var(--color-foreground);
+}
+input::placeholder,
+textarea::placeholder {
+  color: hsl(0 0% 50%);
+  opacity: 1;
+}
+/* If a component explicitly sets a light background (bg-white, bg-gray-50, etc),
+   force readable dark text inside that input — Tailwind's `text-*` classes win
+   via higher specificity, so this only catches the bug case where no text
+   color is set on a light-bg input. */
+input.bg-white,
+input[class*="bg-gray-50"],
+input[class*="bg-gray-100"],
+textarea.bg-white,
+textarea[class*="bg-gray-50"],
+textarea[class*="bg-gray-100"],
+select.bg-white,
+select[class*="bg-gray-50"],
+select[class*="bg-gray-100"] {
+  color: hsl(0 0% 10%);
+}
+input.bg-white::placeholder,
+textarea.bg-white::placeholder,
+select.bg-white::placeholder {
+  color: hsl(0 0% 45%);
+}
+/* Disabled controls stay readable */
+input:disabled, textarea:disabled, select:disabled, button:disabled {
+  opacity: 0.6;
+}
+
+/* ─── Reusable readable component classes (plain CSS — no Tailwind plugin
+   needed). Use these instead of bg-white/bg-secondary to prevent contrast
+   regressions. They're available globally as className="wp-input" etc. */
+.wp-input {
+  width: 100%;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(0 0% 100% / 0.1);
+  background-color: hsl(0 0% 10%);
+  color: hsl(0 0% 96%);
+  padding: 0 0.875rem;
+  font-size: 14px;
+  caret-color: hsl(0 0% 96%);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.wp-input::placeholder {
+  color: hsl(0 0% 50%);
+  opacity: 1;
+}
+.wp-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+.wp-card {
+  background-color: hsl(0 0% 100% / 0.04);
+  border: 1px solid hsl(0 0% 100% / 0.1);
+  border-radius: 1rem;
+  color: hsl(0 0% 96%);
+}
+.wp-pill-active {
+  border: 1px solid var(--color-primary);
+  background-color: hsl(0 78% 48% / 0.15);
+  color: var(--color-primary);
+  border-radius: 9999px;
+}
+.wp-pill-inactive {
+  border: 1px solid hsl(0 0% 100% / 0.15);
+  background-color: hsl(0 0% 100% / 0.04);
+  color: hsl(0 0% 100% / 0.85);
+  border-radius: 9999px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.wp-pill-inactive:hover {
+  background-color: hsl(0 0% 100% / 0.08);
+  color: hsl(0 0% 100%);
+}
+.wp-btn-primary {
+  background-color: var(--color-primary);
+  color: hsl(0 0% 100%);
+  border-radius: 9999px;
+  font-weight: 700;
+}
+.wp-btn-secondary {
+  background-color: hsl(0 0% 100% / 0.06);
+  border: 1px solid hsl(0 0% 100% / 0.15);
+  color: hsl(0 0% 100%);
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
 /* Reusable component utilities */
 @utility glass-card {
   background: var(--color-card);
@@ -101,6 +206,17 @@ h1, h2, h3, h4, h5, h6 {
 
 @utility shadow-glow {
   box-shadow: 0 0 24px -4px hsl(0 78% 48% / 0.45);
+}
+
+/* Force dark input styling on browser autofill (prevents white-on-white text) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px #1a1a1a inset;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #fff;
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

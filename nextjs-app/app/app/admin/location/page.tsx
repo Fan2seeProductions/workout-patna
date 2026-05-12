@@ -115,7 +115,7 @@ export default async function LocationAdminPage() {
         {gyms.map(g => {
           const s = statsFor(g.id)
           return (
-            <div key={g.id} className="rounded-2xl border border-[var(--color-border)] bg-white p-5">
+            <div key={g.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-muted-foreground)]">
@@ -146,7 +146,7 @@ export default async function LocationAdminPage() {
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  className="h-10 rounded-full border border-[var(--color-border)] bg-white text-[12.5px] font-bold text-[var(--color-foreground)]"
+                  className="h-10 rounded-full border border-white/15 bg-white/[0.06] text-[12.5px] font-bold text-white"
                 >
                   Edit profile
                 </button>

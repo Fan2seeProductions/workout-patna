@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { ArrowRight, Check, Lock, Mail, User as UserIcon } from 'lucide-react'
 import { createClient } from '../../../lib/supabase/client'
 import { splashHero } from '../../../lib/photos'
+import { sendEmailVerification } from '../../../lib/actions/verification'
 
 type Mode = 'signin' | 'signup'
 
@@ -40,7 +41,12 @@ export function AuthClient({
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
-        router.push(trainerSignup ? '/app/trainers/apply' : '/app/home')
+        // Use hard redirect after sign-in so the browser sends the new
+        // session cookie on the next request. router.push() does a soft
+        // navigation that can serve a stale Next.js App Router cache from
+        // before the cookie was set, causing an immediate "kick-out" loop.
+        router.refresh()
+        window.location.href = trainerSignup ? '/app/trainers/apply' : '/app/home'
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -51,7 +57,17 @@ export function AuthClient({
           },
         })
         if (error) throw error
-        setInfo('Check your email to confirm your account.')
+        // Sign them in immediately (auto-confirm trigger handles it),
+        // then send a non-blocking verification email for account security.
+        const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password })
+        if (!signInErr) {
+          // Fire-and-forget — don't await so it doesn't delay the redirect
+          sendEmailVerification().catch(() => {})
+          router.refresh()
+          window.location.href = trainerSignup ? '/app/trainers/apply' : '/app/home'
+          return
+        }
+        setInfo('Account created! Check your email to verify your address, then sign in.')
       }
     } catch (err) {
       setError((err as Error).message)
@@ -110,8 +126,8 @@ export function AuthClient({
               'No trainers, just real people who show up',
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="h-6 w-6 rounded-full bg-[var(--color-secondary)]/20 flex items-center justify-center">
-                  <Check className="w-4 h-4 text-[var(--color-secondary)]" />
+                <div className="h-6 w-6 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center">
+                  <Check className="w-4 h-4 text-white" />
                 </div>
                 <span className="font-medium text-lg">{item}</span>
               </div>
@@ -125,7 +141,21 @@ export function AuthClient({
       </div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 bg-[#0d0d0d]">
+      <div className="flex-1 flex flex-col p-6 md:p-12 bg-[#0d0d0d]">
+        {/* Back-to-home link — always visible on this column */}
+        <div className="w-full max-w-md mx-auto mb-4 md:mb-2">
+          <Link
+            href="/"
+            aria-label="Back to homepage"
+            className="inline-flex items-center gap-2 text-[13px] font-semibold text-white/55 hover:text-white/85 transition"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Back to homepage
+          </Link>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
             <div className="md:hidden flex justify-center mb-6">
@@ -145,10 +175,10 @@ export function AuthClient({
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>
             )}
             {info && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">{info}</div>
+              <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm">{info}</div>
             )}
 
             {!isLogin && (
@@ -220,7 +250,7 @@ export function AuthClient({
                 <span className="w-full border-t border-[var(--color-border)]" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#0d0d0d] px-2 text-white/40">Or continue with</span>
+                <span className="bg-[#0d0d0d] px-2 text-white/60">Or continue with</span>
               </div>
             </div>
             <button
@@ -240,7 +270,7 @@ export function AuthClient({
           </div>
 
           <div className="text-center text-sm">
-            <span className="text-white/40">
+            <span className="text-white/60">
               {isLogin ? "Don't have an account?" : 'Already have an account?'}
             </span>
             <button
@@ -261,13 +291,14 @@ export function AuthClient({
             </p>
           )}
         </div>
+        </div>
       </div>
     </div>
   )
 }
 
 const inputClass =
-  'w-full pl-10 pr-4 py-3 bg-white/[0.06] rounded-xl border border-white/10 focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] outline-none transition text-white placeholder:text-white/30'
+  'w-full pl-10 pr-4 py-3 bg-[#1a1a1a] rounded-xl border border-white/10 focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] outline-none transition text-white placeholder:text-white/30 caret-white'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   // Wrap inputs in the <label> so they're properly associated for screen

@@ -70,7 +70,7 @@ export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
                 'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border',
                 bodyPart === part
                   ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md'
-                  : 'bg-white text-[var(--color-muted-foreground)] border-[var(--color-border)] hover:border-[var(--color-primary)]/30',
+                  : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08] hover:text-white',
               )}
             >
               {part === 'All' ? 'All' : bodyPartLabels[part] ?? part}
@@ -90,8 +90,8 @@ export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
               className={cn(
                 'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border capitalize',
                 level === l
-                  ? 'bg-[var(--color-secondary)] text-white border-[var(--color-secondary)] shadow-md'
-                  : 'bg-white text-[var(--color-muted-foreground)] border-[var(--color-border)] hover:border-[var(--color-secondary)]/30',
+                  ? 'bg-[var(--color-primary)] text-white border-[var(--color-secondary)] shadow-md'
+                  : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-white/30 hover:bg-white/[0.08] hover:text-white',
               )}
             >
               {l}
@@ -115,7 +115,7 @@ export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
           {filtered.map(w => {
             const open = expanded === w.id
             return (
-              <div key={w.id} className="bg-white rounded-2xl border border-[var(--color-border)] shadow-sm overflow-hidden">
+              <div key={w.id} className="bg-white/[0.04] rounded-2xl border border-white/10 overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setExpanded(open ? null : w.id)}
@@ -152,7 +152,7 @@ export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
                       <span className="font-bold">Equipment: </span>
                       <span className="text-[var(--color-muted-foreground)] capitalize">{w.equipment || 'None'}</span>
                     </div>
-                    <div className="bg-white rounded-xl p-4 border border-[var(--color-border)]">
+                    <div className="bg-white/[0.04] rounded-xl p-4 border border-white/10">
                       <h4 className="font-bold text-sm mb-2 text-[var(--color-foreground)]">Instructions</h4>
                       <div className="text-sm text-[var(--color-muted-foreground)] whitespace-pre-line">
                         {w.instructions}

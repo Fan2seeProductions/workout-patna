@@ -85,17 +85,17 @@ export default function WaiverPage() {
         </Section>
 
         <div className="mt-10 p-6 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-white">
-          <p className="font-medium text-[var(--color-foreground)]">
+          <p className="font-medium text-gray-900">
             I have read and fully understand this agreement and sign it voluntarily.
           </p>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted-foreground)]">Signature</p>
-              <div className="mt-2 h-12 border-b-2 border-[var(--color-foreground)]/40" />
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Signature</p>
+              <div className="mt-2 h-12 border-b-2 border-gray-300" />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted-foreground)]">Date</p>
-              <div className="mt-2 h-12 border-b-2 border-[var(--color-foreground)]/40" />
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Date</p>
+              <div className="mt-2 h-12 border-b-2 border-gray-300" />
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ function Section({ n, title, children }: { n: string; title: string; children: R
   return (
     <section className="mt-8">
       <h2 className="text-[20px] font-extrabold font-display tracking-tight text-[var(--color-foreground)]">
-        <span className="text-[var(--color-secondary)] mr-2">{n}.</span>
+        <span className="text-[var(--color-primary)] mr-2">{n}.</span>
         {title}
       </h2>
       <div className="mt-3 space-y-3">{children}</div>

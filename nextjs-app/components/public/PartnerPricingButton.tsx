@@ -17,7 +17,7 @@ export function PartnerPricingButton({
   if (tier === 'custom') {
     return (
       <a
-        href="#contact"
+        href="/for-gyms-apartments#contact"
         className={`mt-6 block w-full text-center h-11 rounded-full inline-flex items-center justify-center font-bold text-[14px] brand-gradient text-white`}
       >
         {label}
@@ -35,7 +35,9 @@ export function PartnerPricingButton({
           if (res.ok && res.url) {
             window.location.href = res.url
           } else {
-            window.location.href = '#contact'
+            // Stripe not yet configured — fall through to the lead form
+            // (use absolute path so it works regardless of which page invoked us).
+            window.location.href = '/for-gyms-apartments#contact'
           }
         })
       }}

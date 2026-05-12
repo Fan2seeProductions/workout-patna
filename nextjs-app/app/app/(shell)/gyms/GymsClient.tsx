@@ -26,7 +26,8 @@ const typeConfig: Record<LocationType, { label: string; icon: typeof Dumbbell; c
   community_center: { label: 'Community Center', icon: UsersRound,  color: 'bg-green-100 text-green-700' },
 }
 
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop&q=80'
+// Black man, muscular, gym setting — Edgar Chaparro / Unsplash
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1572459815549-873917ec8c0a?w=600&h=400&fit=crop&q=80'
 
 export function GymsClient({ locations }: { locations: Location[] }) {
   const [search, setSearch] = useState('')
@@ -50,7 +51,7 @@ export function GymsClient({ locations }: { locations: Location[] }) {
       'px-4 py-2 rounded-full text-sm font-bold border transition',
       typeFilter === value
         ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md'
-        : 'bg-white text-[var(--color-muted-foreground)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50',
+        : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-[var(--color-primary)]/50 hover:bg-white/[0.08] hover:text-white',
     )
 
   return (
@@ -82,7 +83,7 @@ export function GymsClient({ locations }: { locations: Location[] }) {
           placeholder="Search by name or city..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-4 pr-4 py-3 bg-white rounded-xl border border-[var(--color-border)] shadow-sm focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] outline-none transition text-sm"
+          className="w-full pl-4 pr-4 py-3 bg-white/[0.04] rounded-xl border border-white/10 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] outline-none transition text-sm"
         />
       </div>
 
@@ -91,7 +92,7 @@ export function GymsClient({ locations }: { locations: Location[] }) {
           const cfg = typeConfig[loc.type] ?? typeConfig.gym
           const Icon = cfg.icon
           return (
-            <div key={loc.id} className="group bg-white rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-sm hover:shadow-md transition">
+            <div key={loc.id} className="group bg-white/[0.04] rounded-2xl overflow-hidden border border-white/10 hover:bg-white/[0.06] transition">
               <div className="h-32 bg-[var(--color-muted)] relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -124,7 +125,7 @@ export function GymsClient({ locations }: { locations: Location[] }) {
                       <Users className="w-3.5 h-3.5" /> {loc.members ?? 0} members
                     </span>
                   </div>
-                  <button className="text-xs font-bold text-[var(--color-secondary)] flex items-center gap-1 hover:underline">
+                  <button className="text-xs font-bold text-white flex items-center gap-1 hover:underline">
                     View Community <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

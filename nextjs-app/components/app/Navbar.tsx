@@ -18,11 +18,11 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    href: '/app/challenges',
-    label: 'Challenges',
+    href: '/app/matches',
+    label: 'Matches',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 21h8M12 17v4M7 4H4a1 1 0 0 0-1 1v3a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4V5a1 1 0 0 0-1-1h-3M7 4V2m10 2V2M7 4h10" />
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
     ),
   },
@@ -64,12 +64,21 @@ const HIDE_ON = new Set([
   '/auth/callback',
 ])
 
-export function Navbar({ userName, isPremium = false }: { userName?: string; isPremium?: boolean }) {
+export function Navbar({
+  userName,
+  isPremium = false,
+  unreadMessages = 0,
+}: {
+  userName?: string
+  isPremium?: boolean
+  unreadMessages?: number
+}) {
   const pathname = usePathname() ?? ''
 
   if (
     HIDE_ON.has(pathname) ||
     pathname.startsWith('/app/onboarding') ||
+    pathname.startsWith('/app/auth') ||
     pathname === '/' ||
     pathname === '/terms' ||
     pathname === '/privacy' ||
@@ -84,14 +93,15 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
           {navItems.map(item => {
             const active = pathname === item.href || pathname.startsWith(item.href + '/')
             const isDiscover = item.href === '/app/discover'
+            const isMessages = item.href === '/app/messages'
 
             return (
               <Link key={item.href} href={item.href} className="flex-1">
-                <div className="flex flex-col items-center justify-center h-full gap-1">
+                <div className="relative flex flex-col items-center justify-center h-full gap-1">
                   {isDiscover ? (
                     /* Center discover button — elevated pill */
                     <div className={cn(
-                      'w-12 h-12 rounded-2xl flex items-center justify-center transition-all',
+                      'w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-[0_0_20px_rgba(220,22,22,0.4)]',
                       active
                         ? 'brand-gradient text-white shadow-lg shadow-[var(--color-primary)]/30'
                         : 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
@@ -103,10 +113,21 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
                       <div className={cn(
                         'flex items-center justify-center w-10 h-8 rounded-xl transition-all',
                         active
-                          ? 'bg-[var(--color-primary)]/12 text-[var(--color-primary)]'
+                          ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary)]'
                           : 'text-[var(--color-muted-foreground)]'
                       )}>
-                        {item.icon(active)}
+                        {isMessages ? (
+                          <div className="relative">
+                            {item.icon(active)}
+                            {unreadMessages > 0 && (
+                              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--color-primary)] text-white text-[8px] font-extrabold flex items-center justify-center">
+                                {unreadMessages > 9 ? '9+' : unreadMessages}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          item.icon(active)
+                        )}
                       </div>
                       <span className={cn(
                         'text-[10px] font-bold tracking-tight transition-colors',
@@ -114,6 +135,7 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
                       )}>
                         {item.label}
                       </span>
+                      {active && <span className="absolute bottom-1 h-1 w-4 rounded-full bg-[var(--color-primary)]" />}
                     </>
                   )}
                 </div>
@@ -133,6 +155,7 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
         <div className="flex items-center gap-1">
           {navItems.map(item => {
             const active = pathname === item.href || pathname.startsWith(item.href + '/')
+            const isMessages = item.href === '/app/messages'
             return (
               <Link key={item.href} href={item.href}>
                 <div className={cn(
@@ -141,7 +164,18 @@ export function Navbar({ userName, isPremium = false }: { userName?: string; isP
                     ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary)]'
                     : 'text-white/50 hover:text-white'
                 )}>
-                  {item.icon(active)}
+                  {isMessages ? (
+                    <div className="relative">
+                      {item.icon(active)}
+                      {unreadMessages > 0 && (
+                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--color-primary)] text-white text-[8px] font-extrabold flex items-center justify-center">
+                          {unreadMessages > 9 ? '9+' : unreadMessages}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    item.icon(active)
+                  )}
                   <span>{item.label}</span>
                 </div>
               </Link>
