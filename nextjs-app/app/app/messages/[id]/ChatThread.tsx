@@ -7,6 +7,8 @@ import { sendMessage, markMessagesRead } from '../../../../lib/actions/messages'
 import { sendWorkoutInvite, respondToInvite } from '../../../../lib/actions/workout-invites'
 import { ArrowRightIcon, SparkleIcon } from '../../../../components/app/icons'
 
+const BOT_ID = '00000000-0000-0000-0000-000000000001'
+
 type Msg = {
   id: string
   sender_id: string
@@ -128,16 +130,40 @@ export function ChatThread({
           )}
           {messages.map(m => {
             const me = m.sender_id === currentUserId
+            const isBot = m.sender_id === BOT_ID
             const invite = m.body.startsWith('\u{1F4C5} Workout invite:')
               ? invites.find(inv => inv.sender_id === m.sender_id && Math.abs(new Date(inv.starts_at).getTime() - new Date(m.created_at).getTime()) < 120000)
               : null
             if (invite) {
               return <InviteCard key={m.id} invite={invite} me={me} currentUserId={currentUserId} onRespond={handleInviteRespond} />
             }
+            // ── AI Coach bot message ──────────────────────────────────────
+            if (isBot) {
+              return (
+                <div key={m.id} className="flex justify-start gap-2.5">
+                  {/* Bot avatar */}
+                  <div className="shrink-0 h-8 w-8 rounded-full brand-gradient flex items-center justify-center text-base mt-1" aria-hidden>
+                    🤖
+                  </div>
+                  <div className="max-w-[88%] space-y-1">
+                    <p className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wide pl-1">
+                      AI Coach
+                    </p>
+                    <div className="bg-[#1a1a1a] border border-[var(--color-border-bright)] text-white rounded-2xl rounded-tl-md px-4 py-3 text-[13.5px] leading-relaxed whitespace-pre-wrap">
+                      {m.body}
+                    </div>
+                    <p className="text-[10px] text-white/30 pl-1">
+                      {new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+              )
+            }
+            // ── Regular member message ────────────────────────────────────
             return (
               <div key={m.id} className={`flex ${me ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-[78%] px-3.5 py-2 rounded-2xl text-[14px] leading-snug ${
+                  className={`max-w-[78%] px-3.5 py-2 rounded-2xl text-[14px] leading-snug whitespace-pre-wrap ${
                     me
                       ? 'brand-gradient text-white rounded-br-md'
                       : 'bg-white/[0.05] border border-[var(--color-border)] text-white rounded-bl-md'

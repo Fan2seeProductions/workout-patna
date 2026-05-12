@@ -5,6 +5,8 @@ import { createClient } from '../../../../lib/supabase/server'
 import { BackIcon, MoreIcon } from '../../../../components/app/icons'
 import { ChatThread } from './ChatThread'
 
+const BOT_ID = '00000000-0000-0000-0000-000000000001'
+
 export const metadata = { title: 'Chat', robots: { index: false, follow: false } }
 
 export default async function ChatDetailPage({
@@ -64,24 +66,37 @@ export default async function ChatDetailPage({
           >
             <BackIcon width={18} height={18} />
           </Link>
-          <Link href={`/app/profile/${other?.id}`} className="flex items-center gap-2.5 min-w-0 flex-1">
-            {other?.photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={other.photo_url} alt="" className="h-9 w-9 rounded-full object-cover" />
-            ) : (
-              <div className="h-9 w-9 rounded-full brand-gradient flex items-center justify-center text-white text-sm font-bold">
-                {other?.display_name?.[0]?.toUpperCase() ?? '?'}
+          {other?.id === BOT_ID ? (
+            /* AI Coach bot header — no profile link */
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="h-9 w-9 rounded-full brand-gradient flex items-center justify-center text-base shrink-0">
+                🤖
               </div>
-            )}
-            <div className="min-w-0">
-              <p className="font-semibold text-[14px] text-white truncate">
-                {other?.display_name ?? 'Member'}
-              </p>
-              <p className="text-[11px] text-[var(--color-text-muted)] truncate">
-                {other?.primary_location ?? 'Active'}
-              </p>
+              <div className="min-w-0">
+                <p className="font-semibold text-[14px] text-white truncate">AI Coach</p>
+                <p className="text-[11px] text-[var(--color-text-muted)] truncate">Your daily workout planner</p>
+              </div>
             </div>
-          </Link>
+          ) : (
+            <Link href={`/app/profile/${other?.id}`} className="flex items-center gap-2.5 min-w-0 flex-1">
+              {other?.photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={other.photo_url} alt="" className="h-9 w-9 rounded-full object-cover" />
+              ) : (
+                <div className="h-9 w-9 rounded-full brand-gradient flex items-center justify-center text-white text-sm font-bold">
+                  {other?.display_name?.[0]?.toUpperCase() ?? '?'}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="font-semibold text-[14px] text-white truncate">
+                  {other?.display_name ?? 'Member'}
+                </p>
+                <p className="text-[11px] text-[var(--color-text-muted)] truncate">
+                  {other?.primary_location ?? 'Active'}
+                </p>
+              </div>
+            </Link>
+          )}
           <button aria-label="More" className="h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.04] flex items-center justify-center text-white/85">
             <MoreIcon width={18} height={18} />
           </button>
