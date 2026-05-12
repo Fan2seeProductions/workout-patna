@@ -19,7 +19,8 @@ const poppins = Poppins({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#1C3D5A',
+  themeColor: '#dc1616',
+  viewportFit: 'cover',
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -99,8 +100,18 @@ export const metadata: Metadata = {
     },
   },
 
-  // App links / manifest
-  manifest: '/manifest.json',   // create this when PWA is ready
+  // PWA / App install
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'WorkoutPartna',
+  },
+  icons: {
+    apple: '/brand/logo-square-1024.png',
+    icon: '/brand/logo-square-1024.png',
+    shortcut: '/brand/logo-square-1024.png',
+  },
 
   // Verification tags, fill in after claiming properties
   // verification: {

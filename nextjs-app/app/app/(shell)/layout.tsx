@@ -4,6 +4,7 @@
 import type { ReactNode } from 'react'
 import { Navbar } from '../../../components/app/Navbar'
 import { VerifyEmailBanner } from '../../../components/app/VerifyEmailBanner'
+import { InstallBanner } from '../../../components/app/InstallBanner'
 import { createClient } from '../../../lib/supabase/server'
 
 export default async function AppShellLayout({ children }: { children: ReactNode }) {
@@ -40,6 +41,7 @@ export default async function AppShellLayout({ children }: { children: ReactNode
       {needsVerification && <VerifyEmailBanner />}
       {children}
       <Navbar userName={userName} isPremium={isPremium} unreadMessages={unreadMessages} />
+      <InstallBanner />
     </div>
   )
 }
