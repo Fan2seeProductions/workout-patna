@@ -60,6 +60,12 @@ type MemberRow = {
   disliked_exercises: string | null
   cardio_preference: string[] | null
   mobility_issues: string | null
+  // sports
+  plays_sports: boolean | null
+  sports: string[] | null
+  sport_level: string | null
+  sport_season: string | null
+  sport_position: string | null
   // yesterday context
   yesterday_focus: string | null
   yesterday_feedback: string | null
@@ -130,6 +136,11 @@ export async function GET(request: Request) {
         disliked_exercises:  member.disliked_exercises,
         cardio_preference:   member.cardio_preference,
         mobility_issues:     member.mobility_issues,
+        plays_sports:        member.plays_sports,
+        sports:              member.sports,
+        sport_level:         member.sport_level,
+        sport_season:        member.sport_season,
+        sport_position:      member.sport_position,
       }
 
       const ctx: AdaptationContext = {

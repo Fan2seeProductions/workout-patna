@@ -55,6 +55,12 @@ type Initial = {
   disliked_exercises?: string | null
   cardio_preference?: string[] | null
   mobility_issues?: string | null
+  // Sports
+  plays_sports?: boolean | null
+  sports?: string[] | null
+  sport_level?: string | null
+  sport_season?: string | null
+  sport_position?: string | null
   // SMS delivery
   phone_number?: string | null
   sms_opt_in?: boolean | null
@@ -63,7 +69,7 @@ type Initial = {
   disclaimer_version?: string | null
 } | null
 
-const GOALS = ['Build Muscle','Lose Weight','Get Stronger','Endurance','Flexibility','Sport-specific']
+const GOALS = ['Build Muscle','Lose Weight','Get Stronger','Endurance','Flexibility','Sport Performance']
 const LEVELS = ['Beginner','Intermediate','Advanced','Athlete']
 const EQUIPMENT = ['Full Gym','Dumbbells','Barbell','Bodyweight','Bands','Pull-up bar','Treadmill','Kettlebell']
 const AREAS = ['Legs','Upper body','Core','Glutes','Back','Arms','Cardio']
@@ -78,6 +84,13 @@ const CARDIO_PREFS = ['Run','Bike','Row','Walk','Swim','HIIT','None']
 const MEDICAL = [
   'High blood pressure','Heart condition','Diabetes (type 1)','Diabetes (type 2)',
   'Asthma','Joint replacement','Arthritis','Recent surgery','Chronic pain','None',
+]
+const SPORT_LEVELS = ['Recreational','Competitive','Semi-pro','Pro']
+const SPORT_SEASONS = ['In-season','Pre-season','Off-season']
+const COMMON_SPORTS = [
+  'Basketball','Football','Soccer','Baseball','Softball','Tennis','Golf',
+  'Swimming','Track & Field','Wrestling','MMA / Boxing','Volleyball',
+  'Cycling','CrossFit','Powerlifting','Olympic Lifting','Other',
 ]
 
 const TOTAL_STEPS = 6
@@ -132,6 +145,13 @@ export function IntakeForm({ initial }: { initial: Initial }) {
   const [disliked, setDisliked] = useState(initial?.disliked_exercises ?? '')
   const [cardio, setCardio] = useState(new Set(initial?.cardio_preference ?? []))
   const [mobility, setMobility] = useState(initial?.mobility_issues ?? '')
+
+  // ─── Sports ────────────────────────────────────────────────────────
+  const [playsSports, setPlaysSports] = useState(initial?.plays_sports ?? false)
+  const [selectedSports, setSelectedSports] = useState(new Set(initial?.sports ?? []))
+  const [sportLevel, setSportLevel] = useState(initial?.sport_level ?? '')
+  const [sportSeason, setSportSeason] = useState(initial?.sport_season ?? '')
+  const [sportPosition, setSportPosition] = useState(initial?.sport_position ?? '')
 
   // ─── SMS delivery (CORE — daily texts are the product) ─────────────
   const [phoneNumber, setPhoneNumber] = useState(initial?.phone_number ?? '')
@@ -201,6 +221,12 @@ export function IntakeForm({ initial }: { initial: Initial }) {
         disliked_exercises: disliked.trim() || undefined,
         cardio_preference: [...cardio],
         mobility_issues: mobility.trim() || undefined,
+        // Sports
+        plays_sports: playsSports,
+        sports: playsSports ? [...selectedSports] : [],
+        sport_level: playsSports && sportLevel ? sportLevel : undefined,
+        sport_season: playsSports && sportSeason ? sportSeason : undefined,
+        sport_position: playsSports && sportPosition.trim() ? sportPosition.trim() : undefined,
         // SMS delivery (only set opt-in if phone is valid AND box was checked)
         phone_number: phoneNormalized || undefined,
         sms_opt_in: smsOptIn && !!phoneNormalized,
@@ -418,6 +444,61 @@ export function IntakeForm({ initial }: { initial: Initial }) {
           <Field label="Target areas">
             <Pills options={AREAS} selected={areas} onClick={v => toggle(areas, v, setAreas)} />
           </Field>
+
+          {/* ── Sports section ── */}
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 space-y-4">
+            <label className="flex items-center justify-between cursor-pointer">
+              <div>
+                <p className="text-[13px] font-bold text-white">Do you play a sport?</p>
+                <p className="text-[11px] text-white/50 mt-0.5">We'll build your workouts around your sport.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPlaysSports(v => !v)}
+                className={`relative h-7 w-12 rounded-full transition-colors ${playsSports ? 'bg-[var(--color-primary)]' : 'bg-white/20'}`}
+              >
+                <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${playsSports ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
+            </label>
+
+            {playsSports && (
+              <div className="space-y-4 pt-1 border-t border-white/10">
+                <Field label="Sport(s)">
+                  <Pills
+                    options={COMMON_SPORTS}
+                    selected={selectedSports}
+                    onClick={v => toggle(selectedSports, v, setSelectedSports)}
+                  />
+                </Field>
+
+                <Field label="Competition level">
+                  <Pills
+                    options={SPORT_LEVELS}
+                    selected={new Set(sportLevel ? [sportLevel] : [])}
+                    onClick={setSportLevel}
+                  />
+                </Field>
+
+                <Field label="Current season">
+                  <Pills
+                    options={SPORT_SEASONS}
+                    selected={new Set(sportSeason ? [sportSeason] : [])}
+                    onClick={setSportSeason}
+                  />
+                </Field>
+
+                <Field label="Position / role (optional)">
+                  <input
+                    type="text"
+                    value={sportPosition}
+                    onChange={e => setSportPosition(e.target.value.slice(0, 60))}
+                    placeholder="e.g., Point guard, Wide receiver, Pitcher"
+                    className={inputCls}
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
 
           <NavButtons
             onBack={() => setStep(2)}

@@ -42,6 +42,13 @@ export type Intake = {
   cardio_preference?: string[] | null
   mobility_issues?: string | null
 
+  // Sports performance
+  plays_sports?:   boolean | null
+  sports?:         string[] | null
+  sport_level?:    string | null   // recreational | competitive | semi-pro | pro
+  sport_season?:   string | null   // in-season | off-season | pre-season
+  sport_position?: string | null
+
   // SMS delivery opt-in (TCPA-compliant)
   phone_number?: string | null
   sms_opt_in?: boolean | null
@@ -177,6 +184,20 @@ Rules:
 - Cardio preference: ${fmt(intake?.cardio_preference)}
 - Mobility issues: ${fmt(intake?.mobility_issues)}`
 
+    const sportsBlock = intake?.plays_sports
+      ? `\n\n— Sport performance (IMPORTANT — shape the entire program around this) —
+- Sport(s): ${fmt(intake?.sports)}
+- Competition level: ${fmt(intake?.sport_level)}
+- Current season: ${fmt(intake?.sport_season)}
+- Position / role: ${fmt(intake?.sport_position)}
+Sport programming rules:
+* IN-SEASON → prioritize maintenance + injury prevention; reduce max-effort lifts to 70–80% of off-season loads; keep sessions short; emphasize unilateral stability, mobility, and CNS recovery
+* PRE-SEASON → ramp volume and sport-specific conditioning; power development; increase agility drills in finisher
+* OFF-SEASON → foundation building; higher volume hypertrophy/strength is appropriate; address weak points for next season
+* SPORT-SPECIFIC movement patterns: basketball/soccer → explosive lower body + lateral agility; football → power, contact readiness, neck/trap work; baseball/softball → rotational power, shoulder health, grip; combat sports → full-body conditioning, grip, neck; endurance sports (cycling, running, swimming) → aerobic base, injury prevention, not heavy barbell work
+* COMPETITION-LEVEL scaling: recreational → general fitness is primary; competitive → sport specificity is primary; semi-pro/pro → periodization required, fatigue management is critical`
+      : ''
+
     const user = `User intake:
 - Goals: ${(intake?.goals ?? []).join(', ') || 'general fitness'}
 - Fitness level: ${intake?.fitness_level ?? 'intermediate'}
@@ -186,7 +207,7 @@ Rules:
 - Target areas: ${(intake?.target_areas ?? []).join(', ') || 'full body'}
 - Training style: ${intake?.training_style ?? 'mixed'}
 - Coaching tone: ${intake?.coaching_tone ?? 'encouraging'}
-- Injuries: ${intake?.injuries ?? 'none'}${tier1}${tier2}${tier3}${adaptation}${regen}
+- Injuries: ${intake?.injuries ?? 'none'}${tier1}${tier2}${tier3}${sportsBlock}${adaptation}${regen}
 
 Generate today's workout.`
 

@@ -32,6 +32,11 @@ export async function saveIntake(patch: Intake & {
   disclaimer_accepted?: boolean
   disclaimer_version?: string
   sms_opt_in_version?: string
+  plays_sports?: boolean
+  sports?: string[]
+  sport_level?: string
+  sport_season?: string
+  sport_position?: string
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
