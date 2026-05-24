@@ -2,7 +2,8 @@
 'use client'
 
 import { useState } from 'react'
-import { LockIcon, SparkleIcon } from '../../../../components/app/icons'
+import { Lock as LockIcon } from 'lucide-react'
+import { SparkleIcon } from '../../../../components/app/icons'
 
 type Category = {
   id: string

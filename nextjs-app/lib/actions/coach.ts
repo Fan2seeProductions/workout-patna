@@ -31,7 +31,9 @@ export async function saveIntake(patch: Intake & {
   delivery_time?: string
   disclaimer_accepted?: boolean
   disclaimer_version?: string
+  sms_opt_in?: boolean
   sms_opt_in_version?: string
+  phone_number?: string
   plays_sports?: boolean
   sports?: string[]
   sport_level?: string

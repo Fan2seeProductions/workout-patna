@@ -14,7 +14,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '../../../../lib/supabase/server'
 import { generateWorkout, type Intake, type AdaptationContext } from '../../../../lib/ai/workout'
-import { formatWorkoutMessage } from '../../../../lib/actions/coach-chat'
+import { formatWorkoutMessage } from '../../../../lib/coach-chat-helpers'
 import { sendPushToAll, type PushSubscription } from '../../../../lib/push/send'
 import { sendSms } from '../../../../lib/sms/sms'
 
@@ -148,7 +148,7 @@ export async function GET(request: Request) {
         yesterdayFeedback: member.yesterday_feedback as AdaptationContext['yesterdayFeedback'],
       }
 
-      // Generate workout via Claude (or fallback template)
+      // Generate workout via Claude (or fallback template).
       const plan = await generateWorkout(intake, ctx)
 
       // Resolve first name for the greeting

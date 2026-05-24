@@ -4,6 +4,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 
 export type Intake = {
+  // Core fields used by the AI prompt + fallback template selection.
   goals?: string[] | null
   fitness_level?: string | null
   days_per_week?: number | null
@@ -13,6 +14,38 @@ export type Intake = {
   target_areas?: string[] | null
   training_style?: string | null
   coaching_tone?: string | null
+
+  // Optional richer profile passed by the daily-workouts cron when the
+  // member has filled out the full intake. Not all surfaced to Claude
+  // today, but accepting them here keeps the cron + future personalization
+  // changes from breaking the type contract.
+  age?: number | null
+  sex?: string | null
+  height_inches?: number
+  weight_lbs?: number
+  medical_conditions?: string | string[] | null
+  medications?: string | string[] | null
+  pregnancy_status?: string | null
+  training_years?: number
+  pr_bench_lbs?: number
+  pr_squat_lbs?: number
+  pr_deadlift_lbs?: number
+  pr_mile_time?: string | null
+  body_fat_pct?: number
+  goal_target?: string | null
+  goal_target_date?: string
+  sleep_hours_avg?: number
+  stress_level?: string | null
+  occupation_activity?: string | null
+  liked_exercises?: string | string[] | null
+  disliked_exercises?: string | string[] | null
+  cardio_preference?: string | string[] | null
+  mobility_issues?: string | string[] | null
+  plays_sports?: boolean | null
+  sports?: string | string[] | null
+  sport_level?: string | null
+  sport_season?: string | null
+  sport_position?: string | null
 }
 
 export type WorkoutPlan = {
@@ -21,6 +54,18 @@ export type WorkoutPlan = {
   main: string
   finisher: string
   notes: string
+}
+
+// Yesterday's session context — callers can pass this to nudge tomorrow's
+// plan (avoid same focus, scale back if hurt, push if it was easy). Today
+// generateWorkout accepts it but doesn't yet surface it to Claude; a
+// follow-up PR will wire it into the system prompt.
+export type AdaptationContext = {
+  yesterdayFocus?: string | null
+  yesterdayFeedback?: 'too_easy' | 'just_right' | 'too_hard' | 'injured' | null
+  // Optional user-supplied reason when re-generating today's plan
+  // (e.g. "I'm sore, give me upper body only").
+  regenerateReason?: string | null
 }
 
 const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
@@ -75,7 +120,11 @@ const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
   },
 }
 
-export async function generateWorkout(intake: Intake | null): Promise<WorkoutPlan> {
+export async function generateWorkout(
+  intake: Intake | null,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _adaptation?: AdaptationContext | null,
+): Promise<WorkoutPlan> {
   const styleKey = (intake?.training_style ?? 'mixed').toLowerCase()
   const fallback = FALLBACK_TEMPLATES[styleKey] ?? FALLBACK_TEMPLATES.mixed
 
