@@ -13,45 +13,6 @@ export type Intake = {
   target_areas?: string[] | null
   training_style?: string | null
   coaching_tone?: string | null
-
-  // Tier 1: programming safety (added 2026-05-08)
-  age?: number | null
-  sex?: string | null
-  height_inches?: number | null
-  weight_lbs?: number | null
-  medical_conditions?: string[] | null
-  medications?: string | null
-  pregnancy_status?: string | null
-
-  // Tier 2: programming quality
-  training_years?: number | null
-  pr_bench_lbs?: number | null
-  pr_squat_lbs?: number | null
-  pr_deadlift_lbs?: number | null
-  pr_mile_time?: string | null
-  body_fat_pct?: number | null
-  goal_target?: string | null
-  goal_target_date?: string | null
-  sleep_hours_avg?: number | null
-  stress_level?: string | null
-  occupation_activity?: string | null
-
-  // Tier 3: personalization
-  liked_exercises?: string | null
-  disliked_exercises?: string | null
-  cardio_preference?: string[] | null
-  mobility_issues?: string | null
-
-  // Sports performance
-  plays_sports?:   boolean | null
-  sports?:         string[] | null
-  sport_level?:    string | null   // recreational | competitive | semi-pro | pro
-  sport_season?:   string | null   // in-season | off-season | pre-season
-  sport_position?: string | null
-
-  // SMS delivery opt-in (TCPA-compliant)
-  phone_number?: string | null
-  sms_opt_in?: boolean | null
 }
 
 export type WorkoutPlan = {
@@ -60,13 +21,6 @@ export type WorkoutPlan = {
   main: string
   finisher: string
   notes: string
-}
-
-export type AdaptationContext = {
-  yesterdayFocus?: string | null
-  yesterdayFeedback?: 'too_easy' | 'too_hard' | 'sore' | 'skipped' | 'completed' | null
-  /** When set, instructs Claude to produce a different plan than what the user already saw today. */
-  regenerateReason?: string | null
 }
 
 const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
@@ -98,12 +52,30 @@ const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
     finisher: 'EMOM 8 min: even minutes 12 KB swings, odd minutes 30s plank.',
     notes: 'Move with control. Form first, speed second.',
   },
+  peloton: {
+    focus: 'Bike intervals + core',
+    warm_up: '5 min easy spin at 60-70 RPM, resistance 25-35. Add 2 x 20s pickups in the last minute.',
+    main: 'Power Zone or HR-based intervals: 4 rounds of 4 min @ Zone 4 (hard but sustainable) with 2 min @ Zone 2 recovery. Hold cadence 80-95 in the work, 70-80 in the recovery.',
+    finisher: 'Off the bike: 3 rounds of 12 plank shoulder taps, 15 dead bugs, 20s side plank each side.',
+    notes: 'If you don\'t have a Peloton, sub any indoor bike with adjustable resistance. Hydrate. Stretch hip flexors after.',
+  },
+  'work from home': {
+    focus: 'No-equipment full body',
+    warm_up: '2 min march in place. 10 arm circles each way. 10 cat-cows. 10 bodyweight squats. 10 hip openers.',
+    main: '5 rounds, minimal rest: 15 squats, 10 push-ups (knees if needed), 12 reverse lunges total, 10 hip hinges, 30s plank, 20 mountain climbers.',
+    finisher: '2 rounds: 15 glute bridges, 20 bicycle crunches, 30s wall sit.',
+    notes: 'Zero equipment, fits in any room. Take 30-60s between rounds. Modify push-ups to incline (against a counter) if shoulders aren\'t happy.',
+  },
+  'desk worker': {
+    focus: 'Posture + mobility reset',
+    warm_up: '30s neck circles each way. 10 shoulder rolls back. 10 cat-cows. 10 standing thoracic rotations each side.',
+    main: '3 rounds: 15 chair squats, 10 desk push-ups (or wall push-ups), 12 standing rows w/ band or towel, 10 glute bridges, 30s door-frame chest stretch, 30s hip flexor stretch each side.',
+    finisher: '5 min walk + 10 standing forward folds (slow, controlled).',
+    notes: 'Built for tight hips, rounded shoulders, and a stiff neck. Do this anytime you\'ve been at a screen for 90+ min. No equipment needed.',
+  },
 }
 
-export async function generateWorkout(
-  intake: Intake | null,
-  ctx: AdaptationContext = {},
-): Promise<WorkoutPlan> {
+export async function generateWorkout(intake: Intake | null): Promise<WorkoutPlan> {
   const styleKey = (intake?.training_style ?? 'mixed').toLowerCase()
   const fallback = FALLBACK_TEMPLATES[styleKey] ?? FALLBACK_TEMPLATES.mixed
 
@@ -114,89 +86,20 @@ export async function generateWorkout(
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    const sys = `You are an experienced strength and conditioning coach (NSCA-CSCS, NASM-CPT certified). Generate a single day's workout plan based on the user's intake and any feedback from their previous session. Return ONLY valid minified JSON in this exact shape, no markdown, no commentary:
+    const sys = `You are an experienced strength and conditioning coach. Generate a single day's workout plan based on the user's intake. Return ONLY valid minified JSON in this exact shape, no markdown, no commentary:
 {"focus":"...","warm_up":"...","main":"...","finisher":"...","notes":"..."}
 Rules:
 - focus: short title for the day (e.g., "Lower body strength")
 - warm_up: 2 to 4 lines, comma separated
-- main: the actual workout with sets x reps notation. When you have the user's
-  current PRs (bench/squat/deadlift), prescribe loads as % of those PRs
-  (e.g., "Back squat 4 x 6 @ 75% (≈225 lbs based on 300 lb PR)").
+- main: the actual workout with sets x reps notation
 - finisher: 3 to 5 minutes of higher-intensity work or core
 - notes: 1 to 2 lines of coaching cues or substitutions
 - Match the user's coaching tone if provided
-- Respect injuries, medical conditions, mobility issues, equipment constraints
+- Respect injuries and equipment constraints
 - Keep the whole plan completable in the user's available minutes
-- AGE-APPROPRIATE programming: under 25 → tolerate higher volume; 26–45 →
-  standard; 46+ → reduce impact/volume, longer warm-ups, more recovery work
-- SLEEP-AWARE: if user reports <6 hrs sleep avg → reduce volume 15–25%
-- HIGH STRESS or HEAVY OCCUPATION ACTIVITY → reduce volume, prioritize recovery
-- PREGNANCY: avoid supine positions after 1st trimester, no high-impact, no
-  abdominal flexion in 2nd/3rd trimester, defer to OB clearance
-- DISLIKED EXERCISES: do not prescribe (substitute with similar movement pattern)
-- LIKED EXERCISES: include when they fit the day's focus
-- ADAPT to yesterday's feedback when given:
-  * "too_hard" or "sore"  → deload 10–15%, swap to lower-impact movements
-  * "too_easy"            → add 1–2 sets, 5–10% more weight, or harder progressions
-  * "skipped"             → keep load similar, treat as a fresh start
-  * "completed"           → progress slightly, vary movement patterns
-- Avoid hitting the same primary movement pattern as yesterday`
-
-    const adaptation = ctx.yesterdayFocus || ctx.yesterdayFeedback
-      ? `\n\nYesterday's session:\n- Focus: ${ctx.yesterdayFocus ?? 'unknown'}\n- User feedback: ${ctx.yesterdayFeedback ?? 'none recorded'}`
-      : ''
-
-    const regen = ctx.regenerateReason
-      ? `\n\nIMPORTANT: The user requested a different workout for today. Reason: "${ctx.regenerateReason}". Produce a meaningfully different plan — different focus area or movement style — not just a reworded version.`
-      : ''
-
-    // Build conditional sections so we don't pollute the prompt with empty fields
-    const fmt = (v: unknown): string =>
-      v == null || v === '' ? '(not provided)'
-      : Array.isArray(v) ? (v.length ? v.join(', ') : '(not provided)')
-      : String(v)
-
-    const tier1 = `\n\n— Demographics & safety —
-- Age: ${fmt(intake?.age)}
-- Sex: ${fmt(intake?.sex)}
-- Height (in): ${fmt(intake?.height_inches)}
-- Weight (lbs): ${fmt(intake?.weight_lbs)}
-- Medical conditions: ${fmt(intake?.medical_conditions)}
-- Medications: ${fmt(intake?.medications)}
-- Pregnancy/postpartum status: ${fmt(intake?.pregnancy_status)}`
-
-    const tier2 = `\n\n— Training history & current state —
-- Years training: ${fmt(intake?.training_years)}
-- PR bench (lbs): ${fmt(intake?.pr_bench_lbs)}
-- PR squat (lbs): ${fmt(intake?.pr_squat_lbs)}
-- PR deadlift (lbs): ${fmt(intake?.pr_deadlift_lbs)}
-- PR mile time: ${fmt(intake?.pr_mile_time)}
-- Body fat %: ${fmt(intake?.body_fat_pct)}
-- Specific goal target: ${fmt(intake?.goal_target)}
-- Goal target date: ${fmt(intake?.goal_target_date)}
-- Avg sleep (hrs): ${fmt(intake?.sleep_hours_avg)}
-- Stress level: ${fmt(intake?.stress_level)}
-- Occupation activity level: ${fmt(intake?.occupation_activity)}`
-
-    const tier3 = `\n\n— Personalization —
-- Liked exercises: ${fmt(intake?.liked_exercises)}
-- Disliked exercises (DO NOT prescribe): ${fmt(intake?.disliked_exercises)}
-- Cardio preference: ${fmt(intake?.cardio_preference)}
-- Mobility issues: ${fmt(intake?.mobility_issues)}`
-
-    const sportsBlock = intake?.plays_sports
-      ? `\n\n— Sport performance (IMPORTANT — shape the entire program around this) —
-- Sport(s): ${fmt(intake?.sports)}
-- Competition level: ${fmt(intake?.sport_level)}
-- Current season: ${fmt(intake?.sport_season)}
-- Position / role: ${fmt(intake?.sport_position)}
-Sport programming rules:
-* IN-SEASON → prioritize maintenance + injury prevention; reduce max-effort lifts to 70–80% of off-season loads; keep sessions short; emphasize unilateral stability, mobility, and CNS recovery
-* PRE-SEASON → ramp volume and sport-specific conditioning; power development; increase agility drills in finisher
-* OFF-SEASON → foundation building; higher volume hypertrophy/strength is appropriate; address weak points for next season
-* SPORT-SPECIFIC movement patterns: basketball/soccer → explosive lower body + lateral agility; football → power, contact readiness, neck/trap work; baseball/softball → rotational power, shoulder health, grip; combat sports → full-body conditioning, grip, neck; endurance sports (cycling, running, swimming) → aerobic base, injury prevention, not heavy barbell work
-* COMPETITION-LEVEL scaling: recreational → general fitness is primary; competitive → sport specificity is primary; semi-pro/pro → periodization required, fatigue management is critical`
-      : ''
+- If training style is "peloton": center the workout on indoor cycling intervals using cadence (RPM) and resistance/Power Zone language. Add a short off-bike core or mobility finisher.
+- If training style is "work from home": assume ZERO equipment beyond a chair and a doorway. Bodyweight only. Keep noise low (no jumping jacks, prefer marching). Fits in a small room.
+- If training style is "desk worker": this is a posture / mobility / circulation reset, not a hard training session. Focus on hip flexors, thoracic spine, shoulders, neck, and gentle bodyweight strength. Should be doable in office clothes.`
 
     const user = `User intake:
 - Goals: ${(intake?.goals ?? []).join(', ') || 'general fitness'}
@@ -207,7 +110,7 @@ Sport programming rules:
 - Target areas: ${(intake?.target_areas ?? []).join(', ') || 'full body'}
 - Training style: ${intake?.training_style ?? 'mixed'}
 - Coaching tone: ${intake?.coaching_tone ?? 'encouraging'}
-- Injuries: ${intake?.injuries ?? 'none'}${tier1}${tier2}${tier3}${sportsBlock}${adaptation}${regen}
+- Injuries: ${intake?.injuries ?? 'none'}
 
 Generate today's workout.`
 
