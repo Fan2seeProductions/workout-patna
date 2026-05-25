@@ -324,3 +324,54 @@ export async function markWorkoutFeedback(
   revalidatePath('/app/coach')
   return { ok: true }
 }
+
+/**
+ * Start a 14-day no-credit-card AI Coach trial for the signed-in user.
+ * - No-op if they already have an active or trialing subscription that hasn't
+ *   expired (don't let them re-roll trials).
+ * - If they had a trial that expired, we don't re-grant — they need to subscribe.
+ * - Otherwise insert a fresh trial row good for 14 days.
+ *
+ * The page-level subscribed check ANDs status with `current_period_end > now()`
+ * so this naturally falls off the cliff into the paywall when the 14 days end.
+ */
+export async function startFreeTrial(): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'Not signed in.' }
+
+  // Already on a live sub or trial? Don't touch it.
+  const { data: existing } = await supabase
+    .from('ai_coach_subscriptions')
+    .select('status, current_period_end')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const stillActive =
+    existing &&
+    (existing.status === 'active' || existing.status === 'trialing') &&
+    existing.current_period_end &&
+    new Date(existing.current_period_end as string) > new Date()
+  if (stillActive) return { ok: true }
+
+  // Block trial re-rolling: if they ever had any trial/sub row (even expired),
+  // don't grant another free trial — they should subscribe via Stripe.
+  if (existing) {
+    return {
+      ok: false,
+      error: 'Your free trial has already been used. Subscribe to continue with Coach.',
+    }
+  }
+
+  const fourteenDays = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+  const { error } = await supabase.from('ai_coach_subscriptions').insert({
+    user_id: user.id,
+    status: 'trialing',
+    current_period_end: fourteenDays,
+  })
+
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath('/app/coach')
+  return { ok: true }
+}

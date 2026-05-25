@@ -31,7 +31,17 @@ export default async function CoachPage() {
     supabase.from('ai_coach_intake').select('*').eq('user_id', user.id).maybeSingle(),
   ])
 
-  const subscribed = sub && (sub.status === 'active' || sub.status === 'trialing')
+  // Subscribed if status is live AND we haven't passed current_period_end.
+  // This is what makes the 14-day no-card trial fall off the cliff cleanly
+  // when the period ends, without needing a cron job to flip the status.
+  const periodOk =
+    !sub?.current_period_end ||
+    new Date(sub.current_period_end as string) > new Date()
+  const subscribed = !!sub && (sub.status === 'active' || sub.status === 'trialing') && periodOk
+
+  // Has the user ever started a trial / subscription? If so we don't show
+  // the "Start free trial" CTA again — they'd go straight to Stripe.
+  const trialAlreadyUsed = !!sub
 
   // Subscribed path: ensure today's workout exists, then show it
   if (subscribed) {
@@ -132,27 +142,60 @@ export default async function CoachPage() {
         ))}
       </ul>
 
-      <div className="mt-8 glass-card p-5 flex items-center justify-between">
-        <div>
-          <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">
-            Pricing
-          </p>
-          <p className="mt-0.5 text-[24px] font-extrabold">
-            $9.99 <span className="text-[14px] font-medium text-[var(--color-text-muted)]">/ month</span>
-          </p>
-        </div>
-        <p className="text-[11px] text-[var(--color-text-dim)] max-w-[140px] text-right leading-snug">
-          Cancel anytime. First week free.
-        </p>
-      </div>
+      {!trialAlreadyUsed ? (
+        <>
+          <div className="mt-8 glass-card p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-cyan)]">
+                  14-day free trial
+                </p>
+                <p className="mt-0.5 text-[24px] font-extrabold">
+                  Free <span className="text-[14px] font-medium text-[var(--color-text-muted)]">for 14 days</span>
+                </p>
+              </div>
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-[var(--color-match)]/15 border border-[var(--color-match)]/40 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[var(--color-match)]">
+                No card required
+              </span>
+            </div>
+            <p className="mt-2 text-[12px] text-[var(--color-text-dim)] leading-snug">
+              After 14 days it's $9.99/mo. We'll prompt you to subscribe before charging anything — no surprises.
+            </p>
+          </div>
 
-      <div className="mt-6">
-        <CoachCheckout hasIntake={!!intake} />
-      </div>
+          <div className="mt-6">
+            <CoachCheckout hasIntake={!!intake} mode="trial" />
+          </div>
 
-      <p className="mt-3 text-center text-[11px] text-[var(--color-text-dim)]">
-        Secure checkout via Stripe.
-      </p>
+          <p className="mt-3 text-center text-[11px] text-[var(--color-text-dim)]">
+            No credit card, no commitment.
+          </p>
+        </>
+      ) : (
+        <>
+          <div className="mt-8 glass-card p-5 flex items-center justify-between">
+            <div>
+              <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">
+                Pricing
+              </p>
+              <p className="mt-0.5 text-[24px] font-extrabold">
+                $9.99 <span className="text-[14px] font-medium text-[var(--color-text-muted)]">/ month</span>
+              </p>
+            </div>
+            <p className="text-[11px] text-[var(--color-text-dim)] max-w-[140px] text-right leading-snug">
+              Your free trial has ended. Cancel anytime.
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <CoachCheckout hasIntake={!!intake} mode="subscribe" />
+          </div>
+
+          <p className="mt-3 text-center text-[11px] text-[var(--color-text-dim)]">
+            Secure checkout via Stripe.
+          </p>
+        </>
+      )}
     </main>
   )
 }
