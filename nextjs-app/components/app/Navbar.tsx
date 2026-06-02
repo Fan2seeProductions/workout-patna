@@ -6,41 +6,43 @@ import { cn } from '../../lib/utils'
 
 type NavItem = { href: string; label: string; icon: (active: boolean) => React.ReactNode }
 
+// Coach-first nav. The social tabs (Matches, Discover, Messages) still
+// work via direct URL (so existing matches/threads don't break) but
+// aren't surfaced here. To bring them back, restore the old items below.
 const navItems: NavItem[] = [
   {
-    href: '/app/home',
-    label: 'Home',
+    href: '/app/coach',
+    label: 'Coach',
     icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" />
-        <path d="M9 21V12h6v9" fill="none" stroke="currentColor" strokeWidth="2" />
+      // Brain / spark icon — matches the AI Coach paywall iconography
+      <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9.5 2A2.5 2.5 0 0 0 7 4.5v.5a3 3 0 0 0-3 3v1a3 3 0 0 0 1 2.236V13a3 3 0 0 0 1 2.236V17a3 3 0 0 0 3 3h1.5a2.5 2.5 0 0 0 2.5-2.5V4.5A2.5 2.5 0 0 0 9.5 2Z" />
+        <path d="M14.5 2a2.5 2.5 0 0 1 2.5 2.5v.5a3 3 0 0 1 3 3v1a3 3 0 0 1-1 2.236V13a3 3 0 0 1-1 2.236V17a3 3 0 0 1-3 3H13" />
       </svg>
     ),
   },
   {
-    href: '/app/matches',
-    label: 'Matches',
+    href: '/app/workouts',
+    label: 'Library',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
       </svg>
     ),
   },
   {
-    href: '/app/discover',
-    label: 'Discover',
-    icon: (_active) => (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-      </svg>
-    ),
-  },
-  {
-    href: '/app/messages',
-    label: 'Messages',
+    href: '/app/coach/intake',
+    label: 'Plan',
     icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      // Settings/sliders — your training plan & preferences
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <line x1="4" y1="18" x2="20" y2="18" />
+        <circle cx="9" cy="6" r="2" fill={active ? 'currentColor' : 'var(--color-background)'} />
+        <circle cx="15" cy="12" r="2" fill={active ? 'currentColor' : 'var(--color-background)'} />
+        <circle cx="7" cy="18" r="2" fill={active ? 'currentColor' : 'var(--color-background)'} />
       </svg>
     ),
   },
@@ -147,7 +149,7 @@ export function Navbar({
 
       {/* ── Desktop top nav ── */}
       <nav className="hidden md:flex fixed top-0 inset-x-0 z-50 bg-[#0d0d0d] border-b border-[var(--color-border)] px-6 h-14 items-center justify-between">
-        <Link href="/app/home" className="flex items-center gap-2 font-extrabold text-[16px] text-white">
+        <Link href="/app/coach" className="flex items-center gap-2 font-extrabold text-[16px] text-white">
           <div className="w-7 h-7 rounded-lg brand-gradient flex items-center justify-center text-white font-black text-[11px]">WP</div>
           WorkoutPartna
         </Link>

@@ -69,7 +69,10 @@ async function maybeSendWelcomeEmail(
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const code = url.searchParams.get('code')
-  const next = url.searchParams.get('next') ?? '/app/home'
+  // Coach-first: post-signup/signin users land on the AI Coach paywall page,
+  // which routes them to the trial CTA (or straight to today's workout if
+  // they're already subscribed/trialing).
+  const next = url.searchParams.get('next') ?? '/app/coach'
 
   // Use the host the user came in on so cookies stick to the right domain
   // (workoutpartna.com vs workout-patna.vercel.app vs localhost).
