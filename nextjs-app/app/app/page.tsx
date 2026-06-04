@@ -15,32 +15,36 @@ export const metadata: Metadata = {
 export default function SplashPage() {
   return (
     <main className="relative min-h-dvh flex flex-col overflow-hidden">
-      {/* Hero photo background */}
+      {/* Hero photo — same /hero-woman.jpg as the marketing apex, cropped
+          to show the subject on the right side (object-[75%_25%]) so the
+          left half stays dark enough for the copy + CTAs to sit cleanly. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={splashHero}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover object-[75%_25%]"
+        style={{ opacity: 0.7 }}
       />
 
-      {/* Top-to-bottom gradient overlay for legibility */}
+      {/* Left→right cinematic gradient: deep on the left (where the copy
+          sits), fades through to a soft veil on the right (where the
+          subject is). Mirrors the treatment on workoutpartna.com/. */}
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(180deg, rgba(5,8,16,0.55) 0%, rgba(5,8,16,0.25) 30%, rgba(5,8,16,0.7) 65%, rgba(5,8,16,0.97) 92%)',
+            'linear-gradient(105deg, rgba(5,8,16,0.92) 30%, rgba(5,8,16,0.72) 55%, rgba(5,8,16,0.20) 100%)',
         }}
       />
 
-      {/* Brand color tint over the photo */}
+      {/* Bottom fade to keep the footer CTAs legible no matter the crop. */}
       <div
         aria-hidden
-        className="absolute inset-0 mix-blend-multiply opacity-50"
+        className="absolute bottom-0 inset-x-0 h-48"
         style={{
-          background:
-            'radial-gradient(ellipse at top, rgba(59,130,246,0.45), transparent 60%), radial-gradient(ellipse at bottom right, rgba(20,184,166,0.35), transparent 60%)',
+          background: 'linear-gradient(to top, rgba(5,8,16,0.97), transparent)',
         }}
       />
 
