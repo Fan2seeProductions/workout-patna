@@ -1,5 +1,13 @@
-// Generate a daily workout plan. Uses Anthropic Claude when ANTHROPIC_API_KEY is set,
-// falls back to a deterministic template otherwise. Returns plain text sections.
+// Generate a daily workout plan. Uses Anthropic Claude when ANTHROPIC_API_KEY
+// is set, falls back to a deterministic template otherwise.
+//
+// The system prompt is ported from the WorkoutPartna PRD master prompt
+// (safety priorities, behavior rules, programming logic, readiness-driven
+// adaptation). The output schema stays compact (focus/warm_up/main/finisher/
+// notes + safety flag) so existing downstream callers — CoachShell,
+// formatWorkoutMessage, the cron route — keep working without a rewrite.
+// A future PR can adopt the doc's richer JSON schema with OpenAI
+// Structured Outputs once the SMS surface is live.
 
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -15,10 +23,8 @@ export type Intake = {
   training_style?: string | null
   coaching_tone?: string | null
 
-  // Optional richer profile passed by the daily-workouts cron when the
-  // member has filled out the full intake. Not all surfaced to Claude
-  // today, but accepting them here keeps the cron + future personalization
-  // changes from breaking the type contract.
+  // Optional richer profile. Wired into the user prompt below so the model
+  // can actually use age, PRs, sleep, etc. for real personalization.
   age?: number | null
   sex?: string | null
   height_inches?: number
@@ -54,12 +60,16 @@ export type WorkoutPlan = {
   main: string
   finisher: string
   notes: string
+  // Safety flag — when true, downstream UI should surface a "please talk
+  // to a clinician / contact support" message instead of training cues.
+  // Set by the model when the user reports something that warrants medical
+  // attention (chest pain, fainting, severe injury, etc.).
+  requires_human_review?: boolean
+  human_review_reason?: string
 }
 
-// Yesterday's session context — callers can pass this to nudge tomorrow's
-// plan (avoid same focus, scale back if hurt, push if it was easy). Today
-// generateWorkout accepts it but doesn't yet surface it to Claude; a
-// follow-up PR will wire it into the system prompt.
+// Yesterday's session context — callers pass this in so the model can
+// nudge tomorrow's plan: same focus? scale back? push? skip?
 export type AdaptationContext = {
   yesterdayFocus?: string | null
   yesterdayFeedback?: 'too_easy' | 'just_right' | 'too_hard' | 'injured' | null
@@ -68,6 +78,11 @@ export type AdaptationContext = {
   regenerateReason?: string | null
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Fallback templates — served when ANTHROPIC_API_KEY is missing or the
+// model call fails. Templates are by training_style so the user gets
+// something in their style even if the LLM is down.
+// ─────────────────────────────────────────────────────────────────────────
 const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
   strength: {
     focus: 'Lower body strength',
@@ -120,10 +135,155 @@ const FALLBACK_TEMPLATES: Record<string, WorkoutPlan> = {
   },
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master system prompt — ports the WorkoutPartna PRD prompt package:
+// identity, safety, coaching priorities, behavior rules, programming
+// logic per goal, readiness adaptation, and style.
+// ─────────────────────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are WorkoutPartna, a highly reliable AI Trainer for general fitness and healthy habit formation.
+
+Your job is to generate one personalized training plan for today.
+
+You are not a doctor, physical therapist, dietitian, or emergency service. Do not diagnose, treat, or reassure about medical symptoms. If the user reports chest pain, fainting, severe shortness of breath, sudden injury, neurological symptoms, dangerous pain, pregnancy-related complications, or any other potentially urgent medical issue, do not provide a workout. Tell the user to seek medical care or emergency help as appropriate and set requires_human_review=true.
+
+Your coaching priorities in order:
+1. Safety
+2. Adherence and consistency
+3. Personalization to time, equipment, recovery, and goals
+4. Clarity and motivation
+5. Progressive overload over time
+
+General behavior rules:
+- Generate only workouts that fit the user's declared equipment, time budget, skill level, injuries, and environment.
+- Default to the smallest effective workout when recovery, soreness, sleep, stress, or schedule is poor.
+- Never punish missed days. Restart cleanly.
+- Use plain English. Be concise and specific.
+- Prefer one clear session over multiple options.
+- Include warm-up, main work, and a short finisher when time allows.
+- Include modifications if the user is tired, sore, traveling, or missing equipment.
+- Use progressive overload only when recent adherence and recovery justify it.
+- If the user is a beginner, emphasize technique, manageable volume, and confidence.
+- If the user is returning after a break, reduce intensity and volume.
+- If the user reports pain beyond normal training discomfort, reduce load or redirect away from the painful pattern.
+- Do not mention policy or internal reasoning.
+- Do not produce long explanations unless the channel needs it.
+
+Programming logic per goal:
+- fat_loss / lose weight: prioritize calorie expenditure, weekly consistency, and sustainable progression. Mix conditioning with strength so muscle is preserved.
+- muscle_gain / build muscle: prioritize resistance training volume and progressive load. Target the major movement patterns across the week.
+- strength / get stronger: prioritize the key barbell lifts, lower reps, longer rest, and recovery. Quality over volume.
+- general_fitness: prioritize balanced movement and adherence. Mix push/pull/squat/hinge/carry/core/conditioning/mobility across the week.
+- endurance: prioritize aerobic capacity. Mix steady-state with intervals; don't stack hard sessions back-to-back.
+- mobility / flexibility: prioritize pain-free range, tissue prep, and low fatigue. Treat as recovery work.
+
+Readiness adaptation:
+- If recovery is low (poor sleep, soreness, high stress, low motivation, recent illness): choose recovery, walk, mobility, zone 2, or shortened strength work.
+- If recovery is high and workload tolerance is established: progress slightly by load, reps, density, or complexity — not all at once.
+- If the previous session feedback was too_hard or injured: deload today and switch focus.
+- If the previous session feedback was too_easy: progress modestly today.
+- If today is already the same focus as yesterday and rest isn't called for, rotate the movement pattern.
+
+Style-specific notes:
+- training_style "peloton": center on indoor cycling intervals using cadence (RPM) and resistance/Power Zone language. Add a short off-bike core or mobility finisher.
+- training_style "work from home": assume ZERO equipment beyond a chair and a doorway. Bodyweight only. Keep noise low (no jumping jacks, prefer marching). Fits in a small room.
+- training_style "desk worker": this is a posture / mobility / circulation reset, not a hard training session. Focus on hip flexors, thoracic spine, shoulders, neck, and gentle bodyweight strength. Should be doable in office clothes.
+
+Output rules:
+Return ONLY valid minified JSON in this exact shape, no markdown, no commentary, no preamble:
+{"focus":"...","warm_up":"...","main":"...","finisher":"...","notes":"...","requires_human_review":false,"human_review_reason":""}
+
+Field rules:
+- focus: short title for the day (e.g., "Lower body strength", "Upper body push", "Recovery walk").
+- warm_up: 2 to 4 lines, comma separated.
+- main: the actual workout with clear sets x reps notation and rest cues.
+- finisher: 3 to 5 minutes of higher-intensity work or core, OR an empty string if today is a recovery/mobility day.
+- notes: 1 to 2 short lines of coaching cues, form reminders, or substitutions. No emojis. No hype.
+- requires_human_review: true ONLY if the user reported a potentially urgent medical issue or a contraindication for training. If true, set focus="Talk to a clinician", main="" (or a very short safe instruction), and put a one-line reason in human_review_reason.
+- human_review_reason: empty string when requires_human_review=false.
+
+Style: coach-like, calm, direct. Never shaming. Encouraging without hype. Specific over clever. Practical over inspirational.`
+
+// ─────────────────────────────────────────────────────────────────────────
+// Helpers for assembling the user-side context block.
+// ─────────────────────────────────────────────────────────────────────────
+function arrToStr(v: string | string[] | null | undefined): string {
+  if (!v) return ''
+  if (Array.isArray(v)) return v.filter(Boolean).join(', ')
+  return v
+}
+
+function buildUserPrompt(
+  intake: Intake | null,
+  adaptation: AdaptationContext | null | undefined,
+): string {
+  const i = intake ?? {}
+  const a = adaptation ?? {}
+  const today = new Date().toISOString().slice(0, 10)
+
+  const lines: string[] = [
+    `Generate today's WorkoutPartna training plan from the following context.`,
+    ``,
+    `DATE: ${today}`,
+    ``,
+    `GOALS: ${(i.goals ?? []).join(', ') || 'general fitness'}`,
+    `Goal target: ${i.goal_target ?? 'not specified'}${i.goal_target_date ? ` by ${i.goal_target_date}` : ''}`,
+    ``,
+    `PROFILE:`,
+    `- Fitness level: ${i.fitness_level ?? 'intermediate'}`,
+    `- Training age (years): ${i.training_years ?? 'unknown'}`,
+    `- Age: ${i.age ?? 'not provided'}`,
+    `- Sex: ${i.sex ?? 'not provided'}`,
+    i.height_inches ? `- Height: ${i.height_inches} in` : '',
+    i.weight_lbs ? `- Weight: ${i.weight_lbs} lb` : '',
+    i.body_fat_pct ? `- Body fat: ${i.body_fat_pct}%` : '',
+    ``,
+    `CONSTRAINTS:`,
+    `- Days per week: ${i.days_per_week ?? 3}`,
+    `- Available minutes today: ${i.workout_minutes ?? 45}`,
+    `- Equipment: ${(i.equipment ?? ['gym']).join(', ')}`,
+    `- Target areas: ${(i.target_areas ?? []).join(', ') || 'full body'}`,
+    `- Training style: ${i.training_style ?? 'mixed'}`,
+    `- Coaching tone: ${i.coaching_tone ?? 'encouraging'}`,
+    `- Cardio preference: ${arrToStr(i.cardio_preference) || 'no preference'}`,
+    `- Liked exercises: ${arrToStr(i.liked_exercises) || 'none specified'}`,
+    `- Disliked exercises: ${arrToStr(i.disliked_exercises) || 'none specified'}`,
+    `- Occupation activity level: ${i.occupation_activity ?? 'unknown'}`,
+    ``,
+    `HEALTH FLAGS:`,
+    `- Injuries / limitations: ${i.injuries ?? 'none reported'}`,
+    `- Mobility issues: ${arrToStr(i.mobility_issues) || 'none reported'}`,
+    `- Medical conditions: ${arrToStr(i.medical_conditions) || 'none reported'}`,
+    `- Medications: ${arrToStr(i.medications) || 'none reported'}`,
+    `- Pregnancy status: ${i.pregnancy_status ?? 'not applicable / not provided'}`,
+    ``,
+    `RECOVERY & READINESS (best signals we have):`,
+    `- Avg sleep hours: ${i.sleep_hours_avg ?? 'unknown'}`,
+    `- Stress level: ${i.stress_level ?? 'unknown'}`,
+    ``,
+    `RECENT TRAINING CONTEXT:`,
+    `- Yesterday's focus: ${a.yesterdayFocus ?? 'unknown / no record'}`,
+    `- Yesterday's feedback: ${a.yesterdayFeedback ?? 'unknown / no feedback'}`,
+    a.regenerateReason ? `- User regenerate reason: ${a.regenerateReason}` : '',
+    ``,
+    `PRs (if relevant):`,
+    i.pr_bench_lbs ? `- Bench: ${i.pr_bench_lbs} lb` : '',
+    i.pr_squat_lbs ? `- Squat: ${i.pr_squat_lbs} lb` : '',
+    i.pr_deadlift_lbs ? `- Deadlift: ${i.pr_deadlift_lbs} lb` : '',
+    i.pr_mile_time ? `- Mile time: ${i.pr_mile_time}` : '',
+    ``,
+    i.plays_sports
+      ? `SPORTS:\n- ${[i.sports, i.sport_level, i.sport_position, i.sport_season ? `season: ${i.sport_season}` : null].map(arrToStr).filter(Boolean).join(' / ')}`
+      : '',
+    ``,
+    `Generate one best workout for today. Return ONLY the JSON object — no markdown, no commentary.`,
+  ]
+
+  return lines.filter(l => l !== '').join('\n')
+}
+
 export async function generateWorkout(
   intake: Intake | null,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _adaptation?: AdaptationContext | null,
+  adaptation?: AdaptationContext | null,
 ): Promise<WorkoutPlan> {
   const styleKey = (intake?.training_style ?? 'mixed').toLowerCase()
   const fallback = FALLBACK_TEMPLATES[styleKey] ?? FALLBACK_TEMPLATES.mixed
@@ -135,39 +295,13 @@ export async function generateWorkout(
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    const sys = `You are an experienced strength and conditioning coach. Generate a single day's workout plan based on the user's intake. Return ONLY valid minified JSON in this exact shape, no markdown, no commentary:
-{"focus":"...","warm_up":"...","main":"...","finisher":"...","notes":"..."}
-Rules:
-- focus: short title for the day (e.g., "Lower body strength")
-- warm_up: 2 to 4 lines, comma separated
-- main: the actual workout with sets x reps notation
-- finisher: 3 to 5 minutes of higher-intensity work or core
-- notes: 1 to 2 lines of coaching cues or substitutions
-- Match the user's coaching tone if provided
-- Respect injuries and equipment constraints
-- Keep the whole plan completable in the user's available minutes
-- If training style is "peloton": center the workout on indoor cycling intervals using cadence (RPM) and resistance/Power Zone language. Add a short off-bike core or mobility finisher.
-- If training style is "work from home": assume ZERO equipment beyond a chair and a doorway. Bodyweight only. Keep noise low (no jumping jacks, prefer marching). Fits in a small room.
-- If training style is "desk worker": this is a posture / mobility / circulation reset, not a hard training session. Focus on hip flexors, thoracic spine, shoulders, neck, and gentle bodyweight strength. Should be doable in office clothes.`
-
-    const user = `User intake:
-- Goals: ${(intake?.goals ?? []).join(', ') || 'general fitness'}
-- Fitness level: ${intake?.fitness_level ?? 'intermediate'}
-- Days per week: ${intake?.days_per_week ?? 3}
-- Available minutes: ${intake?.workout_minutes ?? 45}
-- Equipment: ${(intake?.equipment ?? ['gym']).join(', ')}
-- Target areas: ${(intake?.target_areas ?? []).join(', ') || 'full body'}
-- Training style: ${intake?.training_style ?? 'mixed'}
-- Coaching tone: ${intake?.coaching_tone ?? 'encouraging'}
-- Injuries: ${intake?.injuries ?? 'none'}
-
-Generate today's workout.`
+    const userPrompt = buildUserPrompt(intake, adaptation)
 
     const res = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 800,
-      system: sys,
-      messages: [{ role: 'user', content: user }],
+      max_tokens: 1200,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
     })
 
     const text = res.content
@@ -175,7 +309,26 @@ Generate today's workout.`
       .map(b => (b as { text: string }).text)
       .join('')
 
-    const parsed = JSON.parse(text) as WorkoutPlan
+    // Tolerate stray whitespace or accidental markdown fences. The prompt
+    // says "no markdown" but defending against it costs nothing.
+    const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
+    const parsed = JSON.parse(cleaned) as WorkoutPlan
+
+    // Validate the safety contract: if requires_human_review is true, the
+    // UI surface should NOT show training cues, regardless of what's in
+    // main/warm_up. We trust the model on the boolean and pass through.
+    if (parsed.requires_human_review) {
+      return {
+        focus: parsed.focus || 'Talk to a clinician',
+        warm_up: '',
+        main: parsed.main || '',
+        finisher: '',
+        notes: parsed.notes || 'Reach out to a healthcare provider before continuing training.',
+        requires_human_review: true,
+        human_review_reason: parsed.human_review_reason || 'Reported a potential safety concern.',
+      }
+    }
+
     if (!parsed.focus || !parsed.main) throw new Error('bad shape')
     return parsed
   } catch {
