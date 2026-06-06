@@ -1,44 +1,41 @@
-// Public footer with site links, FAQ-style content, and SEO copy.
+// Public footer with site links + brand line. Sits on every non-app page.
+// Coach-first: B2B + matching-themed columns dropped. /trainers and
+// /for-gyms-apartments still resolve by URL but are not surfaced here.
 import Link from 'next/link'
 import { Logo } from '../app/Logo'
 
 const product = [
-  { href: '/how-it-works', label: 'How It Works' },
+  { href: '/how-it-works', label: 'How it works' },
   { href: '/pricing',      label: 'Pricing' },
-  { href: '/trainers',     label: 'For Trainers' },
   { href: '/safety',       label: 'Safety' },
-]
-const business = [
-  { href: '/for-gyms-apartments', label: 'For Gyms & Apartments' },
-  { href: '/for-gyms-apartments#contact', label: 'Request a Demo' },
-  { href: '/for-gyms-apartments#partner', label: 'Become a Partner' },
+  { href: '/about',        label: 'About' },
 ]
 const account = [
-  { href: '/app/signup', label: 'Create Account' },
-  { href: '/app/signin', label: 'Sign In' },
+  { href: '/app/signup', label: 'Try free for 14 days' },
+  { href: '/app/signin', label: 'Sign in' },
 ]
 const legal = [
   { href: '/terms',   label: 'Terms' },
   { href: '/privacy', label: 'Privacy' },
+  { href: '/waiver',  label: 'Health & Liability' },
 ]
 
 export function PublicFooter() {
   return (
     <footer className="mt-20 border-t border-[var(--color-border)] bg-white">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 grid gap-10 md:grid-cols-5">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
           <Logo size={32} withWordmark />
           <p className="mt-4 text-[13px] leading-relaxed text-[var(--color-muted-foreground)] max-w-sm">
-            WorkoutPartna is a location-based fitness accountability network. We help people find real
-            workout partners at the gym, apartment fitness center, or community fitness space they
-            already use, and give those locations a way to build a real community around their amenities.
+            WorkoutPartna is the AI trainer that texts you the exact workout to do today.
+            Personalized to your time, gear, energy, and history. Built for general fitness
+            and healthy habit formation — not medical guidance.
           </p>
           <p className="mt-3 text-[12px] text-[var(--color-muted-foreground)]">
-            Launching in Houston, TX. Cypress, Katy, Spring, The Woodlands, Sugar Land, and surrounding areas.
+            14 days free. No credit card. Then $9.99/mo. Cancel anytime.
           </p>
         </div>
         <Col title="Product"  items={product}  />
-        <Col title="Business" items={business} />
         <Col title="Account"  items={account}  />
       </div>
 

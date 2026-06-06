@@ -1,4 +1,6 @@
 // Public marketing-site navigation. Sits on every non-app page.
+// Coach-first nav: B2B (apartments) and trainers links are intentionally
+// dropped — those pages still resolve by URL but aren't surfaced here.
 'use client'
 
 import Link from 'next/link'
@@ -6,11 +8,10 @@ import { useState } from 'react'
 import { Logo } from '../app/Logo'
 
 const links = [
-  { href: '/about', label: 'About' },
-  { href: '/for-gyms-apartments', label: 'For Gyms & Apartments' },
-  { href: '/trainers', label: 'Trainers' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/safety', label: 'Safety' },
+  { href: '/how-it-works', label: 'How it works' },
+  { href: '/pricing',      label: 'Pricing' },
+  { href: '/about',        label: 'About' },
+  { href: '/safety',       label: 'Safety' },
 ]
 
 export function PublicNav() {
@@ -48,7 +49,7 @@ export function PublicNav() {
             href="/app/signup"
             className="px-4 py-2 rounded-full brand-gradient text-white text-[13px] font-bold shadow-glow"
           >
-            Find My Partna
+            Try free for 14 days
           </Link>
         </div>
 
@@ -103,7 +104,7 @@ export function PublicNav() {
                 onClick={() => setOpen(false)}
                 className="h-11 rounded-full brand-gradient flex items-center justify-center text-[14px] font-bold text-white"
               >
-                Find My Partna
+                Try free
               </Link>
             </div>
           </nav>
