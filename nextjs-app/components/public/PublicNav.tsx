@@ -7,11 +7,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Logo } from '../app/Logo'
 
+// "How it works" lives inside /about, so we link there once as "How it
+// works" (the more product-relevant label) rather than listing both.
 const links = [
-  { href: '/how-it-works', label: 'How it works' },
-  { href: '/pricing',      label: 'Pricing' },
-  { href: '/about',        label: 'About' },
-  { href: '/safety',       label: 'Safety' },
+  { href: '/about',   label: 'How it works' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/safety',  label: 'Safety' },
 ]
 
 export function PublicNav() {

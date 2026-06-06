@@ -66,7 +66,7 @@ export default function AboutPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-5 sm:px-8 pt-20 pb-16">
-        <p className="text-[13px] uppercase tracking-[0.2em] font-bold text-[hsl(0,78%,58%)] mb-5">About</p>
+        <p className="text-[13px] uppercase tracking-[0.2em] font-bold text-[hsl(0,78%,58%)] mb-5">How it works</p>
         <h1 className="text-[40px] sm:text-[60px] font-black leading-[1.0] tracking-tight">
           The trainer that<br />
           <span style={{ background: 'linear-gradient(135deg, #dc1616 0%, #ff4444 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>

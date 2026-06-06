@@ -18,10 +18,12 @@ export default function HomePage() {
         <img
           src="/hero-woman.jpg"
           alt="Woman working out at the gym"
-          className="absolute inset-0 w-full h-full object-cover object-[75%_25%]"
-          style={{ opacity: 0.65 }}
+          className="absolute inset-0 w-full h-full object-cover object-[70%_25%]"
+          style={{ opacity: 0.95 }}
         />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(105deg, #0d0d0d 38%, rgba(13,13,13,0.75) 58%, rgba(13,13,13,0.15) 100%)' }} />
+        {/* Lighter left-to-right gradient: keeps the copy column readable but
+            lets the photo actually show through on the right two-thirds. */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(100deg, #0d0d0d 18%, rgba(13,13,13,0.78) 42%, rgba(13,13,13,0.30) 72%, rgba(13,13,13,0.05) 100%)' }} />
         <div className="absolute bottom-0 inset-x-0 h-40" style={{ background: 'linear-gradient(to top, #0d0d0d, transparent)' }} />
 
         <div className="relative mx-auto max-w-5xl px-5 sm:px-8 py-24">

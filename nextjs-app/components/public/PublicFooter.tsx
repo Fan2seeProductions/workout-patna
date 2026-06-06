@@ -5,10 +5,9 @@ import Link from 'next/link'
 import { Logo } from '../app/Logo'
 
 const product = [
-  { href: '/how-it-works', label: 'How it works' },
-  { href: '/pricing',      label: 'Pricing' },
-  { href: '/safety',       label: 'Safety' },
-  { href: '/about',        label: 'About' },
+  { href: '/about',   label: 'How it works' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/safety',  label: 'Safety' },
 ]
 const account = [
   { href: '/app/signup', label: 'Try free for 14 days' },
