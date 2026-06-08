@@ -43,16 +43,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Bad signature: ${(err as Error).message}` }, { status: 400 })
   }
 
+  // The webhook is server-to-server (authenticated by the Stripe signature
+  // we just verified, not a user session). Writing subscription state past
+  // RLS REQUIRES the service-role key. We deliberately do NOT fall back to
+  // the anon key — that silently fails RLS and drops the write, which is the
+  // bug this used to have. If the key is missing we 500 so the failure is
+  // visible and Stripe retries the event until it's configured.
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceRoleKey) {
+    console.error('[stripe webhook] SUPABASE_SERVICE_ROLE_KEY is not set — cannot persist subscription state.')
+    return NextResponse.json(
+      { error: 'Subscription store not configured (missing service role key).' },
+      { status: 500 },
+    )
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    serviceRoleKey,
     { cookies: { getAll: () => [], setAll: () => {} } },
   )
 
   async function upsertFromSub(sub: StripeSub) {
     const userId = (sub.metadata?.supabase_user_id ?? null) as string | null
-    if (!userId) return
-    await supabase
+    if (!userId) {
+      console.warn('[stripe webhook] subscription has no supabase_user_id metadata; skipping.', sub.id)
+      return
+    }
+    const { error } = await supabase
       .from('ai_coach_subscriptions')
       .upsert(
         {
@@ -67,24 +85,33 @@ export async function POST(req: NextRequest) {
         },
         { onConflict: 'user_id' },
       )
+    // Throw so the handler 500s and Stripe retries rather than silently
+    // dropping a subscription update.
+    if (error) throw new Error(`ai_coach_subscriptions upsert failed: ${error.message}`)
   }
 
-  switch (event.type) {
-    case 'customer.subscription.created':
-    case 'customer.subscription.updated':
-    case 'customer.subscription.deleted':
-      await upsertFromSub(event.data.object as StripeSub)
-      break
-    case 'checkout.session.completed': {
-      const session = event.data.object as StripeCheckoutSession
-      if (session.subscription) {
-        const sub = (await stripe.subscriptions.retrieve(session.subscription)) as unknown as StripeSub
-        await upsertFromSub(sub)
+  try {
+    switch (event.type) {
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted':
+        await upsertFromSub(event.data.object as StripeSub)
+        break
+      case 'checkout.session.completed': {
+        const session = event.data.object as StripeCheckoutSession
+        if (session.subscription) {
+          const sub = (await stripe.subscriptions.retrieve(session.subscription)) as unknown as StripeSub
+          await upsertFromSub(sub)
+        }
+        break
       }
-      break
+      default:
+        break
     }
-    default:
-      break
+  } catch (err) {
+    // Surface the failure so Stripe retries (idempotent upsert keyed on user_id).
+    console.error('[stripe webhook] handler error:', (err as Error).message)
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })
