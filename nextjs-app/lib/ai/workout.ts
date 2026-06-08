@@ -297,8 +297,12 @@ export async function generateWorkout(
 
     const userPrompt = buildUserPrompt(intake, adaptation)
 
+    // Anthropic Opus 4.7 builds the workouts. Override with ANTHROPIC_COACH_MODEL
+    // if the exact model string ever changes.
+    const model = process.env.ANTHROPIC_COACH_MODEL ?? 'claude-opus-4-7'
+
     const res = await client.messages.create({
-      model: 'claude-sonnet-4-5',
+      model,
       max_tokens: 1200,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],

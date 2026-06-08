@@ -341,9 +341,9 @@ export async function startFreeTrial(): Promise<{ ok: boolean; error?: string }>
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: 'Not signed in.' }
 
-  // The no-card trial is for grandfathered early members only. Newer accounts
-  // must put a card on file via Stripe Checkout. Guard here too (not just in
-  // the UI) so a direct call can't bypass the card requirement.
+  // Pre-check grandfathering in app code for a friendlier message, but the
+  // authoritative gate lives in the start_coach_trial() DB function (which
+  // also re-checks created_at, so a direct call can't bypass the card rule).
   if (!isGrandfathered(user.created_at)) {
     return {
       ok: false,
@@ -351,38 +351,30 @@ export async function startFreeTrial(): Promise<{ ok: boolean; error?: string }>
     }
   }
 
-  // Already on a live sub or trial? Don't touch it.
-  const { data: existing } = await supabase
-    .from('ai_coach_subscriptions')
-    .select('status, current_period_end')
-    .eq('user_id', user.id)
-    .maybeSingle()
-
-  const stillActive =
-    existing &&
-    (existing.status === 'active' || existing.status === 'trialing') &&
-    existing.current_period_end &&
-    new Date(existing.current_period_end as string) > new Date()
-  if (stillActive) return { ok: true }
-
-  // Block trial re-rolling: if they ever had any trial/sub row (even expired),
-  // don't grant another free trial — they should subscribe via Stripe.
-  if (existing) {
-    return {
-      ok: false,
-      error: 'Your free trial has already been used. Subscribe to continue with Coach.',
-    }
-  }
-
-  const fourteenDays = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-  const { error } = await supabase.from('ai_coach_subscriptions').insert({
-    user_id: user.id,
-    status: 'trialing',
-    current_period_end: fourteenDays,
-  })
-
+  // Users have read-only RLS on ai_coach_subscriptions, so the insert goes
+  // through a SECURITY DEFINER RPC that grants exactly a 14-day trialing row
+  // (and refuses to re-roll or to grant a non-grandfathered account).
+  const { data: result, error } = await supabase.rpc('start_coach_trial')
   if (error) return { ok: false, error: error.message }
 
-  revalidatePath('/app/coach')
-  return { ok: true }
+  switch (result as string) {
+    case 'granted':
+    case 'already_active':
+      revalidatePath('/app/coach')
+      return { ok: true }
+    case 'card_required':
+      return {
+        ok: false,
+        error: 'A card is required to start your free trial. Continue to checkout.',
+      }
+    case 'already_used':
+      return {
+        ok: false,
+        error: 'Your free trial has already been used. Subscribe to continue with Coach.',
+      }
+    case 'not_authenticated':
+      return { ok: false, error: 'Not signed in.' }
+    default:
+      return { ok: false, error: 'Could not start trial.' }
+  }
 }
