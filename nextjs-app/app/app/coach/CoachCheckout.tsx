@@ -1,14 +1,17 @@
-// Coach CTA button. Two modes:
-//   "trial"     → call startFreeTrial() server action (no Stripe, no card)
-//   "subscribe" → hit /api/stripe/checkout for a paid subscription
-// If the user hasn't filled the intake yet we send them there first, regardless.
+// Coach CTA button. Three modes:
+//   "trial"      → no-card 14-day trial via startFreeTrial() server action
+//                  (grandfathered early members only)
+//   "trial-card" → 14-day trial WITH a card on file, via Stripe Checkout
+//                  (new members — card collected up front, charged after day 14)
+//   "subscribe"  → straight paid subscription via Stripe Checkout
+//                  (trial already used; the route grants no second trial)
 'use client'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { startFreeTrial } from '../../../lib/actions/coach'
 
-type Mode = 'trial' | 'subscribe'
+type Mode = 'trial' | 'trial-card' | 'subscribe'
 
 export function CoachCheckout({
   hasIntake,
@@ -24,6 +27,8 @@ export function CoachCheckout({
   function go() {
     setError(null)
 
+    // No-card trial: grant it server-side, then hand off to intake / today's
+    // workout. /app/coach re-routes on the next render.
     if (mode === 'trial') {
       start(async () => {
         const res = await startFreeTrial()
@@ -31,19 +36,17 @@ export function CoachCheckout({
           setError(res.error ?? 'Could not start trial.')
           return
         }
-        // After granting the trial, hand them off to intake (if needed) or to
-        // today's workout. /app/coach re-routes for us on next render.
         router.push(hasIntake ? '/app/coach' : '/app/coach/intake')
         router.refresh()
       })
       return
     }
 
-    // Subscribe mode: Stripe checkout
-    if (!hasIntake) {
-      router.push('/app/coach/intake')
-      return
-    }
+    // Card modes (trial-card and subscribe): go to Stripe Checkout. The
+    // checkout route decides trial eligibility server-side (a 14-day trial
+    // for first-timers, none for anyone who already had a subscription).
+    // We collect the card first; once the subscription is live, /app/coach
+    // forces the intake if it's still missing.
     start(async () => {
       try {
         const res = await fetch('/api/stripe/checkout', { method: 'POST' })
@@ -63,9 +66,9 @@ export function CoachCheckout({
     ? 'Loading...'
     : mode === 'trial'
       ? 'Start 14-day free trial'
-      : hasIntake
-        ? 'Subscribe to Coach'
-        : 'Start free intake'
+      : mode === 'trial-card'
+        ? 'Start 14-day free trial'
+        : 'Subscribe to Coach'
 
   return (
     <>

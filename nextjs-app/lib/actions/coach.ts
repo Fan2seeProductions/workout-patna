@@ -7,6 +7,7 @@ import { generateWorkout, type Intake, type AdaptationContext } from '../ai/work
 import { notifyIntake } from '../email/intake-notify'
 import { sendSms, intakeWelcomeSms, sendVoiceWorkout } from '../sms/sms'
 import { sendWorkoutToChat } from './coach-chat'
+import { isGrandfathered } from '../coach-trial'
 
 /** Pull yesterday's workout (if any) so the AI can adapt today's plan to it. */
 async function loadYesterdayContext(
@@ -339,6 +340,16 @@ export async function startFreeTrial(): Promise<{ ok: boolean; error?: string }>
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: 'Not signed in.' }
+
+  // The no-card trial is for grandfathered early members only. Newer accounts
+  // must put a card on file via Stripe Checkout. Guard here too (not just in
+  // the UI) so a direct call can't bypass the card requirement.
+  if (!isGrandfathered(user.created_at)) {
+    return {
+      ok: false,
+      error: 'A card is required to start your free trial. Continue to checkout.',
+    }
+  }
 
   // Already on a live sub or trial? Don't touch it.
   const { data: existing } = await supabase

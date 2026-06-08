@@ -10,6 +10,7 @@ import { CoachCheckout } from './CoachCheckout'
 import { WorkoutFeedback } from './WorkoutFeedback'
 import { RegenerateButton } from './RegenerateButton'
 import { PushNotificationSetup } from '../../../components/app/PushNotificationSetup'
+import { isGrandfathered } from '../../../lib/coach-trial'
 
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
 
@@ -42,6 +43,11 @@ export default async function CoachPage() {
   // Has the user ever started a trial / subscription? If so we don't show
   // the "Start free trial" CTA again — they'd go straight to Stripe.
   const trialAlreadyUsed = !!sub
+
+  // Grandfathered members (signed up on/before the cutoff) keep the original
+  // no-credit-card trial. Everyone who signed up after must put a card on
+  // file up front (Stripe Checkout with a 14-day trial before first charge).
+  const grandfathered = isGrandfathered(user.created_at)
 
   // Subscribed path: ensure today's workout exists, then show it
   if (subscribed) {
@@ -142,7 +148,8 @@ export default async function CoachPage() {
         ))}
       </ul>
 
-      {!trialAlreadyUsed ? (
+      {!trialAlreadyUsed && grandfathered ? (
+        /* Grandfathered member — original no-credit-card 14-day trial. */
         <>
           <div className="mt-8 glass-card p-5">
             <div className="flex items-center justify-between gap-3">
@@ -159,7 +166,7 @@ export default async function CoachPage() {
               </span>
             </div>
             <p className="mt-2 text-[12px] text-[var(--color-text-dim)] leading-snug">
-              After 14 days it's $9.99/mo. We'll prompt you to subscribe before charging anything — no surprises.
+              You're an early member, so your trial needs no card. After 14 days it's $9.99/mo and we'll prompt you to subscribe before charging anything.
             </p>
           </div>
 
@@ -169,6 +176,36 @@ export default async function CoachPage() {
 
           <p className="mt-3 text-center text-[11px] text-[var(--color-text-dim)]">
             No credit card, no commitment.
+          </p>
+        </>
+      ) : !trialAlreadyUsed && !grandfathered ? (
+        /* New member — 14-day trial with a card on file (charged after). */
+        <>
+          <div className="mt-8 glass-card p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-cyan)]">
+                  14-day free trial
+                </p>
+                <p className="mt-0.5 text-[24px] font-extrabold">
+                  Free <span className="text-[14px] font-medium text-[var(--color-text-muted)]">for 14 days</span>
+                </p>
+              </div>
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-[var(--color-cyan)]/15 border border-[var(--color-cyan)]/30 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[var(--color-cyan)]">
+                Card required
+              </span>
+            </div>
+            <p className="mt-2 text-[12px] text-[var(--color-text-dim)] leading-snug">
+              $0 today. We add a card now and you're not charged until day 15. Cancel anytime before then and you pay nothing. Then $9.99/mo.
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <CoachCheckout hasIntake={!!intake} mode="trial-card" />
+          </div>
+
+          <p className="mt-3 text-center text-[11px] text-[var(--color-text-dim)]">
+            Secure checkout via Stripe. Cancel anytime.
           </p>
         </>
       ) : (
