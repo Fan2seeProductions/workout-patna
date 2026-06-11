@@ -7,9 +7,7 @@ import { createClient } from '../../../lib/supabase/server'
 import { generateTodayWorkout } from '../../../lib/actions/coach'
 import { BackIcon, BrainIcon, CheckIcon, SparkleIcon } from '../../../components/app/icons'
 import { CoachCheckout } from './CoachCheckout'
-import { WorkoutFeedback } from './WorkoutFeedback'
-import { RegenerateButton } from './RegenerateButton'
-import { PushNotificationSetup } from '../../../components/app/PushNotificationSetup'
+import { CoachToday } from './CoachToday'
 import { isGrandfathered } from '../../../lib/coach-trial'
 
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
@@ -55,56 +53,64 @@ export default async function CoachPage() {
 
     await generateTodayWorkout()
     const today = new Date().toISOString().slice(0, 10)
-    const { data: workout } = await supabase
-      .from('ai_workouts')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('day', today)
-      .maybeSingle()
+
+    const [{ data: workout }, { data: recent }] = await Promise.all([
+      supabase.from('ai_workouts').select('*').eq('user_id', user.id).eq('day', today).maybeSingle(),
+      supabase
+        .from('ai_workouts')
+        .select('day, completed_at')
+        .eq('user_id', user.id)
+        .gte('day', new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10))
+        .order('day', { ascending: false }),
+    ])
+
+    if (!workout) {
+      return (
+        <main className="min-h-dvh bg-[var(--color-background)] text-white flex items-center justify-center px-6">
+          <p className="text-[14px] text-[var(--color-text-muted)] text-center">Building today&apos;s workout…</p>
+        </main>
+      )
+    }
+
+    // Consecutive-day completion streak ending today/yesterday.
+    const doneDays = new Set((recent ?? []).filter(w => w.completed_at).map(w => w.day as string))
+    let streak = 0
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(Date.now() - i * 86_400_000).toISOString().slice(0, 10)
+      if (doneDays.has(d)) streak++
+      else if (i > 0) break // today not-yet-done shouldn't break the streak
+    }
+
+    const equipmentList = (intake.equipment as string[] | null) ?? []
+    const equipment = equipmentList.length ? equipmentList.join(', ') : 'Bodyweight only'
+    const areas = ((intake.target_areas as string[] | null) ?? [])
+    const goals = ((intake.goals as string[] | null) ?? [])
+    const activity = (areas.length ? areas : goals).slice(0, 2).join(', ')
+      || (intake.training_style as string | null) || 'Full body'
+
+    const dateLabel = new Date(today + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
 
     return (
-      <main className="min-h-dvh">
-        <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-xl">
-          <div className="mx-auto max-w-md px-4 py-3 flex items-center gap-3">
-            <Link
-              href="/app/home"
-              aria-label="Back"
-              className="h-9 w-9 rounded-full border border-[var(--color-border)] bg-white/[0.04] flex items-center justify-center text-white/85"
-            >
-              <BackIcon width={18} height={18} />
-            </Link>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-cyan)]">
-                Today's Workout
-              </p>
-              <h1 className="font-bold text-[16px] text-white truncate">{workout?.focus ?? 'Loading...'}</h1>
-            </div>
-            <Link href="/app/coach/intake" className="text-[12px] font-semibold text-[var(--color-brand-bright)]">
-              Edit
-            </Link>
-          </div>
-        </header>
-
-        <div className="mx-auto max-w-md px-5 py-6 space-y-5">
-          {/* Push notification opt-in */}
-          <PushNotificationSetup />
-
-          {!workout ? (
-            <p className="text-[14px] text-[var(--color-text-muted)] text-center">
-              Generating your workout...
-            </p>
-          ) : (
-            <>
-              <Block label="Warm-up" body={workout.warm_up} />
-              <Block label="Main workout" body={workout.main} />
-              <Block label="Finisher" body={workout.finisher} />
-              {workout.notes && <Block label="Coach's notes" body={workout.notes} dim />}
-              <WorkoutFeedback workoutId={workout.id} current={workout.feedback ?? null} />
-              <RegenerateButton />
-            </>
-          )}
-        </div>
-      </main>
+      <CoachToday
+        workout={{
+          id: workout.id,
+          focus: workout.focus,
+          warm_up: workout.warm_up,
+          main: workout.main,
+          finisher: workout.finisher,
+          notes: workout.notes,
+          feedback: workout.feedback ?? null,
+        }}
+        meta={{
+          minutes: (intake.workout_minutes as number | null) ?? 30,
+          level: (intake.fitness_level as string | null) ?? 'All levels',
+          equipment,
+          activity,
+          dateLabel,
+          streak,
+        }}
+        heroSrc="/hero-woman.jpg"
+      />
     )
   }
 
@@ -234,15 +240,5 @@ export default async function CoachPage() {
         </>
       )}
     </main>
-  )
-}
-
-function Block({ label, body, dim = false }: { label: string; body: string | null; dim?: boolean }) {
-  if (!body) return null
-  return (
-    <div className={`glass-card p-4 ${dim ? 'opacity-90' : ''}`}>
-      <p className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-brand-bright)]">{label}</p>
-      <p className="mt-2 text-[14px] text-white/90 leading-relaxed whitespace-pre-line">{body}</p>
-    </div>
   )
 }
