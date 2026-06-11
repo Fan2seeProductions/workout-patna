@@ -207,6 +207,12 @@ export async function saveIntake(patch: Intake & {
   return { ok: true }
 }
 
+// NOTE: this is invoked DURING the /app/coach page render (not as a
+// post-interaction server action), so it must never call revalidatePath —
+// Next.js forbids revalidation during render and throws. The page reads the
+// fresh row immediately after this returns, in the same request, so no
+// revalidation is needed here. Interactive flows (feedback, regenerate) do
+// their own revalidate/refresh.
 export async function generateTodayWorkout() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -223,7 +229,6 @@ export async function generateTodayWorkout() {
     .maybeSingle()
 
   if (existing) {
-    revalidatePath('/app/coach')
     return { ok: true, id: existing.id }
   }
 
@@ -263,7 +268,6 @@ export async function generateTodayWorkout() {
     sendVoiceWorkout({ to: intakeData.phone_number, userId: user.id }).catch(() => {})
   }
 
-  revalidatePath('/app/coach')
   return { ok: true, id: created.id }
 }
 
