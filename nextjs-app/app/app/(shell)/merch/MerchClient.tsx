@@ -1,40 +1,34 @@
-// Merch shop client. Featured row, category tabs (All / Apparel / Accessories),
-// product grid, and a product detail modal with size + color pickers.
+// Merch shop client — Printful-backed. Category tabs (All / Apparel /
+// Accessories), product grid, and a detail modal with size + color pickers
+// that resolve to a Printful variant and start a Stripe Checkout.
 'use client'
 
-import { useState, useMemo } from 'react'
-import { ShoppingBag, Star, Package, Shirt } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { ShoppingBag, Package, Shirt } from 'lucide-react'
 import { cn } from '../../../../lib/utils'
+import type { MerchProduct, MerchVariant } from '../../../../lib/printful/client'
 
-export type Product = {
-  id: string
-  name: string
-  description: string
-  category: string
-  price: number
-  image: string | null
-  sizes: string[] | null
-  colors: string[] | null
-  in_stock: boolean
-  featured: boolean
+// Printful sync products carry no category — apparel is anything sized.
+function categoryOf(p: MerchProduct): 'apparel' | 'accessories' {
+  return p.sizes.length > 0 ? 'apparel' : 'accessories'
 }
 
 const categoryIcons: Record<string, typeof ShoppingBag> = {
   apparel: Shirt,
   accessories: Package,
-  gear: Package,
   all: ShoppingBag,
 }
 
-function emojiFor(p: Product) {
-  if (p.category === 'apparel') return '👕'
+function emojiFor(p: MerchProduct) {
   const n = p.name.toLowerCase()
+  if (p.sizes.length > 0) return '👕'
   if (n.includes('bottle') || n.includes('shaker')) return '🧴'
-  if (n.includes('cap')) return '🧢'
-  if (n.includes('strap')) return '🏋️'
+  if (n.includes('cap') || n.includes('hat') || n.includes('beanie')) return '🧢'
   if (n.includes('sock')) return '🧦'
   if (n.includes('sticker')) return '✨'
   if (n.includes('towel')) return '🧻'
+  if (n.includes('bag') || n.includes('tote')) return '🎒'
+  if (n.includes('mug') || n.includes('tumbler')) return '☕'
   return '📦'
 }
 
@@ -53,18 +47,40 @@ function colorSwatch(color: string) {
   return c
 }
 
-export function MerchClient({ products }: { products: Product[] }) {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'apparel' | 'accessories' | 'gear'>('all')
-  const [selected, setSelected] = useState<Product | null>(null)
+export function MerchClient({ products }: { products: MerchProduct[] }) {
+  const [activeCategory, setActiveCategory] = useState<'all' | 'apparel' | 'accessories'>('all')
+  const [selected, setSelected] = useState<MerchProduct | null>(null)
   const [size, setSize] = useState('')
   const [color, setColor] = useState('')
+  const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
+  function showToast(message: string) {
+    setToast(message)
+    setTimeout(() => setToast(null), 3200)
+  }
+
+  // Post-checkout return states (?status=success|cancel from Stripe redirect)
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get('status')
+    if (status === 'success') showToast('Order placed! 🎉 We’re getting it printed.')
+    if (status === 'cancel') showToast('Checkout cancelled — your gear is still here.')
+    if (status) window.history.replaceState({}, '', window.location.pathname)
+  }, [])
+
   const filtered = useMemo(() =>
-    activeCategory === 'all' ? products : products.filter(p => p.category === activeCategory),
+    activeCategory === 'all' ? products : products.filter(p => categoryOf(p) === activeCategory),
   [products, activeCategory])
 
-  const featured = useMemo(() => products.filter(p => p.featured).slice(0, 3), [products])
+  // Resolve the Printful variant for the current size/color selection.
+  const selectedVariant: MerchVariant | null = useMemo(() => {
+    if (!selected) return null
+    const matches = selected.variants.filter(v =>
+      (selected.sizes.length === 0 || v.size === size) &&
+      (selected.colors.length === 0 || v.color === color),
+    )
+    return matches[0] ?? null
+  }, [selected, size, color])
 
   function close() {
     setSelected(null)
@@ -72,20 +88,29 @@ export function MerchClient({ products }: { products: Product[] }) {
     setColor('')
   }
 
-  function addToCart(p: Product) {
-    if (p.sizes && p.sizes.length > 0 && !size) {
-      setToast('Pick a size first.')
-      setTimeout(() => setToast(null), 2200)
-      return
+  async function buyNow(p: MerchProduct) {
+    if (p.sizes.length > 0 && !size) return showToast('Pick a size first.')
+    if (p.colors.length > 0 && !color) return showToast('Pick a color first.')
+    if (!selectedVariant) return showToast('That combo isn’t available — try another size or color.')
+
+    setBusy(true)
+    try {
+      const res = await fetch('/api/merch/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variantId: selectedVariant.id }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.url) {
+        showToast(json.error ?? 'Couldn’t start checkout — try again →')
+        setBusy(false)
+        return
+      }
+      window.location.href = json.url
+    } catch {
+      showToast('Couldn’t start checkout — try again →')
+      setBusy(false)
     }
-    if (p.colors && p.colors.length > 0 && !color) {
-      setToast('Pick a color first.')
-      setTimeout(() => setToast(null), 2200)
-      return
-    }
-    setToast(`Added ${p.name}${size ? ` · ${size}` : ''}${color ? ` · ${color}` : ''}`)
-    setTimeout(() => setToast(null), 2200)
-    close()
   }
 
   return (
@@ -105,46 +130,6 @@ export function MerchClient({ products }: { products: Product[] }) {
           Wear the mindset. Rep the consistency.
         </p>
       </header>
-
-      {/* Featured */}
-      {featured.length > 0 && (
-        <section className="bg-gradient-to-r from-[var(--color-secondary)]/10 via-[var(--color-secondary)]/5 to-[var(--color-primary)]/5 rounded-3xl p-6 md:p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Star className="w-5 h-5 text-white fill-white" />
-            <h2 className="text-xl font-bold font-display text-[var(--color-foreground)]">Featured Gear</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featured.map(p => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setSelected(p)}
-                className="bg-white/[0.04] rounded-2xl overflow-hidden border border-white/10 hover:bg-white/[0.06] transition cursor-pointer text-left group"
-              >
-                <div className="aspect-square bg-gradient-to-br from-[var(--color-muted)] to-[var(--color-muted)]/50 flex items-center justify-center relative overflow-hidden">
-                  {p.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                  ) : (
-                    <span className="text-6xl">{emojiFor(p)}</span>
-                  )}
-                  <div className="absolute top-3 right-3 bg-[var(--color-primary)] text-white text-xs font-bold px-2 py-1 rounded-full">
-                    Featured
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-lg text-[var(--color-foreground)] group-hover:text-[var(--color-primary)] transition-colors">{p.name}</h3>
-                  <p className="text-[var(--color-muted-foreground)] text-sm mt-1 line-clamp-2">{p.description}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-xl font-bold text-white">{formatPrice(p.price)}</span>
-                    <span className="text-xs text-[var(--color-muted-foreground)] uppercase tracking-wider">{p.category}</span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Category tabs */}
       <div className="flex gap-2 p-1 bg-[var(--color-muted)] rounded-xl max-w-md mx-auto">
@@ -192,17 +177,12 @@ export function MerchClient({ products }: { products: Product[] }) {
               ) : (
                 <span className="text-5xl group-hover:scale-110 transition-transform">{emojiFor(p)}</span>
               )}
-              {p.featured && (
-                <div className="absolute top-2 right-2">
-                  <Star className="w-4 h-4 text-white fill-white" />
-                </div>
-              )}
             </div>
             <div className="p-3">
               <h3 className="font-bold text-sm leading-tight text-[var(--color-foreground)] group-hover:text-[var(--color-primary)] transition line-clamp-2">{p.name}</h3>
               <div className="flex items-center justify-between mt-2">
-                <span className="font-bold text-white">{formatPrice(p.price)}</span>
-                {p.colors && p.colors.length > 0 && (
+                <span className="font-bold text-white">{formatPrice(p.priceCents)}</span>
+                {p.colors.length > 0 && (
                   <div className="flex gap-1">
                     {p.colors.slice(0, 3).map((c, i) => (
                       <div
@@ -222,7 +202,7 @@ export function MerchClient({ products }: { products: Product[] }) {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 bg-[var(--color-foreground)] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-50">
+        <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 bg-[var(--color-foreground)] text-black px-4 py-2 rounded-full text-sm font-bold shadow-lg z-50">
           {toast}
         </div>
       )}
@@ -232,9 +212,9 @@ export function MerchClient({ products }: { products: Product[] }) {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={close}>
           <div className="bg-[#141414] border border-white/10 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="aspect-square bg-gradient-to-br from-[var(--color-muted)] to-[var(--color-muted)]/50 flex items-center justify-center relative overflow-hidden">
-              {selected.image ? (
+              {(selectedVariant?.image ?? selected.image) ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={selected.image} alt={selected.name} className="w-full h-full object-cover" />
+                <img src={selectedVariant?.image ?? selected.image ?? ''} alt={selected.name} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-8xl">{emojiFor(selected)}</span>
               )}
@@ -249,19 +229,15 @@ export function MerchClient({ products }: { products: Product[] }) {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">{selected.category}</span>
-                  {selected.featured && (
-                    <span className="text-xs font-bold text-white bg-[var(--color-primary)] px-2 py-0.5 rounded-full">Featured</span>
-                  )}
-                </div>
+                <span className="text-xs font-bold text-white uppercase tracking-wider">{categoryOf(selected)}</span>
                 <h2 className="text-2xl font-bold text-[var(--color-foreground)]">{selected.name}</h2>
-                <p className="text-[var(--color-muted-foreground)] mt-2">{selected.description}</p>
               </div>
 
-              <div className="text-3xl font-bold text-white">{formatPrice(selected.price)}</div>
+              <div className="text-3xl font-bold text-white">
+                {formatPrice(selectedVariant?.priceCents ?? selected.priceCents)}
+              </div>
 
-              {selected.sizes && selected.sizes.length > 0 && (
+              {selected.sizes.length > 0 && (
                 <div>
                   <label className="text-sm font-bold text-[var(--color-muted-foreground)] mb-2 block">Size</label>
                   <div className="flex flex-wrap gap-2">
@@ -284,7 +260,7 @@ export function MerchClient({ products }: { products: Product[] }) {
                 </div>
               )}
 
-              {selected.colors && selected.colors.length > 0 && (
+              {selected.colors.length > 0 && (
                 <div>
                   <label className="text-sm font-bold text-[var(--color-muted-foreground)] mb-2 block">Color</label>
                   <div className="flex flex-wrap gap-2">
@@ -309,15 +285,16 @@ export function MerchClient({ products }: { products: Product[] }) {
 
               <button
                 type="button"
-                onClick={() => addToCart(selected)}
-                className="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-lg hover:opacity-90 transition flex items-center justify-center gap-2"
+                disabled={busy}
+                onClick={() => buyNow(selected)}
+                className="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-lg hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <ShoppingBag className="w-5 h-5" />
-                Add to Cart, Show Up Anyway
+                {busy ? 'Heading to checkout…' : 'Grab Yours'}
               </button>
 
               <p className="text-xs text-center text-[var(--color-muted-foreground)]">
-                Built for accountability. Worn by people who don&rsquo;t quit.
+                Printed on demand & shipped to your door. Built for accountability.
               </p>
             </div>
           </div>

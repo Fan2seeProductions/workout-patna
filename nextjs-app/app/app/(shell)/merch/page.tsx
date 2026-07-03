@@ -1,7 +1,10 @@
-// /app/merch — gear shop. Mirrors the Replit Merch page.
+// /app/merch — gear shop, synced live from the connected Printful store.
+// Catalog is cached 5 min (see lib/printful/client). Checkout: Stripe payment
+// → webhook creates a draft Printful order for manual confirmation.
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
-import { MerchClient, type Product } from './MerchClient'
+import { getMerchCatalog } from '../../../../lib/printful/client'
+import { MerchClient } from './MerchClient'
 
 export const metadata = { title: 'Workout Partna Gear', robots: { index: false, follow: false } }
 
@@ -10,12 +13,7 @@ export default async function MerchPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/app/auth')
 
-  const { data: products } = await supabase
-    .from('merch_products')
-    .select('id, name, description, category, price, image, sizes, colors, in_stock, featured')
-    .eq('in_stock', true)
-    .order('featured', { ascending: false })
-    .order('created_at', { ascending: true })
+  const products = await getMerchCatalog()
 
-  return <MerchClient products={(products ?? []) as Product[]} />
+  return <MerchClient products={products} />
 }

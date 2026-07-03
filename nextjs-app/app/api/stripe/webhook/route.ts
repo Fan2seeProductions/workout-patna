@@ -4,6 +4,45 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import StripeSDK from 'stripe'
 import { createServerClient } from '@supabase/ssr'
+import { createDraftOrder } from '../../../../lib/printful/client'
+
+// A paid merch checkout becomes a DRAFT Printful order — reviewed and
+// confirmed manually in the Printful dashboard before anything ships.
+// external_id = the Stripe session id, so webhook retries can't duplicate it.
+// Throws on failure so Stripe retries (payment collected but unfulfilled is
+// the one state we must surface loudly).
+async function createPrintfulDraftOrder(session: StripeCheckoutSession) {
+  const variantId = Number(session.metadata?.printful_sync_variant_id)
+  if (!Number.isInteger(variantId) || variantId <= 0) {
+    throw new Error(`merch session ${session.id} has no printful_sync_variant_id`)
+  }
+
+  const shipping = session.shipping_details ?? session.collected_information?.shipping_details
+  const addr = shipping?.address
+  if (!addr?.line1 || !addr.city || !addr.postal_code || !addr.country) {
+    throw new Error(`merch session ${session.id} is missing a shipping address`)
+  }
+
+  const result = await createDraftOrder({
+    externalId: session.id,
+    syncVariantId: variantId,
+    recipient: {
+      name: shipping?.name ?? session.customer_details?.name ?? 'Customer',
+      address1: addr.line1,
+      address2: addr.line2 ?? null,
+      city: addr.city,
+      state_code: addr.state ?? null,
+      country_code: addr.country,
+      zip: addr.postal_code,
+      email: session.customer_details?.email ?? null,
+    },
+  })
+
+  if (!result.ok) {
+    throw new Error(`Printful draft order failed for session ${session.id}: ${result.error}`)
+  }
+  console.log(`[stripe webhook] Printful draft order created (session ${session.id}, order ${result.orderId})`)
+}
 
 export const runtime = 'nodejs'
 
@@ -21,7 +60,26 @@ type StripeEvent = {
 }
 
 type StripeCheckoutSession = {
+  id: string
   subscription?: string | null
+  metadata?: Record<string, string>
+  customer_details?: { email?: string | null; name?: string | null } | null
+  // Stripe has moved shipping info between fields across API versions; we
+  // read both spellings.
+  shipping_details?: StripeShipping | null
+  collected_information?: { shipping_details?: StripeShipping | null } | null
+}
+
+type StripeShipping = {
+  name?: string | null
+  address?: {
+    line1?: string | null
+    line2?: string | null
+    city?: string | null
+    state?: string | null
+    postal_code?: string | null
+    country?: string | null
+  } | null
 }
 
 export async function POST(req: NextRequest) {
@@ -102,6 +160,8 @@ export async function POST(req: NextRequest) {
         if (session.subscription) {
           const sub = (await stripe.subscriptions.retrieve(session.subscription)) as unknown as StripeSub
           await upsertFromSub(sub)
+        } else if (session.metadata?.merch === 'true') {
+          await createPrintfulDraftOrder(session)
         }
         break
       }
