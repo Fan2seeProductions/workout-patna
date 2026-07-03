@@ -4,8 +4,22 @@
 //
 // Called with ?uid=USER_ID (set when we initiate the call).
 
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { createClient } from '../../../../lib/supabase/server'
+
+// The uid is HMAC-signed when the call is initiated (lib/sms/sms.ts), so
+// only URLs we generated ourselves are honored — this route returns the
+// member's name and workout, which must not be readable by uid-guessing.
+function tokenValid(uid: string, tok: string | null): boolean {
+  const secret = process.env.CRON_SECRET ?? process.env.TELNYX_API_KEY
+  if (!secret) return true   // dev without secrets configured
+  if (!tok) return false
+  const expected = createHmac('sha256', secret).update(uid).digest('hex')
+  const a = Buffer.from(expected)
+  const b = Buffer.from(tok)
+  return a.length === b.length && timingSafeEqual(a, b)
+}
 
 function workoutToSpeech(plan: {
   focus: string
@@ -41,9 +55,10 @@ function workoutToSpeech(plan: {
 export async function GET(request: Request) {
   const url   = new URL(request.url)
   const uid   = url.searchParams.get('uid')
+  const tok   = url.searchParams.get('tok')
 
-  // Return a simple fallback if uid is missing
-  if (!uid) {
+  // Return a simple fallback if uid is missing or the signature is wrong
+  if (!uid || !tokenValid(uid, tok)) {
     return new NextResponse(
       `<?xml version="1.0" encoding="UTF-8"?>
 <Response>

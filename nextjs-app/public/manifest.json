@@ -15,20 +15,23 @@
       "purpose": "any"
     },
     {
-      "src": "/brand/logo-square-1024.png",
+      "src": "/brand/logo-square-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/brand/logo-square-1024.png",
+      "src": "/brand/logo-square-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
   "screenshots": [],
-  "categories": ["fitness", "health"],
+  "categories": [
+    "fitness",
+    "health"
+  ],
   "lang": "en-US",
   "dir": "ltr"
 }

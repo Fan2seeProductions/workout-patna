@@ -1,23 +1,9 @@
-// 4-step onboarding flow. Mirrors the Replit Onboarding page.
+// Retired with the coach-only pivot (July 2026). The gym/partner onboarding
+// flow is descoped (docs/MOMENTUM-AI-STRATEGY.md §4b); new users go straight
+// from auth to /app/coach, which handles intake. Redirect kept so old
+// bookmarks/deep links don't 404.
 import { redirect } from 'next/navigation'
-import { createClient } from '../../../lib/supabase/server'
-import { OnboardingClient, type GymOption } from './OnboardingClient'
 
-export const metadata = {
-  title: 'Get started',
-  robots: { index: false, follow: false },
-}
-
-export default async function OnboardingPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/app/signin')
-
-  const { data: gyms } = await supabase
-    .from('gyms')
-    .select('id, name, type, city, state, members')
-    .order('name', { ascending: true })
-    .limit(200)
-
-  return <OnboardingClient initialGyms={(gyms ?? []) as GymOption[]} />
+export default function RetiredOnboardingStep() {
+  redirect('/app/coach')
 }

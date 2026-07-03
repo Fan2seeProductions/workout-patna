@@ -20,9 +20,33 @@ const features = [
   'No medical claims, no scammy tracking',
 ]
 
+// Product schema so search engines can extract structured pricing
+// (trial + subscription) for rich results.
+const pricingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'WorkoutPartna AI Daily Coach',
+  description:
+    'AI personal trainer subscription: one personalized workout every day, adapted to your goals, equipment, and feedback — delivered by app, text, or voice call.',
+  brand: { '@type': 'Brand', name: 'WorkoutPartna' },
+  url: 'https://workoutpartna.com/pricing',
+  offers: {
+    '@type': 'Offer',
+    price: '9.99',
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    url: 'https://workoutpartna.com/pricing',
+    description: '14-day free trial, then $9.99/month. Cancel anytime.',
+  },
+}
+
 export default function PricingPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingSchema) }}
+      />
       <PublicNav />
       <PageShell>
 

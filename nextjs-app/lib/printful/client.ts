@@ -200,6 +200,13 @@ export async function createDraftOrder(args: {
 
   const json = await res.json().catch(() => null)
 
+  // A 2xx with an unparseable body must NOT be treated as success — that
+  // would stop Stripe's retries while no Printful order exists (paid but
+  // never fulfilled). Fail so the webhook 500s and Stripe retries.
+  if (res.ok && !json) {
+    return { ok: false, error: `Printful returned ${res.status} with an unparseable body` }
+  }
+
   if (!res.ok) {
     const message: string = json?.result ?? json?.error?.message ?? `HTTP ${res.status}`
     // Duplicate external_id → this session's order already exists (webhook

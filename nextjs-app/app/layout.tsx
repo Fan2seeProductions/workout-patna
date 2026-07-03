@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 export const metadata: Metadata = {
-  metadataBase: new URL('https://workoutpatna.com'),
+  metadataBase: new URL('https://workoutpartna.com'),
 
   title: {
     default: 'WorkoutPartna | AI Daily Coach That Adapts to Your Life',
@@ -49,26 +49,26 @@ export const metadata: Metadata = {
     'workout app for busy professionals',
   ],
 
-  authors: [{ name: 'WorkoutPartna', url: 'https://workoutpatna.com' }],
+  authors: [{ name: 'WorkoutPartna', url: 'https://workoutpartna.com' }],
   creator: 'WorkoutPartna',
   publisher: 'WorkoutPartna',
 
   // Canonical + alternates
   alternates: {
-    canonical: 'https://workoutpatna.com',
+    canonical: 'https://workoutpartna.com',
   },
 
   // Open Graph
   openGraph: {
     type: 'website',
-    url: 'https://workoutpatna.com',
+    url: 'https://workoutpartna.com',
     siteName: 'WorkoutPartna',
     title: 'WorkoutPartna | AI Daily Coach That Adapts to Your Life',
     description:
       'One AI-built workout every day, made for your time, gear, and energy. No planning, no guesswork, no generic program.',
     images: [
       {
-        url: '/og-image.png',    // place a 1200x630 image in /public
+        url: '/og-image.jpg',    // place a 1200x630 image in /public
         width: 1200,
         height: 630,
         alt: 'WorkoutPartna — AI Daily Coach',
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     title: 'WorkoutPartna | AI Daily Coach That Adapts to Your Life',
     description:
       'One AI-built workout every day, made for your time, gear, and energy.',
-    images: ['/og-image.png'],
+    images: ['/og-image.jpg'],
     // site: '@workoutpatna',   // uncomment when Twitter handle is live
   },
 
@@ -125,8 +125,8 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'WorkoutPartna',
-  url: 'https://workoutpatna.com',
-  logo: 'https://workoutpatna.com/logo.png',
+  url: 'https://workoutpartna.com',
+  logo: 'https://workoutpartna.com/logo.png',
   sameAs: [
     // Add social profile URLs as they are created
     // 'https://www.instagram.com/workoutpatna',
@@ -143,12 +143,12 @@ const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'WorkoutPartna',
-  url: 'https://workoutpatna.com',
+  url: 'https://workoutpartna.com',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: 'https://workoutpatna.com/search?q={search_term_string}',
+      urlTemplate: 'https://workoutpartna.com/search?q={search_term_string}',
     },
     'query-input': 'required name=search_term_string',
   },
@@ -162,12 +162,18 @@ const appSchema = {
   operatingSystem: 'iOS, Android, Web',
   description:
     'WorkoutPartna is an AI daily coach that builds a new personalized workout every day, adapted to your equipment, time, and how you\'re actually doing — delivered by app, text, or a voice call that reads it to you.',
-  url: 'https://workoutpatna.com',
+  url: 'https://workoutpartna.com',
   offers: {
     '@type': 'Offer',
-    price: '0',
+    price: '9.99',
     priceCurrency: 'USD',
-    description: '14-day free trial, then $9.99/month',
+    description: '$9.99/month subscription with a 14-day free trial',
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: '9.99',
+      priceCurrency: 'USD',
+      billingDuration: 'P1M',
+    },
   },
   featureList: [
     'AI-generated daily workout, personalized to your goals and equipment',

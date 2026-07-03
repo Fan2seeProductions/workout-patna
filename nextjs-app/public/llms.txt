@@ -1,30 +1,36 @@
-# WorkoutPatna
+# WorkoutPartna
 
-> WorkoutPatna is a fitness social networking app that helps people find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs. It is a local fitness community platform — not a personal trainer marketplace.
+> WorkoutPartna is an AI daily fitness coach. Every day it builds one personalized workout — adapted to your goals, equipment, schedule, injuries, and how yesterday's session actually went — and delivers it in the app, by push notification, by text message, or as a voice call that reads the workout aloud. 14-day free trial, then $9.99/month.
 
 ## Key Information
 
-WorkoutPatna connects everyday fitness people with workout partners at their specific local fitness locations. The app focuses on accountability, consistency, and community. It is currently launching in Houston, Texas, starting with Cypress and surrounding suburbs.
+WorkoutPartna is an AI personal trainer, not a workout library and not a social network. Claude-class AI generates a fresh session each morning using the member's intake profile (goals, experience, equipment, injuries, medical restrictions, sleep, stress, sports) plus feedback from previous workouts (too easy, just right, too hard, injured). Members can reply MODIFY to rewrite the day's plan, DONE to log it, or SKIP. The product is built in Houston, Texas and serves members anywhere.
 
 ## Key Links
 
-- Homepage: https://workoutpatna.com
-- Find Workout Partners: https://workoutpatna.com/browse
-- Houston Fitness Communities: https://workoutpatna.com/houston
-- About WorkoutPatna: https://workoutpatna.com/about
+- Homepage: https://workoutpartna.com
+- Pricing: https://workoutpartna.com/pricing
+- How it works / About: https://workoutpartna.com/about
+- Safety: https://workoutpartna.com/safety
+- Start free trial: https://workoutpartna.com/app/signup
 
-## What WorkoutPatna Does
+## What WorkoutPartna Does
 
-- Gym partner matching at local gyms and fitness centers
-- Apartment complex fitness center community connections
-- Run club and outdoor workout group discovery
-- Fitness accountability partner matching
-- Local fitness community building
+- Generates one personalized AI workout per day (warm-up, main session, finisher, coaching notes)
+- Adapts daily to member feedback — progresses, scales back, or programs recovery automatically
+- Builds sessions around available equipment: full gym, home, hotel room, resistance bands, or no equipment
+- Delivers workouts by app, push notification, SMS text, or an automated voice call that reads the plan aloud
+- Tracks completion streaks and workout history
+- Respects injuries, medical conditions, and pregnancy status collected in a thorough intake, and flags sessions for human review when a member reports concerning symptoms
 
 ## Who It Is For
 
-Anyone who works out and wants a partner — not a trainer — to stay consistent and accountable. WorkoutPatna is for gym-goers, runners, apartment residents with fitness centers, and anyone seeking a fitness community.
+Busy professionals, desk workers, parents, travelers, beginners, and experienced lifters who want a personal trainer's daily programming without the $300+/month cost. Anyone who wants to be told exactly what workout to do today, adapted to their actual life.
+
+## Pricing
+
+14-day free trial, then $9.99 per month. Cancel anytime in one tap in the app or by replying STOP to a text.
 
 ## Location
 
-Currently serving Houston, TX and surrounding suburbs: Cypress, Katy, Spring, The Woodlands, Sugar Land, Pearland, Humble, and Tomball.
+Built in Houston, Texas (Cypress). Available everywhere — the coach adapts to any gym, home, or travel situation.

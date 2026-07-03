@@ -9,7 +9,9 @@
 //   3. Save the workout + post it to their in-app chat thread (single RPC call).
 //
 // Secured with CRON_SECRET so only Vercel's scheduler can trigger it.
-// Schedule: 12:00 UTC (7 AM CT) — members in Houston/Cypress, TX area.
+// Schedule: 12:00 UTC — 7 AM Central during daylight time (Mar–Nov) but
+// 6 AM during standard time (Nov–Mar); Vercel cron has no DST awareness.
+// Acceptable for now; revisit if members complain about 6 AM winter sends.
 
 import { NextResponse } from 'next/server'
 import { createClient } from '../../../../lib/supabase/server'
@@ -200,7 +202,9 @@ export async function GET(request: Request) {
           `💪 ${firstName ? `${firstName}, ` : ''}your WorkoutPartna plan is ready!\n\n` +
           `📌 ${plan.focus}\n\n` +
           `Open the app for your full workout → workoutpartna.com/app/messages`
-        sendSms(member.phone_number, smsText).catch(() => {})
+        sendSms(member.phone_number, smsText).catch(err =>
+          console.error(`[cron/daily-workouts] SMS failed for ${member.user_id}:`, err),
+        )
       }
     } catch (err) {
       console.error(`[cron/daily-workouts] unexpected error for ${member.user_id}:`, err)

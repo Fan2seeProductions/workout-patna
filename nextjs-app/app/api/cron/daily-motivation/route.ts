@@ -76,11 +76,11 @@ export async function GET(request: Request) {
 
   for (let i = 0; i < subs.length; i += BATCH_SIZE) {
     const batch = subs.slice(i, i + BATCH_SIZE) as PushSubscription[]
-    const results = await Promise.allSettled(batch.map(s => sendPush(s, payload)))
-    for (const r of results) {
-      if (r.status === 'fulfilled' && r.value) sent++
-      else failedCount++
-    }
+    // sendPush never throws — it resolves true/false — so Promise.all is safe
+    // and the boolean is the real success signal.
+    const results = await Promise.all(batch.map(s => sendPush(s, payload)))
+    sent += results.filter(Boolean).length
+    failedCount += results.length - results.filter(Boolean).length
   }
 
   console.log(`[cron/daily-motivation] ${today} — sent ${sent}/${subs.length} (quote: "${quote.text.slice(0, 40)}…")`)

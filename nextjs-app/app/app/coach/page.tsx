@@ -13,11 +13,11 @@ import { isGrandfathered } from '../../../lib/coach-trial'
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
 
 const benefits = [
-  'See Partnas at every gym across the Houston metro (not just yours)',
-  'Personalized AI workouts texted every morning',
-  'Built around your gym, schedule, and goals',
-  'Advanced filters: distance, schedule overlap, fitness level',
-  'Priority placement on other Partnas’ Discover',
+  'One personalized workout, built for you every morning',
+  'Adapts daily to your feedback — harder, easier, or a recovery day',
+  'Works anywhere: gym, home, hotel, or just a desk chair',
+  'Delivered in-app, by text, or a voice call that reads it to you',
+  'Reply MODIFY anytime and the coach rewrites today’s plan',
 ]
 
 export default async function CoachPage() {
@@ -36,7 +36,13 @@ export default async function CoachPage() {
   const periodOk =
     !sub?.current_period_end ||
     new Date(sub.current_period_end as string) > new Date()
-  const subscribed = !!sub && (sub.status === 'active' || sub.status === 'trialing') && periodOk
+  // past_due keeps access during Stripe's smart-retry window — a paying
+  // member with a temporarily bounced card shouldn't be locked out mid-retry.
+  // Stripe flips it to canceled/unpaid if all retries fail, which ends access.
+  const subscribed =
+    !!sub &&
+    (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') &&
+    periodOk
 
   // Has the user ever started a trial / subscription? If so we don't show
   // the "Start free trial" CTA again — they'd go straight to Stripe.
@@ -51,7 +57,13 @@ export default async function CoachPage() {
   if (subscribed) {
     if (!intake) redirect('/app/coach/intake')
 
-    await generateTodayWorkout()
+    // Generation failure must not 500 the whole coach page — fall through
+    // and render whatever workout exists (or the empty state) instead.
+    try {
+      await generateTodayWorkout()
+    } catch (err) {
+      console.error('[coach] generateTodayWorkout failed:', err)
+    }
     const today = new Date().toISOString().slice(0, 10)
 
     const [{ data: workout }, { data: recent }] = await Promise.all([

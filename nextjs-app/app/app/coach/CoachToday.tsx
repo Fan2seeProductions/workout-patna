@@ -208,7 +208,7 @@ export function CoachToday({
 
       {/* Top controls */}
       <header className="relative z-20 max-w-md mx-auto px-4 pt-[calc(env(safe-area-inset-top)+12px)] flex items-center justify-between">
-        <Link href="/" aria-label="Back" className="h-10 w-10 rounded-full bg-black/35 backdrop-blur flex items-center justify-center text-white">
+        <Link href="/app/coach" aria-label="Back" className="h-10 w-10 rounded-full bg-black/35 backdrop-blur flex items-center justify-center text-white">
           <Icon name="back" />
         </Link>
         <div className="flex items-center gap-2">

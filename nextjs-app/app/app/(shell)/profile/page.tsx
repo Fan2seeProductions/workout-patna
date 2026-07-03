@@ -129,7 +129,7 @@ export default async function ProfilePage() {
             )}
             {!completion.ready && (
               <p className="mt-1.5 text-[11.5px] text-white/50">
-                Complete your profile to see match scores and unlock better Partnas.
+                Complete your profile so your AI Coach can personalize your workouts better.
               </p>
             )}
           </div>

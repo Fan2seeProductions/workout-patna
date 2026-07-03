@@ -335,7 +335,10 @@ export async function generateWorkout(
 
     if (!parsed.focus || !parsed.main) throw new Error('bad shape')
     return parsed
-  } catch {
+  } catch (err) {
+    // Falling back is fine for the member, but a rising failure rate here
+    // means the model/prompt is broken — keep it visible in the logs.
+    console.error('[coach] generation failed, using template fallback:', (err as Error).message)
     return fallback
   }
 }

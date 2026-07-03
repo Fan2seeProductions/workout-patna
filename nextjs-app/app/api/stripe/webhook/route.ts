@@ -155,6 +155,16 @@ export async function POST(req: NextRequest) {
       case 'customer.subscription.deleted':
         await upsertFromSub(event.data.object as StripeSub)
         break
+      case 'invoice.payment_failed': {
+        // Mirror the post-failure subscription state (past_due/unpaid) so
+        // access checks see it — otherwise a bounced card stays "active".
+        const invoice = event.data.object as { subscription?: string | null }
+        if (invoice.subscription) {
+          const sub = (await stripe.subscriptions.retrieve(invoice.subscription)) as unknown as StripeSub
+          await upsertFromSub(sub)
+        }
+        break
+      }
       case 'checkout.session.completed': {
         const session = event.data.object as StripeCheckoutSession
         if (session.subscription) {

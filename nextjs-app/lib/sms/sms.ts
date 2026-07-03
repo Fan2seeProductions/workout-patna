@@ -64,7 +64,13 @@ export async function sendVoiceWorkout(opts: {
     return
   }
 
-  const webhookUrl = `${siteUrl}/api/telnyx/voice?uid=${encodeURIComponent(opts.userId)}`
+  // Sign the uid so the TeXML webhook can't be replayed for arbitrary users
+  // (the route returns the member's name + workout, so it must not be
+  // fetchable by anyone who guesses a user id).
+  const { createHmac } = await import('node:crypto')
+  const tokenSecret = process.env.CRON_SECRET ?? apiKey
+  const tok = createHmac('sha256', tokenSecret).update(opts.userId).digest('hex')
+  const webhookUrl = `${siteUrl}/api/telnyx/voice?uid=${encodeURIComponent(opts.userId)}&tok=${tok}`
 
   try {
     const res = await fetch('https://api.telnyx.com/v2/calls', {
