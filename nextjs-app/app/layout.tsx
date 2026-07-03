@@ -28,25 +28,25 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://workoutpatna.com'),
 
   title: {
-    default: 'WorkoutPartna, Find Your Gym Partner | Fitness Social Network',
+    default: 'WorkoutPartna | AI Daily Coach That Adapts to Your Life',
     template: '%s | WorkoutPartna',
   },
   description:
-    'WorkoutPartna helps you find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs in Houston. Build accountability, stay consistent, and connect with local fitness communities.',
+    'WorkoutPartna is an AI coach that builds you a new workout every day — for the desk, the hotel, or the gym — based on how you\'re actually doing. Delivered by app, text, or a voice call that reads it to you.',
 
   keywords: [
-    'find workout partner',
-    'gym partner Houston',
-    'fitness social network',
-    'workout buddy app',
-    'gym partner matching',
-    'apartment gym partner',
-    'fitness accountability partner',
-    'run club Houston',
-    'Cypress TX gym partner',
-    'local fitness community',
-    'workout partner near me',
-    'fitness friend app',
+    'AI workout coach',
+    'daily workout generator',
+    'AI personal trainer app',
+    'desk workout app',
+    'adaptive workout plan',
+    'AI fitness coach',
+    'home workout AI',
+    'no equipment workout app',
+    'personalized daily workout',
+    'AI training plan',
+    'Houston AI coach',
+    'workout app for busy professionals',
   ],
 
   authors: [{ name: 'WorkoutPartna', url: 'https://workoutpatna.com' }],
@@ -63,15 +63,15 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://workoutpatna.com',
     siteName: 'WorkoutPartna',
-    title: 'WorkoutPartna, Find Your Gym Partner',
+    title: 'WorkoutPartna | AI Daily Coach That Adapts to Your Life',
     description:
-      'Connect with workout partners at gyms, apartment fitness centers, parks, and run clubs near you. WorkoutPartna is the fitness social network built for local communities in Houston.',
+      'One AI-built workout every day, made for your time, gear, and energy. No planning, no guesswork, no generic program.',
     images: [
       {
         url: '/og-image.png',    // place a 1200x630 image in /public
         width: 1200,
         height: 630,
-        alt: 'WorkoutPartna, Find Your Gym Partner',
+        alt: 'WorkoutPartna — AI Daily Coach',
       },
     ],
     locale: 'en_US',
@@ -80,9 +80,9 @@ export const metadata: Metadata = {
   // Twitter / X
   twitter: {
     card: 'summary_large_image',
-    title: 'WorkoutPartna, Find Your Gym Partner',
+    title: 'WorkoutPartna | AI Daily Coach That Adapts to Your Life',
     description:
-      'Find workout partners at gyms, apartment fitness centers, parks, and run clubs near you.',
+      'One AI-built workout every day, made for your time, gear, and energy.',
     images: ['/og-image.png'],
     // site: '@workoutpatna',   // uncomment when Twitter handle is live
   },
@@ -161,21 +161,21 @@ const appSchema = {
   applicationCategory: 'HealthApplication',
   operatingSystem: 'iOS, Android, Web',
   description:
-    'WorkoutPartna is a fitness social networking app that helps people find workout partners at gyms, apartment fitness centers, community centers, parks, and run clubs. Connect with local fitness communities, build accountability, and stay consistent.',
+    'WorkoutPartna is an AI daily coach that builds a new personalized workout every day, adapted to your equipment, time, and how you\'re actually doing — delivered by app, text, or a voice call that reads it to you.',
   url: 'https://workoutpatna.com',
   offers: {
     '@type': 'Offer',
     price: '0',
     priceCurrency: 'USD',
-    description: 'Free to join',
+    description: '14-day free trial, then $9.99/month',
   },
   featureList: [
-    'Find gym workout partners near you',
-    'Match with fitness accountability partners',
-    'Discover apartment fitness center communities',
-    'Join local run clubs and outdoor workout groups',
-    'Share fitness challenges and goals',
-    'Fitness social networking for local communities',
+    'AI-generated daily workout, personalized to your goals and equipment',
+    'Adapts to yesterday\'s effort and feedback — harder, easier, or a deload',
+    'Desk, hotel, and no-equipment workout variants',
+    'Delivered by app, push notification, text, or voice call',
+    'Daily streak and progress tracking',
+    'Coach chat for questions and workout adjustments',
   ],
   // Uncomment when app store links exist:
   // installUrl: 'https://apps.apple.com/...',
@@ -190,47 +190,39 @@ const faqSchema = {
       name: 'What is WorkoutPartna?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'WorkoutPartna is a fitness social networking app that helps people find workout partners at local gyms, apartment fitness centers, community centers, parks, and run clubs. It is built for people who want accountability, consistency, and a fitness community, not personal trainers.',
+        text: 'WorkoutPartna is an AI daily coach. Every day it builds you one personalized workout based on your goals, equipment, and how your training is actually going — no generic programs, no planning required.',
       },
     },
     {
       '@type': 'Question',
-      name: 'How does WorkoutPartna help me find a gym partner?',
+      name: 'How does the AI coach adapt my workouts?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'WorkoutPartna matches you with other members at your gym or nearby fitness locations based on your schedule, goals, and workout preferences. You can browse profiles, connect, and start working out together.',
+        text: 'The coach reads your intake profile plus your recent workouts and feedback (too easy, just right, too hard, or injured) and adjusts intensity, focus, and exercise selection for the next session — including deloading when you need recovery.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Is WorkoutPartna for finding trainers?',
+      name: 'Do I need a gym or equipment?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'No. WorkoutPartna is not a personal trainer marketplace. It is a social fitness app built for finding workout partners, people like you who want to stay consistent, stay accountable, and enjoy working out with a gym partner or crew.',
+        text: 'No. WorkoutPartna builds workouts around whatever you have — a full gym, a resistance band, or just a desk chair — and adapts on the fly for travel, hotel rooms, and no-equipment days.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Can I find workout partners at my apartment gym?',
+      name: 'How is my workout delivered?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. WorkoutPartna supports apartment fitness centers, community gyms, and residential fitness spaces so you can connect with neighbors who share your workout routine.',
+        text: 'In the app, by push notification, by text message, or as a voice call that reads your workout aloud — whichever fits your day.',
       },
     },
     {
       '@type': 'Question',
-      name: 'Does WorkoutPartna work for run clubs and outdoor workouts?',
+      name: 'How much does WorkoutPartna cost?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. WorkoutPartna helps you find and join run clubs, outdoor workout groups, and park fitness communities near you.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Where is WorkoutPartna available?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'WorkoutPartna is currently launching in the Houston, Texas area, including Cypress, Katy, Spring, The Woodlands, and surrounding communities.',
+        text: 'WorkoutPartna offers a 14-day free trial, then $9.99/month for unlimited AI-coached daily workouts.',
       },
     },
   ],

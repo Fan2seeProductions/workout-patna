@@ -1,21 +1,7 @@
-// /app/gyms — Communities. Mirrors the Replit Gyms page.
+// /app/gyms — retired with the coach-only pivot (July 2026). Gym directory
+// is descoped; see docs/MOMENTUM-AI-STRATEGY.md §4b.
 import { redirect } from 'next/navigation'
-import { createClient } from '../../../../lib/supabase/server'
-import { GymsClient, type Location } from './GymsClient'
 
-export const metadata = { title: 'Communities', robots: { index: false, follow: false } }
-
-export default async function GymsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/app/auth')
-
-  const { data: gyms } = await supabase
-    .from('gyms')
-    .select('id, name, type, address, city, state, members, image, verified, tier')
-    .order('verified', { ascending: false })
-    .order('members', { ascending: false })
-    .limit(200)
-
-  return <GymsClient locations={(gyms ?? []) as Location[]} />
+export default function GymsPage() {
+  redirect('/app/coach')
 }

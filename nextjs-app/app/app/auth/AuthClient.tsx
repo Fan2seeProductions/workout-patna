@@ -13,10 +13,8 @@ type Mode = 'signin' | 'signup'
 
 export function AuthClient({
   initialMode = 'signin' as Mode,
-  trainerSignup = false,
 }: {
   initialMode?: Mode
-  trainerSignup?: boolean
 }) {
   const router = useRouter()
   const [mode, setMode] = useState<Mode>(initialMode)
@@ -37,7 +35,10 @@ export function AuthClient({
     setPending('email')
     try {
       const supabase = createClient()
-      const next = trainerSignup ? '/app/trainers/apply' : '/app/onboarding'
+      // /app/home immediately redirects to /app/coach, which creates the
+      // intake row and routes to the paywall/today's-workout as needed —
+      // one funnel, no separate onboarding flow to maintain.
+      const next = '/app/home'
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
@@ -46,14 +47,14 @@ export function AuthClient({
         // navigation that can serve a stale Next.js App Router cache from
         // before the cookie was set, causing an immediate "kick-out" loop.
         router.refresh()
-        window.location.href = trainerSignup ? '/app/trainers/apply' : '/app/home'
+        window.location.href = next
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-            data: { name, age: age ? parseInt(age, 10) : undefined, role_intent: trainerSignup ? 'trainer' : 'user' },
+            data: { name, age: age ? parseInt(age, 10) : undefined },
           },
         })
         if (error) throw error
@@ -64,7 +65,7 @@ export function AuthClient({
           // Fire-and-forget — don't await so it doesn't delay the redirect
           sendEmailVerification().catch(() => {})
           router.refresh()
-          window.location.href = trainerSignup ? '/app/trainers/apply' : '/app/home'
+          window.location.href = next
           return
         }
         setInfo('Account created! Check your email to verify your address, then sign in.')
@@ -81,7 +82,7 @@ export function AuthClient({
     setPending('google')
     try {
       const supabase = createClient()
-      const next = trainerSignup ? '/app/trainers/apply' : '/app/home'
+      const next = '/app/home'
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -117,13 +118,13 @@ export function AuthClient({
 
         <div className="relative z-20 space-y-6 max-w-md">
           <h2 className="text-4xl font-display font-bold leading-tight">
-            Don&rsquo;t let another workout session slip away.
+            An AI coach that adapts to your actual life.
           </h2>
           <div className="space-y-4">
             {[
-              'Find partners at your gym, apartment, or community center',
-              'Match by schedule and goals',
-              'No trainers, just real people who show up',
+              'A new workout every day, built from how you’re actually doing',
+              'Desk, hotel, or gym — it adapts to wherever you are',
+              'Delivered by push, text, or a voice call that reads it to you',
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="h-6 w-6 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center">
@@ -169,7 +170,7 @@ export function AuthClient({
             <p className="text-white/50 mt-2">
               {isLogin
                 ? 'Enter your details to access your account.'
-                : 'Join the community and start training together.'}
+                : 'Get your first AI-coached workout in minutes.'}
             </p>
           </div>
 

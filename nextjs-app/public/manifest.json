@@ -1,7 +1,7 @@
 {
   "name": "WorkoutPartna",
   "short_name": "WorkoutPartna",
-  "description": "Find your gym partner. Daily AI workouts. Houston & Cypress TX.",
+  "description": "Your AI daily coach. A new personalized workout every day, wherever you are.",
   "start_url": "/app/home",
   "display": "standalone",
   "orientation": "portrait",
@@ -28,7 +28,7 @@
     }
   ],
   "screenshots": [],
-  "categories": ["fitness", "health", "social"],
+  "categories": ["fitness", "health"],
   "lang": "en-US",
   "dir": "ltr"
 }
