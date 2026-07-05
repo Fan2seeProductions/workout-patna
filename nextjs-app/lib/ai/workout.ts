@@ -10,6 +10,7 @@
 // Structured Outputs once the SMS surface is live.
 
 import Anthropic from '@anthropic-ai/sdk'
+import { exerciseNamesForEquipment } from '../exercises/match'
 
 export type Intake = {
   // Core fields used by the AI prompt + fallback template selection.
@@ -167,6 +168,8 @@ General behavior rules:
 - If the user reports pain beyond normal training discomfort, reduce load or redirect away from the painful pattern.
 - Do not mention policy or internal reasoning.
 - Do not produce long explanations unless the channel needs it.
+- Name every exercise by its common canonical name (e.g. "Pushups", "Goblet Squat", "Romanian Deadlift", "Plank") — the app attaches a photo and step-by-step how-to card by exact name match. When a "Preferred exercise names" list is provided in the user context, choose from it whenever one fits the movement you want; only go outside the list when nothing on it serves the training goal.
+- If the user's occupation is desk-based or they work from home, bias warm-ups toward hip flexor, thoracic spine, and neck/shoulder mobility, and include one posture cue in the notes — long sitting is part of their training context every day, not just on "desk worker" style days.
 
 Programming logic per goal:
 - fat_loss / lose weight: prioritize calorie expenditure, weekly consistency, and sustainable progression. Mix conditioning with strength so muscle is preserved.
@@ -274,6 +277,10 @@ function buildUserPrompt(
     i.plays_sports
       ? `SPORTS:\n- ${[i.sports, i.sport_level, i.sport_position, i.sport_season ? `season: ${i.sport_season}` : null].map(arrToStr).filter(Boolean).join(' / ')}`
       : '',
+    ``,
+    // Bias exercise naming toward our photo/how-to database so every move
+    // in the plan gets an illustrated card in the app.
+    `PREFERRED EXERCISE NAMES (use these exact names when they fit): ${exerciseNamesForEquipment(i.equipment).join('; ')}`,
     ``,
     `Generate one best workout for today. Return ONLY the JSON object — no markdown, no commentary.`,
   ]

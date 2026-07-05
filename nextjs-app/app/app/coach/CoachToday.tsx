@@ -9,6 +9,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { markWorkoutFeedback, regenerateTodayWorkout } from '../../../lib/actions/coach'
+import { ExerciseGuide, type GuideItem } from '../../../components/app/ExerciseGuide'
 
 type Workout = {
   id: string
@@ -55,10 +56,12 @@ export function CoachToday({
   workout,
   meta,
   heroSrc,
+  guide = [],
 }: {
   workout: Workout
   meta: Meta
   heroSrc: string
+  guide?: GuideItem[]
 }) {
   const router = useRouter()
   const [started, setStarted] = useState(false)
@@ -118,6 +121,8 @@ export function CoachToday({
           <SessionBlock n="1" label="Warm-up" body={workout.warm_up} />
           <SessionBlock n="2" label="Main workout" body={workout.main} accent />
           {workout.finisher?.trim() && <SessionBlock n="3" label="Finisher" body={workout.finisher} />}
+
+          <ExerciseGuide items={guide} />
           {workout.notes?.trim() && (
             <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4">
               <p className="text-[11px] uppercase font-bold tracking-wider text-white/45 mb-1.5">Coach notes</p>
@@ -234,6 +239,13 @@ export function CoachToday({
           <MetaRow icon="gear" text={meta.equipment} />
           <MetaRow icon="screen" text="AI Coach plan" />
         </div>
+
+        <Link
+          href="/app/coach/desk"
+          className="mt-6 inline-flex items-center gap-2 h-10 px-5 rounded-full border border-white/15 bg-white/[0.06] text-white/85 text-[13px] font-bold hover:bg-white/[0.1] transition"
+        >
+          🪑 Stuck at your desk? Get a 5-min break workout →
+        </Link>
 
         {workout.notes?.trim() && (
           <p className="mt-6 text-[15px] text-white/65 leading-relaxed">{workout.notes}</p>

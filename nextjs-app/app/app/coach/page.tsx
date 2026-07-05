@@ -9,15 +9,17 @@ import { BackIcon, BrainIcon, CheckIcon, SparkleIcon } from '../../../components
 import { CoachCheckout } from './CoachCheckout'
 import { CoachToday } from './CoachToday'
 import { isGrandfathered } from '../../../lib/coach-trial'
+import { matchExercisesInText, exerciseImageUrl } from '../../../lib/exercises/match'
 
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
 
 const benefits = [
   'One personalized workout, built for you every morning',
+  'Every exercise illustrated — photos and step-by-step form guides',
   'Adapts daily to your feedback — harder, easier, or a recovery day',
   'Works anywhere: gym, home, hotel, or just a desk chair',
+  'Instant 5-minute Desk Breaks between meetings',
   'Delivered in-app, by text, or a voice call that reads it to you',
-  'Reply MODIFY anytime and the coach rewrites today’s plan',
 ]
 
 export default async function CoachPage() {
@@ -102,6 +104,19 @@ export default async function CoachPage() {
 
     const dateLabel = new Date(today + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
 
+    // Match exercises named in the plan against the bundled photo/how-to
+    // database (server-side — only matched cards travel to the client).
+    const guide = matchExercisesInText(
+      [workout.warm_up, workout.main, workout.finisher].filter(Boolean).join('\n'),
+    ).map(ex => ({
+      id: ex.id,
+      name: ex.name,
+      level: ex.level,
+      muscles: ex.primaryMuscles,
+      imageUrls: ex.images.map(exerciseImageUrl),
+      steps: ex.instructions,
+    }))
+
     return (
       <CoachToday
         workout={{
@@ -122,6 +137,7 @@ export default async function CoachPage() {
           streak,
         }}
         heroSrc="/hero-woman.jpg"
+        guide={guide}
       />
     )
   }
