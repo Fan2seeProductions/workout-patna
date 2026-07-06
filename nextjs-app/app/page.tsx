@@ -6,66 +6,18 @@
 import Link from 'next/link'
 import { PublicNav } from '../components/public/PublicNav'
 import { PublicFooter } from '../components/public/PublicFooter'
+import { CinematicHero } from '../components/marketing/CinematicHero'
 
 export default function HomePage() {
   return (
     <div className="bg-[#0d0d0d] text-white min-h-screen">
       <PublicNav />
 
-      {/* ── 1. HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero-woman.jpg"
-          alt="Woman working out at the gym"
-          className="absolute inset-0 w-full h-full object-cover object-[70%_25%]"
-          style={{ opacity: 0.95 }}
-        />
-        {/* Lighter left-to-right gradient: keeps the copy column readable but
-            lets the photo actually show through on the right two-thirds. */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(100deg, #0d0d0d 18%, rgba(13,13,13,0.78) 42%, rgba(13,13,13,0.30) 72%, rgba(13,13,13,0.05) 100%)' }} />
-        <div className="absolute bottom-0 inset-x-0 h-40" style={{ background: 'linear-gradient(to top, #0d0d0d, transparent)' }} />
-
-        <div className="relative mx-auto max-w-5xl px-5 sm:px-8 py-24">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-[hsl(0,78%,48%)]/15 border border-[hsl(0,78%,48%)]/30 rounded-full px-4 py-1.5 mb-8">
-            <span className="w-2 h-2 rounded-full bg-[hsl(0,78%,48%)] animate-pulse" />
-            <span className="text-[12px] font-bold tracking-widest uppercase text-[hsl(0,78%,58%)]">14 days free · No card</span>
-          </div>
-
-          <h1 className="text-[52px] sm:text-[72px] lg:text-[88px] font-black leading-[0.95] tracking-tight">
-            Your AI trainer.<br />
-            <span style={{ background: 'linear-gradient(135deg, #dc1616 0%, #ff4444 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              Texted daily.
-            </span>
-          </h1>
-
-          <p className="mt-6 text-[18px] sm:text-[22px] text-white/70 max-w-xl leading-relaxed font-medium">
-            One workout. <strong className="text-white">For today.</strong> Built around your time, gear, and energy. No planning, no guesswork, no generic program.
-          </p>
-
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              href="/app/signup"
-              className="h-14 px-8 rounded-full text-white font-black text-[16px] inline-flex items-center gap-2 shadow-[0_8px_32px_-4px_rgba(220,22,22,0.6)] transition hover:scale-[1.03] active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #b91010 0%, #dc1616 100%)' }}
-            >
-              Try free for 14 days
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </Link>
-            <Link
-              href="/app/signin"
-              className="h-14 px-8 rounded-full border border-white/20 bg-white/[0.06] font-bold text-[16px] inline-flex items-center gap-2 hover:bg-white/[0.1] transition"
-            >
-              I already have an account
-            </Link>
-          </div>
-
-          <p className="mt-6 text-[13px] text-white/50">
-            No credit card. Cancel anytime. Then $9.99/mo if you keep it.
-          </p>
-        </div>
-      </section>
+      {/* ── 1. HERO — scroll-scrubbed cinematic. Film asset contract:
+             /public/hero/hero.mp4 (+ optional poster.jpg); renders the CSS
+             energy backdrop until the film ships. ─────────────────────── */}
+      <CinematicHero />
+      <div id="after-hero" />
 
       {/* ── 2. PAIN POINT ───────────────────────────────────────────────── */}
       <section className="py-20 border-t border-white/[0.06]">
