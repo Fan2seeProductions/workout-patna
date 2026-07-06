@@ -123,6 +123,32 @@ export function findExercise(name: string): ExerciseInfo | null {
   return byNorm.get(n) ?? aliasIndex.get(n) ?? null
 }
 
+// ── Public library helpers (marketing /exercises pages) ──────────────
+
+export function exerciseSlug(ex: ExerciseInfo): string {
+  return ex.id.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+const bySlug = new Map<string, ExerciseInfo>()
+for (const ex of EXERCISES) bySlug.set(exerciseSlug(ex), ex)
+
+export function getExerciseBySlug(slug: string): ExerciseInfo | null {
+  return bySlug.get(slug) ?? null
+}
+
+export function allExercises(): ExerciseInfo[] {
+  return EXERCISES
+}
+
+/** Same primary muscle, excluding the given exercise — for related links. */
+export function relatedExercises(ex: ExerciseInfo, limit = 6): ExerciseInfo[] {
+  const muscle = ex.primaryMuscles[0]
+  if (!muscle) return []
+  return EXERCISES
+    .filter(e => e.id !== ex.id && e.primaryMuscles[0] === muscle)
+    .slice(0, limit)
+}
+
 /**
  * Scan a blob of workout text for exercise names we know. Matches longest
  * names first so "dumbbell bench press" wins over "bench press". Returns
