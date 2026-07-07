@@ -40,7 +40,13 @@ export async function POST(req: NextRequest) {
   }
 
   const stripe = new StripeSDK(secret)
-  const origin = (await headers()).get('origin') || 'https://workout-patna.vercel.app'
+  // Return URL must stay on the member's current host — host-only auth cookies
+  // aren't shared across apex/www/vercel.app (see stripe/checkout route).
+  const h = await headers()
+  const hostHeader = h.get('host')
+  const origin =
+    h.get('origin') ||
+    (hostHeader ? `https://${hostHeader}` : 'https://workoutpartna.com')
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',

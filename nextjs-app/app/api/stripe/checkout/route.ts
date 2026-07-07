@@ -51,9 +51,16 @@ export async function POST() {
       .upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' })
   }
 
-  const origin = (await import('next/headers')).headers
-    ? (await (await import('next/headers')).headers()).get('origin') || 'https://workout-patna.vercel.app'
-    : 'https://workout-patna.vercel.app'
+  // Build the return URL from the domain the member is ACTUALLY on. Supabase
+  // auth cookies are host-only (not shared across apex ↔ www ↔ *.vercel.app),
+  // so a return URL on a different host drops the session and bounces the user
+  // to sign-in after paying. Prefer Origin; fall back to Host; never a
+  // hardcoded foreign domain.
+  const h = await (await import('next/headers')).headers()
+  const hostHeader = h.get('host')
+  const origin =
+    h.get('origin') ||
+    (hostHeader ? `https://${hostHeader}` : 'https://workoutpartna.com')
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
