@@ -78,15 +78,9 @@ export default async function MessagesPage() {
             💬
           </div>
           <div>
-            <h3 className="font-bold text-lg text-white mb-1">No conversations yet</h3>
-            <p className="text-white/60 text-sm">Match with someone to start chatting.</p>
+            <h3 className="font-bold text-lg text-white mb-1">No messages yet</h3>
+            <p className="text-white/60 text-sm">Your coach&rsquo;s messages will appear here once your AI Coach sends your first workout.</p>
           </div>
-          <Link
-            href="/app/discover"
-            className="px-6 py-2.5 brand-gradient rounded-full font-bold text-sm text-white"
-          >
-            Find Partnas →
-          </Link>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto -mx-4 px-4">

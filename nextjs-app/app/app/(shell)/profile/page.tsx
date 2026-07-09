@@ -26,12 +26,6 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
 
-  let gymLabel: string | null = null
-  if (profile?.gym_id) {
-    const { data: g } = await supabase.from('gyms').select('name, city').eq('id', profile.gym_id).maybeSingle()
-    if (g?.name) gymLabel = `${g.name}${g.city ? ` · ${g.city}` : ''}`
-  }
-
   const completion = profileCompletion(profile ?? {})
 
   const name     = profile?.display_name ?? user.email?.split('@')[0] ?? 'Member'
@@ -41,7 +35,7 @@ export default async function ProfilePage() {
   const schedule = (profile?.schedule_times ?? []).join(', ') || (profile?.schedule_days ?? []).join(', ') || 'Set your schedule'
   const goals    = (profile?.goals ?? []) as string[]
   const interests = (profile?.styles ?? []) as string[]
-  const location = gymLabel || profile?.primary_location || 'Set your location'
+  const location = profile?.primary_location || 'Set your location'
 
   return (
     <div className="min-h-screen pb-24" style={{ background: '#0d0d0d' }}>

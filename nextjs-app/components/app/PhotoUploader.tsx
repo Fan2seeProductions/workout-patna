@@ -47,30 +47,37 @@ export function PhotoUploader({ initialPhotoUrl = null, size = 96, onUpload }: P
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
       const path = `${user.id}/avatar-${Date.now()}.${ext}`
 
-      const { error: uploadError } = await supabase
-        .storage
-        .from('avatars')
-        .upload(path, file, { cacheControl: '3600', upsert: true })
+      // The avatars storage bucket may not be provisioned yet. Any storage
+      // failure (missing bucket, network, thrown rejection) should surface a
+      // friendly inline message rather than crash the profile flow.
+      try {
+        const { error: uploadError } = await supabase
+          .storage
+          .from('avatars')
+          .upload(path, file, { cacheControl: '3600', upsert: true })
 
-      if (uploadError) {
-        setError(uploadError.message)
-        return
+        if (uploadError) {
+          setError('Photo uploads are coming back soon.')
+          return
+        }
+
+        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ photo_url: publicUrl })
+          .eq('id', user.id)
+
+        if (updateError) {
+          setError('Could not save your photo. Please try again.')
+          return
+        }
+
+        setPhotoUrl(publicUrl)
+        onUpload?.(publicUrl)
+      } catch {
+        setError('Photo uploads are coming back soon.')
       }
-
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ photo_url: publicUrl })
-        .eq('id', user.id)
-
-      if (updateError) {
-        setError(updateError.message)
-        return
-      }
-
-      setPhotoUrl(publicUrl)
-      onUpload?.(publicUrl)
     })
   }
 

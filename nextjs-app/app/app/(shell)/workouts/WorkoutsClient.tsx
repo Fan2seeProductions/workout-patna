@@ -1,79 +1,101 @@
-// Workouts library client. Body-part + level filters, expandable cards.
+// Exercise library client. Name search + muscle-group / level filter chips over
+// the bundled dataset. Each card links to the public /exercises/[slug] how-to.
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Dumbbell, Clock, Filter, ChevronRight, Flame } from 'lucide-react'
+import Link from 'next/link'
+import { Dumbbell, Search, Filter, Flame } from 'lucide-react'
 import { cn } from '../../../../lib/utils'
 
-export type WorkoutRow = {
+export type ExerciseCard = {
   id: string
-  title: string
-  description: string
-  level: 'beginner' | 'intermediate' | 'advanced' | string
-  body_part: string
+  name: string
+  slug: string
+  level: string
   equipment: string | null
-  duration: number | null
-  instructions: string
-  is_free: boolean
+  muscle: string | null
+  thumbUrl: string | null
 }
 
-const bodyParts = ['All', 'chest', 'back', 'legs', 'glutes', 'core', 'arms', 'cardio', 'full_body'] as const
-const levels = ['All', 'beginner', 'intermediate', 'advanced'] as const
+// The 17 primary-muscle groups present in the dataset.
+const muscles = [
+  'abdominals', 'abductors', 'adductors', 'biceps', 'calves', 'chest',
+  'forearms', 'glutes', 'hamstrings', 'lats', 'lower back', 'middle back',
+  'neck', 'quadriceps', 'shoulders', 'traps', 'triceps',
+] as const
 
-const bodyPartLabels: Record<string, string> = {
-  chest: 'Chest', back: 'Back', legs: 'Legs', glutes: 'Glutes',
-  core: 'Core', arms: 'Arms', cardio: 'Cardio', full_body: 'Full Body',
-}
+const levels = ['beginner', 'intermediate', 'expert'] as const
 
-const levelColors: Record<string, string> = {
-  beginner:     'bg-green-100 text-green-700',
-  intermediate: 'bg-yellow-100 text-yellow-700',
-  advanced:     'bg-red-100 text-red-700',
-}
+const PAGE_SIZE = 60
 
-export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
-  const [bodyPart, setBodyPart] = useState<string>('All')
+export function WorkoutsClient({ exercises }: { exercises: ExerciseCard[] }) {
+  const [query, setQuery] = useState('')
+  const [muscle, setMuscle] = useState<string>('All')
   const [level, setLevel] = useState<string>('All')
-  const [expanded, setExpanded] = useState<string | null>(null)
+  const [visible, setVisible] = useState(PAGE_SIZE)
 
-  const filtered = useMemo(() => workouts.filter(w => {
-    const partOk = bodyPart === 'All' || w.body_part === bodyPart
-    const levelOk = level === 'All' || w.level === level
-    return partOk && levelOk
-  }), [workouts, bodyPart, level])
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return exercises.filter(ex => {
+      const nameOk = !q || ex.name.toLowerCase().includes(q)
+      const muscleOk = muscle === 'All' || ex.muscle === muscle
+      const levelOk = level === 'All' || ex.level === level
+      return nameOk && muscleOk && levelOk
+    })
+  }, [exercises, query, muscle, level])
+
+  const shown = filtered.slice(0, visible)
+
+  // Reset paging whenever the filter/search result set changes.
+  function resetPaging() {
+    setVisible(PAGE_SIZE)
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 pt-8 space-y-6 pb-24">
+    <div className="max-w-5xl mx-auto p-4 md:p-6 pt-8 space-y-6 pb-24">
       <header className="space-y-2">
         <h1 className="text-2xl md:text-3xl font-bold font-display text-[var(--color-foreground)] flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-[var(--color-primary)]/20 flex items-center justify-center">
             <Dumbbell className="w-5 h-5 text-[var(--color-primary)]" />
           </div>
-          Free Workouts
+          Exercise Library
         </h1>
         <p className="text-[var(--color-muted-foreground)]">
-          Target specific muscle groups with our free workout library
+          {exercises.length} free exercises with step-by-step how-tos. Search or filter by muscle group.
         </p>
       </header>
 
-      <div className="sticky top-0 bg-[var(--color-background)]/95 backdrop-blur-sm z-30 py-3 -mx-4 px-4 md:mx-0 md:px-0 space-y-3">
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+        <input
+          type="text"
+          value={query}
+          onChange={e => { setQuery(e.target.value); resetPaging() }}
+          placeholder="Search exercises..."
+          className="w-full bg-[#1a1a1a] border border-white/10 rounded-2xl h-11 pl-10 pr-4 text-[14px] placeholder:text-white/30 text-white outline-none focus:border-white/20 transition"
+        />
+      </div>
+
+      {/* Filters */}
+      <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm font-bold text-[var(--color-muted-foreground)]">
-          <Filter className="w-4 h-4" /> Body Part
+          <Filter className="w-4 h-4" /> Muscle Group
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-          {bodyParts.map(part => (
+          {['All', ...muscles].map(m => (
             <button
-              key={part}
+              key={m}
               type="button"
-              onClick={() => setBodyPart(part)}
+              onClick={() => { setMuscle(m); resetPaging() }}
               className={cn(
-                'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border',
-                bodyPart === part
+                'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border capitalize',
+                muscle === m
                   ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md'
                   : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-[var(--color-primary)]/40 hover:bg-white/[0.08] hover:text-white',
               )}
             >
-              {part === 'All' ? 'All' : bodyPartLabels[part] ?? part}
+              {m === 'All' ? 'All' : m}
             </button>
           ))}
         </div>
@@ -82,15 +104,15 @@ export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
           <Flame className="w-4 h-4" /> Level
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-          {levels.map(l => (
+          {['All', ...levels].map(l => (
             <button
               key={l}
               type="button"
-              onClick={() => setLevel(l)}
+              onClick={() => { setLevel(l); resetPaging() }}
               className={cn(
                 'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border capitalize',
                 level === l
-                  ? 'bg-[var(--color-primary)] text-white border-[var(--color-secondary)] shadow-md'
+                  ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-md'
                   : 'bg-white/[0.04] text-white/70 border-white/15 hover:border-white/30 hover:bg-white/[0.08] hover:text-white',
               )}
             >
@@ -102,68 +124,62 @@ export function WorkoutsClient({ workouts }: { workouts: WorkoutRow[] }) {
 
       {filtered.length === 0 ? (
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-[var(--color-muted)] rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-white/[0.04] rounded-full flex items-center justify-center mx-auto mb-4">
             <Dumbbell className="w-8 h-8 text-[var(--color-muted-foreground)]" />
           </div>
-          <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">No Workouts Found</h3>
+          <h3 className="font-bold text-lg mb-2 text-[var(--color-foreground)]">No exercises found</h3>
           <p className="text-[var(--color-muted-foreground)] text-sm">
-            Try adjusting your filters to see more workouts.
+            Try a different search or clear your filters.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {filtered.map(w => {
-            const open = expanded === w.id
-            return (
-              <div key={w.id} className="bg-white/[0.04] rounded-2xl border border-white/10 overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setExpanded(open ? null : w.id)}
-                  className="w-full p-4 flex items-center justify-between text-left hover:bg-[var(--color-muted)]/50 transition"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)]">
-                      <Dumbbell className="w-6 h-6" />
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {shown.map(ex => (
+              <Link
+                key={ex.id}
+                href={`/exercises/${ex.slug}`}
+                className="group bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--color-primary)]/40 hover:bg-white/[0.06] transition"
+              >
+                <div className="aspect-square w-full bg-white overflow-hidden">
+                  {ex.thumbUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={ex.thumbUrl}
+                      alt={ex.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-white/[0.04] text-[var(--color-muted-foreground)]">
+                      <Dumbbell className="w-8 h-8" />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-[var(--color-foreground)]">{w.title}</h3>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full capitalize', levelColors[w.level] ?? 'bg-gray-100 text-gray-700')}>
-                          {w.level}
-                        </span>
-                        <span className="text-xs text-[var(--color-muted-foreground)] capitalize">
-                          {bodyPartLabels[w.body_part] ?? w.body_part}
-                        </span>
-                        {w.duration && (
-                          <span className="text-xs text-[var(--color-muted-foreground)] flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> {w.duration} min
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronRight className={cn('w-5 h-5 text-[var(--color-muted-foreground)] transition-transform', open && 'rotate-90')} />
-                </button>
+                  )}
+                </div>
+                <div className="p-3">
+                  <h3 className="font-bold text-[13.5px] leading-snug text-[var(--color-foreground)] line-clamp-2">
+                    {ex.name}
+                  </h3>
+                  <p className="mt-1 text-[11.5px] text-[var(--color-muted-foreground)] capitalize">
+                    {[ex.muscle, ex.level].filter(Boolean).join(' · ')}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
 
-                {open && (
-                  <div className="px-4 pb-4 pt-2 border-t border-[var(--color-border)]/50 bg-[var(--color-muted)]/30">
-                    <p className="text-sm text-[var(--color-muted-foreground)] mb-3">{w.description}</p>
-                    <div className="text-sm mb-3 text-[var(--color-foreground)]">
-                      <span className="font-bold">Equipment: </span>
-                      <span className="text-[var(--color-muted-foreground)] capitalize">{w.equipment || 'None'}</span>
-                    </div>
-                    <div className="bg-white/[0.04] rounded-xl p-4 border border-white/10">
-                      <h4 className="font-bold text-sm mb-2 text-[var(--color-foreground)]">Instructions</h4>
-                      <div className="text-sm text-[var(--color-muted-foreground)] whitespace-pre-line">
-                        {w.instructions}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+          {visible < filtered.length && (
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setVisible(v => v + PAGE_SIZE)}
+                className="px-6 py-2.5 rounded-full text-sm font-bold text-white bg-white/[0.06] border border-white/15 hover:bg-white/[0.1] hover:border-[var(--color-primary)]/40 transition"
+              >
+                Show more ({filtered.length - visible} more)
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
