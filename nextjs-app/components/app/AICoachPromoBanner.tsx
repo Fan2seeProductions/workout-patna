@@ -31,6 +31,8 @@ const HIDE_ON_PATHS: string[] = [
   '/app/auth',
   '/app/signin',
   '/app/signup',
+  '/app/forgot',
+  '/app/reset',
   '/app/admin',
   '/app/trainers/apply', // trainer applicants are coaches, not coaching clients
 ]
