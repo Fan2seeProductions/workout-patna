@@ -150,7 +150,8 @@ export function Navbar({
       {/* ── Desktop top nav ── */}
       <nav className="hidden md:flex fixed top-0 inset-x-0 z-50 bg-[#0d0d0d] border-b border-[var(--color-border)] px-6 h-14 items-center justify-between">
         <Link href="/app/coach" className="flex items-center gap-2 font-extrabold text-[16px] text-white">
-          <div className="w-7 h-7 rounded-lg brand-gradient flex items-center justify-center text-white font-black text-[11px]">WP</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-square-192.png" alt="" className="w-7 h-7 rounded-lg" />
           WorkoutPartna
         </Link>
 
