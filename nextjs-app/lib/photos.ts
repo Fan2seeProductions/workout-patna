@@ -16,14 +16,12 @@ const cdn = (id: string, w: number, h: number, q = 90) =>
 //           Photo: Corey Watson, unsplash.com/photos/2qgOFsZEC4w
 // ethan   — Black man doing pull-ups outdoors
 //           Photo: Fortune Vieyra, unsplash.com/photos/yaPv5sQ91PI
-// david   — Black athlete on cable machine, smiling
-//           Photo: unsplash.com/photos/zJ-_r7sdJ2A
+// (a fifth portrait, "david", was removed 2026-07 — its Unsplash CDN id now 404s)
 export const matchPhotos = {
   marcus:  cdn('1572459815549-873917ec8c0a', 480, 640),
   jasmine: cdn('1649887974297-4be052375a67', 480, 640),
   priya:   cdn('1600069109571-4a033ae54be2', 480, 640),
   ethan:   cdn('1616803928273-39775ac000ca', 480, 640),
-  david:   cdn('1733342446364-c09a55c4d3ec', 480, 640),
 }
 
 // ── Full-bleed profile hero portraits (4:5, 1200×1500 for Retina) ───────────
@@ -34,12 +32,11 @@ export const profileHero = {
 // ── Additional verified Black athlete portraits ──────────────────────────────
 // Available for seeded profiles or UI previews
 export const extraPortraits = {
-  // Black woman with curly hair, gym portrait — SUNDAY II SUNDAY
-  woman1: cdn('1661401995801-4d86ba65d034', 480, 640),
   // Black man doing push-ups outdoors — Fortune Vieyra
   man1:   cdn('1616803689943-5601631c7fec', 480, 640),
   // Black woman boxing, punching bag, Los Angeles — SUNDAY II SUNDAY
   woman2: cdn('1649888137201-491856105a1a', 480, 640),
+  // (a third portrait, "woman1", was removed 2026-07 — its Unsplash CDN id now 404s)
 }
 
 // ── Splash / hero ────────────────────────────────────────────────────────────

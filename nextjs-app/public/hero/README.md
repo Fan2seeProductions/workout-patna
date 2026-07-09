@@ -9,8 +9,16 @@ and everything (scrub, chapters, CTAs, reduced-motion path) works unchanged.
 - `hero.mp4` — 16:9, ~7s, **muted**, H.264, ≤ ~12 MB (1080p delivery)
 - `poster.jpg` — first frame, 1920×1080
 - Narrative: macro muscle fiber → body-interior flythrough → futuristic AI
-  training studio with floating dashboards → athletic silhouette. Pure black
-  with #dc1616 red accents. No text/logos (the overlay supplies the words).
+  training studio with floating dashboards → closing on the hero athlete.
+  Pure black with #dc1616 red accents. No text/logos (the overlay supplies
+  the words).
+- **Representation (brand requirement):** the closing hero athlete is an
+  African American man or woman — rim-lit, powerful, confident, real (not a
+  featureless silhouette). Any other people shown (training-studio scenes,
+  exercise demos) are a multicultural cast with African American athletes as
+  the visual baseline. This mirrors the photo library contract in
+  `lib/photos.ts` — WorkoutPartna is a Black-owned company and our imagery
+  reflects our community.
 
 ## Generating it
 The Higgsfield MCP is wired and the prompt is proven, but the connected
