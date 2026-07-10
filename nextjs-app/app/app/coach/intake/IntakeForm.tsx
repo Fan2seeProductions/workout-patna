@@ -7,6 +7,14 @@ import Link from 'next/link'
 import { saveIntake } from '../../../../lib/actions/coach'
 import { BackIcon, BrainIcon } from '../../../../components/app/icons'
 import { PushSubscriptionToggle } from '../../../../components/app/PushSubscriptionToggle'
+import {
+  DISCLAIMER_VERSION,
+  DISCLAIMER_TITLE,
+  DISCLAIMER_INTRO,
+  DISCLAIMER_POINTS,
+  DISCLAIMER_ACCEPT_LABEL,
+  FULL_WAIVER_PATH,
+} from '../../../../lib/legal/coach-disclaimer'
 
 type Initial = {
   goals?: string[] | null
@@ -44,6 +52,7 @@ export function IntakeForm({ initial }: { initial: Initial }) {
   const [tone, setTone] = useState<typeof TONES[number]>((initial?.coaching_tone as typeof TONES[number]) ?? 'encouraging')
   const [time, setTime] = useState(initial?.delivery_time ?? '07:00')
   const [injuries, setInjuries] = useState(initial?.injuries ?? '')
+  const [accepted, setAccepted] = useState(false)
 
   const toggle = (s: Set<string>, v: string, fn: (s: Set<string>) => void) => {
     const n = new Set(s)
@@ -65,6 +74,8 @@ export function IntakeForm({ initial }: { initial: Initial }) {
         coaching_tone: tone,
         delivery_time: time,
         injuries: injuries.trim() || undefined,
+        disclaimer_accepted: accepted,
+        disclaimer_version: DISCLAIMER_VERSION,
       })
       if (!res.ok) {
         setError(res.error ?? 'Save failed.')
@@ -74,7 +85,7 @@ export function IntakeForm({ initial }: { initial: Initial }) {
     })
   }
 
-  const canSubmit = goals.size > 0 && !!level && equipment.size > 0
+  const canSubmit = goals.size > 0 && !!level && equipment.size > 0 && accepted
 
   return (
     <main className="min-h-dvh px-6 pt-6 pb-32 max-w-md mx-auto">
@@ -154,6 +165,8 @@ export function IntakeForm({ initial }: { initial: Initial }) {
           />
         </Field>
 
+        <Disclaimer accepted={accepted} onToggle={() => setAccepted(a => !a)} />
+
         <button
           type="button"
           onClick={submit}
@@ -165,6 +178,53 @@ export function IntakeForm({ initial }: { initial: Initial }) {
         {error && <p className="text-[12px] text-[var(--color-danger)] text-center">{error}</p>}
       </div>
     </main>
+  )
+}
+
+function Disclaimer({ accepted, onToggle }: { accepted: boolean; onToggle: () => void }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-2xl border border-[var(--color-border)] bg-white/[0.03] p-4">
+      <p className="text-[13px] font-bold text-white">{DISCLAIMER_TITLE}</p>
+      <p className="mt-1 text-[12px] text-[var(--color-text-muted)] leading-snug">{DISCLAIMER_INTRO}</p>
+
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="mt-2 text-[12px] font-semibold text-[var(--color-brand-bright)]"
+        aria-expanded={open}
+      >
+        {open ? 'Hide details' : 'Read the full acknowledgment'}
+      </button>
+
+      {open && (
+        <div className="mt-3 space-y-3 max-h-64 overflow-y-auto pr-1">
+          {DISCLAIMER_POINTS.map(p => (
+            <div key={p.heading}>
+              <p className="text-[12px] font-bold text-white/90">{p.heading}</p>
+              <p className="text-[11.5px] text-[var(--color-text-muted)] leading-snug">{p.body}</p>
+            </div>
+          ))}
+          <Link
+            href={FULL_WAIVER_PATH}
+            target="_blank"
+            className="inline-block text-[12px] font-semibold text-[var(--color-brand-bright)] underline"
+          >
+            View the full liability waiver
+          </Link>
+        </div>
+      )}
+
+      <label className="mt-4 flex items-start gap-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={accepted}
+          onChange={onToggle}
+          className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-brand)] cursor-pointer"
+        />
+        <span className="text-[12px] text-white/85 leading-snug">{DISCLAIMER_ACCEPT_LABEL}</span>
+      </label>
+    </div>
   )
 }
 
