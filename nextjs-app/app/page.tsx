@@ -8,9 +8,55 @@ import { PublicNav } from '../components/public/PublicNav'
 import { PublicFooter } from '../components/public/PublicFooter'
 import { CinematicHero } from '../components/marketing/CinematicHero'
 
+// FAQPage structured data — questions/answers are kept in sync WORD-FOR-WORD
+// with the visible FAQ strip in the final CTA section below (Google requires
+// the markup to match on-page content). Update both together.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is it really free for 14 days?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. No credit card. You only pay if you decide to keep it past day 14. Then $9.99/mo, cancel anytime.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I have to use SMS?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. You can use the app, SMS, or both. The plan lives in your app every day either way.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What if I have an injury or a bad day?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Tell it. Reply MODIFY and it rewrites the plan around what you can do. No shame, no fixed schedule.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is it a real personal trainer?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'It is a highly tuned AI trainer for general fitness and habit formation. For medical or rehab guidance, see a clinician.',
+      },
+    },
+  ],
+}
+
 export default function HomePage() {
   return (
     <div className="bg-[#0d0d0d] text-white min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <PublicNav />
 
       {/* ── 1. HERO — scroll-scrubbed cinematic. Film asset contract:

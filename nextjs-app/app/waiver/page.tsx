@@ -8,6 +8,7 @@ import { BackIcon } from '../../components/app/icons'
 export const metadata: Metadata = {
   title: 'Liability Waiver',
   description: 'WorkoutPartna liability waiver, release, and assumption of risk.',
+  alternates: { canonical: '/waiver' },
 }
 
 export default function WaiverPage() {

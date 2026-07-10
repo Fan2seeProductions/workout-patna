@@ -7,6 +7,7 @@ import { BackIcon } from '../../components/app/icons'
 export const metadata: Metadata = {
   title: 'Terms & Conditions',
   description: 'WorkoutPartna terms and conditions.',
+  alternates: { canonical: '/terms' },
 }
 
 export default function TermsPage() {

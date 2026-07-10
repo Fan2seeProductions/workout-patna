@@ -7,6 +7,7 @@ import { PublicFooter } from '../../components/public/PublicFooter'
 export const metadata: Metadata = {
   title: 'About WorkoutPartna',
   description: 'The AI trainer that texts you the exact workout to do today. Built for general fitness and healthy habit formation — not medical guidance.',
+  alternates: { canonical: '/about' },
 }
 
 const steps = [

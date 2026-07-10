@@ -7,6 +7,7 @@ import { BackIcon } from '../../components/app/icons'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'How WorkoutPartna collects, uses, stores, protects, and shares your information.',
+  alternates: { canonical: '/privacy' },
 }
 
 export default function PrivacyPage() {

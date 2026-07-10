@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: 'Safety | WorkoutPartna',
   description:
     'WorkoutPartna is a general-fitness AI trainer, not a clinician. Here is exactly what we will and will not do, when to stop and call a doctor, and how we handle your data.',
+  alternates: { canonical: '/safety' },
 }
 
 const guardrails = [

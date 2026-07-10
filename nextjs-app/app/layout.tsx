@@ -144,14 +144,7 @@ const websiteSchema = {
   '@type': 'WebSite',
   name: 'WorkoutPartna',
   url: 'https://workoutpartna.com',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: 'https://workoutpartna.com/search?q={search_term_string}',
-    },
-    'query-input': 'required name=search_term_string',
-  },
+  publisher: { '@type': 'Organization', name: 'WorkoutPartna' },
 }
 
 const appSchema = {
@@ -187,53 +180,6 @@ const appSchema = {
   // installUrl: 'https://apps.apple.com/...',
 }
 
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'What is WorkoutPartna?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'WorkoutPartna is an AI daily coach. Every day it builds you one personalized workout based on your goals, equipment, and how your training is actually going — no generic programs, no planning required.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How does the AI coach adapt my workouts?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'The coach reads your intake profile plus your recent workouts and feedback (too easy, just right, too hard, or injured) and adjusts intensity, focus, and exercise selection for the next session — including deloading when you need recovery.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Do I need a gym or equipment?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'No. WorkoutPartna builds workouts around whatever you have — a full gym, a resistance band, or just a desk chair — and adapts on the fly for travel, hotel rooms, and no-equipment days.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How is my workout delivered?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'In the app, by push notification, by text message, or as a voice call that reads your workout aloud — whichever fits your day.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'How much does WorkoutPartna cost?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'WorkoutPartna offers a 14-day free trial, then $9.99/month for unlimited AI-coached daily workouts.',
-      },
-    },
-  ],
-}
-
 // ─── Root Layout ─────────────────────────────────────────────────────────────
 export default function RootLayout({
   children,
@@ -260,10 +206,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
+        {/* FAQPage schema lives on the homepage (app/page.tsx) where the FAQ is
+            actually visible — Google requires the markup to match on-page
+            content, so it must not be injected site-wide from here. */}
       </head>
       <body>{children}</body>
     </html>

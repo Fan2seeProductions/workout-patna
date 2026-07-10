@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: 'Pricing | WorkoutPartna',
   description:
     '14 days free, no credit card. Then $9.99/mo. Cancel anytime. One simple plan for the AI trainer that texts you the exact workout to do today.',
+  alternates: { canonical: '/pricing' },
 }
 
 const features = [
