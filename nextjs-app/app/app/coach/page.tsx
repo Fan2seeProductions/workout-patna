@@ -9,6 +9,7 @@ import { BackIcon, BrainIcon, CheckIcon, SparkleIcon } from '../../../components
 import { CoachCheckout } from './CoachCheckout'
 import { CoachToday } from './CoachToday'
 import { isGrandfathered } from '../../../lib/coach-trial'
+import { syncSubscriptionFromStripe } from '../../../lib/stripe/sync'
 import { matchExercisesInText, exerciseImageUrl } from '../../../lib/exercises/match'
 
 export const metadata = { title: 'AI Daily Coach', robots: { index: false, follow: false } }
@@ -22,29 +23,58 @@ const benefits = [
   'Delivered in-app, by text, or a voice call that reads it to you',
 ]
 
-export default async function CoachPage() {
+// Live if status is live AND we haven't passed current_period_end. This is
+// what makes the 14-day no-card trial fall off the cliff cleanly when the
+// period ends, without needing a cron job to flip the status. past_due keeps
+// access during Stripe's smart-retry window — a paying member with a
+// temporarily bounced card shouldn't be locked out mid-retry. Stripe flips it
+// to canceled/unpaid if all retries fail, which ends access.
+function isLiveSub(sub: { status?: string | null; current_period_end?: string | null } | null): boolean {
+  if (!sub) return false
+  const periodOk =
+    !sub.current_period_end || new Date(sub.current_period_end) > new Date()
+  return (
+    (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') &&
+    periodOk
+  )
+}
+
+export default async function CoachPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const [{ data: { user } }, { status: checkoutStatus }] = await Promise.all([
+    supabase.auth.getUser(),
+    searchParams,
+  ])
   if (!user) redirect('/app/signin')
 
-  const [{ data: sub }, { data: intake }] = await Promise.all([
+  let [{ data: sub }, { data: intake }] = await Promise.all([
     supabase.from('ai_coach_subscriptions').select('*').eq('user_id', user.id).maybeSingle(),
     supabase.from('ai_coach_intake').select('*').eq('user_id', user.id).maybeSingle(),
   ])
 
-  // Subscribed if status is live AND we haven't passed current_period_end.
-  // This is what makes the 14-day no-card trial fall off the cliff cleanly
-  // when the period ends, without needing a cron job to flip the status.
-  const periodOk =
-    !sub?.current_period_end ||
-    new Date(sub.current_period_end as string) > new Date()
-  // past_due keeps access during Stripe's smart-retry window — a paying
-  // member with a temporarily bounced card shouldn't be locked out mid-retry.
-  // Stripe flips it to canceled/unpaid if all retries fail, which ends access.
-  const subscribed =
-    !!sub &&
-    (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') &&
-    periodOk
+  let subscribed = isLiveSub(sub)
+
+  // DB says not subscribed — double-check against Stripe before showing the
+  // paywall. The webhook is the primary writer of subscription state, but if
+  // it missed an event (or wasn't configured when this member paid), this
+  // self-heal keeps a paying member from being locked out. No-ops unless
+  // Stripe + service-role env vars are present.
+  if (!subscribed) {
+    const synced = await syncSubscriptionFromStripe(user.id)
+    if (synced) {
+      const { data: fresh } = await supabase
+        .from('ai_coach_subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      sub = fresh
+      subscribed = isLiveSub(fresh)
+    }
+  }
 
   // Has the user ever started a trial / subscription? If so we don't show
   // the "Start free trial" CTA again — they'd go straight to Stripe.
@@ -139,6 +169,35 @@ export default async function CoachPage() {
         heroSrc="/hero-woman.jpg"
         guide={guide}
       />
+    )
+  }
+
+  // Just returned from a successful Stripe checkout but the subscription
+  // isn't visible yet (webhook still in flight). Never show this member the
+  // paywall again — show an activating state that retries automatically.
+  if (checkoutStatus === 'success') {
+    return (
+      <main className="min-h-dvh px-6 max-w-md mx-auto flex flex-col items-center justify-center text-center">
+        {/* Server-driven retry: reload the page (and re-run the Stripe
+            self-heal above) every few seconds until the subscription lands. */}
+        <meta httpEquiv="refresh" content="6" />
+        <div className="h-20 w-20 rounded-3xl bg-[var(--color-match)]/15 border border-[var(--color-match)]/40 flex items-center justify-center">
+          <CheckIcon width={32} height={32} className="text-[var(--color-match)]" />
+        </div>
+        <h1 className="mt-6 text-[24px] font-extrabold leading-tight tracking-tight">
+          Payment received
+        </h1>
+        <p className="mt-2 text-[14px] text-[var(--color-text-muted)] max-w-xs">
+          We&apos;re activating your AI Coach — this usually takes a few seconds.
+          This page will refresh on its own.
+        </p>
+        <Link
+          href="/app/coach"
+          className="mt-8 inline-flex h-11 px-6 items-center rounded-full brand-gradient text-white font-bold text-[14px]"
+        >
+          Check again now
+        </Link>
+      </main>
     )
   }
 

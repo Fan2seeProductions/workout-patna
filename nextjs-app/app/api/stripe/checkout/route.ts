@@ -46,9 +46,22 @@ export async function POST() {
       metadata: { supabase_user_id: user.id },
     })
     customerId = customer.id
-    await supabase
-      .from('ai_coach_subscriptions')
-      .upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' })
+    // RLS on ai_coach_subscriptions is select-only for users, so this write
+    // needs the service-role client. If the key isn't set we skip it — the
+    // customer is still findable later via its supabase_user_id metadata
+    // (see lib/stripe/sync.ts).
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (serviceRoleKey) {
+      const { createServerClient } = await import('@supabase/ssr')
+      const admin = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceRoleKey,
+        { cookies: { getAll: () => [], setAll: () => {} } },
+      )
+      await admin
+        .from('ai_coach_subscriptions')
+        .upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' })
+    }
   }
 
   // Build the return URL from the domain the member is ACTUALLY on. Supabase
