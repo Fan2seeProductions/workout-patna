@@ -12,7 +12,7 @@
 // Secured with CRON_SECRET so only Vercel's cron scheduler can call it.
 
 import { NextResponse } from 'next/server'
-import { createClient } from '../../../../lib/supabase/server'
+import { createAdminClient } from '../../../../lib/supabase/admin'
 import { sendIntakeReminderD3Email } from '../../../../lib/email/intake-reminder-d3'
 import { sendIntakeReminderD7Email } from '../../../../lib/email/intake-reminder-d7'
 
@@ -26,7 +26,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = await createClient()
+  // Service-role client: admin_get_auth_users is REVOKE'd from anon +
+  // authenticated, and a cron has no user session (RLS would hide every row).
+  const supabase = createAdminClient()
+  if (!supabase) {
+    console.error('[cron/intake-reminders] SUPABASE_SERVICE_ROLE_KEY not set — cannot run.')
+    return NextResponse.json({ error: 'Service role key not configured.' }, { status: 500 })
+  }
   const now = new Date()
   const d3Cutoff = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()  // 72 hrs ago
   const d7Cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()  // 7 days ago

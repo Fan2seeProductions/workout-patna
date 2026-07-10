@@ -72,7 +72,14 @@ export async function GET(request: Request) {
   // Coach-first: post-signup/signin users land on the AI Coach paywall page,
   // which routes them to the trial CTA (or straight to today's workout if
   // they're already subscribed/trialing).
-  const next = url.searchParams.get('next') ?? '/app/coach'
+  //
+  // `next` is attacker-controllable (it's a query param on a link we email),
+  // so it MUST be sanitized to a same-origin path — otherwise values like
+  // "@evil.com" or "//evil.com" turn "${origin}${next}" into an off-site
+  // redirect (open-redirect / phishing bounce off our trusted domain).
+  const rawNext = url.searchParams.get('next') ?? '/app/coach'
+  const next =
+    rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/app/coach'
 
   // Use the host the user came in on so cookies stick to the right domain
   // (workoutpartna.com vs workout-patna.vercel.app vs localhost).

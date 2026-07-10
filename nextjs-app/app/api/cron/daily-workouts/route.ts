@@ -14,11 +14,11 @@
 // Acceptable for now; revisit if members complain about 6 AM winter sends.
 
 import { NextResponse } from 'next/server'
-import { createClient } from '../../../../lib/supabase/server'
 import { generateWorkout, type Intake, type AdaptationContext } from '../../../../lib/ai/workout'
 import { formatWorkoutMessage } from '../../../../lib/coach-chat-helpers'
 import { sendPushToAll, type PushSubscription } from '../../../../lib/push/send'
 import { sendSms } from '../../../../lib/sms/sms'
+import { createAdminClient } from '../../../../lib/supabase/admin'
 
 export const runtime = 'nodejs'
 export const maxDuration = 300   // up to 5 min for large member batches
@@ -81,7 +81,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = await createClient()
+  // Service-role client — the daily-workouts RPCs are REVOKE'd from anon +
+  // authenticated, so only this can reach them (and a cron has no user session).
+  const supabase = createAdminClient()
+  if (!supabase) {
+    console.error('[cron/daily-workouts] SUPABASE_SERVICE_ROLE_KEY not set — cannot run.')
+    return NextResponse.json({ error: 'Service role key not configured.' }, { status: 500 })
+  }
   const today = new Date().toISOString().slice(0, 10)   // YYYY-MM-DD
 
   // ── Fetch eligible members ────────────────────────────────────────

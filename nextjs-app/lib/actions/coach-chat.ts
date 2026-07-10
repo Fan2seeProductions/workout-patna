@@ -1,15 +1,17 @@
 // Server action: post a formatted workout from the AI Coach bot
 // into the member's in-app chat thread.
 //
-// Uses the `bot_send_workout` SECURITY DEFINER RPC so we never need
-// the service-role key — the RPC bypasses RLS internally.
+// Uses the `bot_send_workout` SECURITY DEFINER RPC via the service-role
+// client. That RPC is REVOKE'd from anon + authenticated (it can post a
+// message AS the bot to ANY user's thread, so it must not be reachable from a
+// browser session), so only the service-role client can call it.
 //
 // NOTE: pure helpers (BOT_ID, formatWorkoutMessage) live in
 // ../coach-chat-helpers because 'use server' files may only export
 // async functions.
 'use server'
 
-import { createClient } from '../supabase/server'
+import { createAdminClient } from '../supabase/admin'
 import type { WorkoutPlan } from '../ai/workout'
 import { formatWorkoutMessage } from '../coach-chat-helpers'
 
@@ -27,7 +29,11 @@ export async function sendWorkoutToChat(opts: {
 
   try {
     const body = formatWorkoutMessage(plan, firstName)
-    const supabase = await createClient()
+    const supabase = createAdminClient()
+    if (!supabase) {
+      console.error('[coach-chat] SUPABASE_SERVICE_ROLE_KEY not set — cannot post bot message.')
+      return { ok: false }
+    }
 
     const { data, error } = await supabase
       .rpc('bot_send_workout', { p_user_id: userId, p_body: body })

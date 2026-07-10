@@ -6,15 +6,15 @@
 
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
-import { createClient } from '../../../../lib/supabase/server'
+import { createAdminClient } from '../../../../lib/supabase/admin'
 
 // The uid is HMAC-signed when the call is initiated (lib/sms/sms.ts), so
 // only URLs we generated ourselves are honored — this route returns the
 // member's name and workout, which must not be readable by uid-guessing.
+// Fails CLOSED: if no signing secret is configured, no token can validate.
 function tokenValid(uid: string, tok: string | null): boolean {
   const secret = process.env.CRON_SECRET ?? process.env.TELNYX_API_KEY
-  if (!secret) return true   // dev without secrets configured
-  if (!tok) return false
+  if (!secret || !tok) return false
   const expected = createHmac('sha256', secret).update(uid).digest('hex')
   const a = Buffer.from(expected)
   const b = Buffer.from(tok)
@@ -69,8 +69,16 @@ export async function GET(request: Request) {
     )
   }
 
-  // Use service-role client (this is a server-to-server webhook, not a browser session)
-  const supabase = await createClient()
+  // Service-role client — this is a server-to-server webhook with no browser
+  // session, so RLS-scoped queries would return nothing. The HMAC token above
+  // is what authorizes reading this specific member's data.
+  const supabase = createAdminClient()
+  if (!supabase) {
+    return new NextResponse(
+      `<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n  <Say voice="en-US-Neural2-F" rate="95%">Sorry, we could not load your workout. Please check the WorkoutPartna app. Have a great day!</Say>\n  <Hangup/>\n</Response>`,
+      { headers: { 'Content-Type': 'text/xml' } },
+    )
+  }
   const today = new Date().toISOString().slice(0, 10)
 
   const [{ data: workout }, { data: profile }] = await Promise.all([

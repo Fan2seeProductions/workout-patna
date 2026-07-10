@@ -5,7 +5,7 @@
 // Secured with CRON_SECRET so only Vercel's cron scheduler can call it.
 
 import { NextResponse } from 'next/server'
-import { createClient } from '../../../../lib/supabase/server'
+import { createAdminClient } from '../../../../lib/supabase/admin'
 import { sendIntakeNudgeEmail } from '../../../../lib/email/intake-nudge'
 
 export const runtime = 'nodejs'
@@ -19,7 +19,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = await createClient()
+  // Service-role client: admin_get_auth_users is REVOKE'd from anon +
+  // authenticated, and a cron has no user session (RLS would hide every row).
+  const supabase = createAdminClient()
+  if (!supabase) {
+    console.error('[cron/intake-nudge] SUPABASE_SERVICE_ROLE_KEY not set — cannot run.')
+    return NextResponse.json({ error: 'Service role key not configured.' }, { status: 500 })
+  }
 
   // Find members who:
   // 1. Signed up more than 24 hours ago

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ShieldCheck, Mail, Globe } from 'lucide-react'
 import { createClient } from '../../../../lib/supabase/server'
+import { createAdminClient } from '../../../../lib/supabase/admin'
 
 export const metadata = { title: 'Members · Admin', robots: { index: false, follow: false } }
 
@@ -27,21 +28,25 @@ function fmt(iso: string | null) {
 }
 
 export default async function AdminMembersPage() {
+  // User session ONLY for the admin gate. All member data is read with the
+  // service-role client below — the admin's own RLS would otherwise hide every
+  // other member's row, and admin_get_auth_users is REVOKE'd from authenticated.
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/app/signin')
   if (!ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '')) redirect('/app/home')
 
+  const admin = createAdminClient()
+  if (!admin) redirect('/app/home')
+
   // Pull profiles joined with auth data via a view-friendly query
-  const { data: profiles } = await supabase
+  const { data: profiles } = await admin
     .from('profiles')
     .select('id, display_name, email_verified_at, is_premium, created_at, gym_id, goals, styles, photo_url')
     .order('created_at', { ascending: false })
 
-  // Pull auth.users for email + provider + last_sign_in via separate query
-  // (We can read auth.users as service role through the admin client isn't available here,
-  //  so we use a Supabase function/view. Fall back to profile data only.)
-  const { data: authUsers } = await supabase
+  // Pull auth.users for email + provider + last_sign_in via separate query.
+  const { data: authUsers } = await admin
     .rpc('admin_get_auth_users')
     .select('*')
 

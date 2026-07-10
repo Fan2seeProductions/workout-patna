@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ShieldCheck, Globe, Mail, Brain } from 'lucide-react'
 import { createClient } from '../../../../../lib/supabase/server'
+import { createAdminClient } from '../../../../../lib/supabase/admin'
 
 export const metadata = { title: 'Member Detail · Admin', robots: { index: false, follow: false } }
 
@@ -57,13 +58,19 @@ function Row({ label, value, highlight }: { label: string; value: React.ReactNod
 
 export default async function AdminMemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  // User session ONLY for the admin gate. Member data is read with the
+  // service-role client — another member's rows are hidden by RLS otherwise,
+  // and admin_get_auth_users is REVOKE'd from authenticated.
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/app/signin')
   if (!ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? '')) redirect('/app/home')
 
+  const admin = createAdminClient()
+  if (!admin) redirect('/app/home')
+
   // Fetch profile
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from('profiles')
     .select('*')
     .eq('id', id)
@@ -72,7 +79,7 @@ export default async function AdminMemberDetailPage({ params }: { params: Promis
   if (!profile) redirect('/app/admin/members')
 
   // Fetch auth user info
-  const { data: authUsers } = await supabase
+  const { data: authUsers } = await admin
     .rpc('admin_get_auth_users')
     .select('*')
 
@@ -80,7 +87,7 @@ export default async function AdminMemberDetailPage({ params }: { params: Promis
     ?.find(u => u.id === id)
 
   // Fetch AI coach intake
-  const { data: intake } = await supabase
+  const { data: intake } = await admin
     .from('ai_coach_intake')
     .select('*')
     .eq('user_id', id)
