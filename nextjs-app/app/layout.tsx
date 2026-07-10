@@ -113,11 +113,22 @@ export const metadata: Metadata = {
     shortcut: '/brand/logo-square-1024.png',
   },
 
-  // Verification tags, fill in after claiming properties
-  // verification: {
-  //   google: 'YOUR_GOOGLE_VERIFICATION_TOKEN',
-  //   other: { 'msvalidate.01': 'YOUR_BING_TOKEN' },
-  // },
+  // Search-engine ownership verification. Tokens come from env so claiming
+  // the property is a Vercel-env change, not a code change:
+  //   GOOGLE_SITE_VERIFICATION — Google Search Console → HTML-tag method
+  //   BING_SITE_VERIFICATION   — Bing Webmaster Tools  → meta-tag method
+  ...(process.env.GOOGLE_SITE_VERIFICATION || process.env.BING_SITE_VERIFICATION
+    ? {
+        verification: {
+          ...(process.env.GOOGLE_SITE_VERIFICATION
+            ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+            : {}),
+          ...(process.env.BING_SITE_VERIFICATION
+            ? { other: { 'msvalidate.01': process.env.BING_SITE_VERIFICATION } }
+            : {}),
+        },
+      }
+    : {}),
 }
 
 // ─── Structured Data ─────────────────────────────────────────────────────────

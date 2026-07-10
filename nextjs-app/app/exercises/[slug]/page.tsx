@@ -53,11 +53,27 @@ export default async function ExercisePage({ params }: { params: Promise<{ slug:
     })),
   }
 
+  // Mirrors the visible breadcrumb nav below — helps these pages win
+  // breadcrumb rich results and gives crawlers the site hierarchy.
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://workoutpartna.com' },
+      { '@type': 'ListItem', position: 2, name: 'Exercise Library', item: 'https://workoutpartna.com/exercises' },
+      { '@type': 'ListItem', position: 3, name: ex.name, item: `https://workoutpartna.com/exercises/${slug}` },
+    ],
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <PublicNav />
       <main className="bg-[#0d0d0d] text-white min-h-screen">
