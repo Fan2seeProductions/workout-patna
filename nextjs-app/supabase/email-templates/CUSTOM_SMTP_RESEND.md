@@ -1,7 +1,7 @@
 # Custom SMTP via Resend — Exact Strings to Paste
 
 Routes Supabase auth emails through your own `workoutpartna.com` domain. The
-sender label changes from "Supabase Auth" to **"Workout Partna"** and you get
+sender label changes from "Supabase Auth" to **"WorkoutPartna"** and you get
 3,000 emails/month (vs Supabase's free 30/day).
 
 ---
@@ -33,14 +33,16 @@ preferred).
 
 ## ✅ Step 3 — Configure Supabase Custom SMTP
 
-Open: **https://supabase.com/dashboard/project/qpbjxetwgfcugturwnji/settings/auth**
+Open: **https://supabase.com/dashboard/project/ilzswzevcpgnvdsfgelu/auth/smtp**
+(This is the live **dwilliams** project. The old `qpbjxetwgfcugturwnji` link
+was the retired sales-account project — don't use it.)
 
 Scroll to **SMTP Settings** → toggle **"Enable Custom SMTP"** → paste:
 
 | Field | Value |
 |---|---|
 | Sender email | `noreply@workoutpartna.com` |
-| Sender name | `Workout Partna` |
+| Sender name | `WorkoutPartna` |
 | Host | `smtp.resend.com` |
 | Port number | `465` |
 | Minimum interval between emails (seconds) | `1` |
@@ -59,8 +61,8 @@ Click **Save**.
 1. Open an incognito window → sign up with a fresh email at
    **https://workoutpartna.com/app/auth?mode=signup**
 2. Check your inbox. You should now see:
-   - **From:** Workout Partna `<noreply@workoutpartna.com>` ← (was: "Supabase Auth")
-   - **Subject:** Confirm your Workout Partna account
+   - **From:** WorkoutPartna `<noreply@workoutpartna.com>` ← (was: "Supabase Auth")
+   - **Subject:** Confirm your WorkoutPartna account
    - **Body:** branded HTML you pasted earlier
 3. Click the confirm link.
 4. ~30 seconds later, you should receive a **second** email — the welcome
@@ -74,13 +76,13 @@ If both arrive ✅, you're done.
 
 The welcome-email helper (`lib/email/welcome.ts`) uses
 `WELCOME_EMAIL_FROM` if set, otherwise defaults to
-`Workout Partna <noreply@workoutpartna.com>`.
+`WorkoutPartna <noreply@workoutpartna.com>`.
 
 To override (for example, when testing on the staging domain):
 
 ```bash
 vercel env add WELCOME_EMAIL_FROM production
-# Paste: Workout Partna <hello@workoutpartna.com>
+# Paste: WorkoutPartna <hello@workoutpartna.com>
 ```
 
 You can use the same `from` style for any future Resend transactional email.
