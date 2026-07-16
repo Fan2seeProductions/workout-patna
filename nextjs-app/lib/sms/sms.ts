@@ -1,23 +1,63 @@
-// SMS utility — powered by Telnyx (api.telnyx.com).
+// SMS utility — supports Twilio OR Telnyx, whichever is configured.
 // No SDK package needed; uses native fetch.
 //
-// Required env vars in Vercel → Settings → Environment Variables:
-//   TELNYX_API_KEY       — from console.telnyx.com → API Keys
-//   TELNYX_FROM_NUMBER   — your Telnyx number, e.g. +12815551234
+// Provider is chosen by which env vars are present (Twilio takes priority):
+//
+//   Twilio (set in Vercel → Settings → Environment Variables):
+//     TWILIO_ACCOUNT_SID        — starts with "AC..."
+//     TWILIO_AUTH_TOKEN         — from console.twilio.com
+//     TWILIO_FROM_NUMBER        — your Twilio number, e.g. +12815551234
+//       (or) TWILIO_MESSAGING_SERVICE_SID — starts with "MG...", preferred
+//            for A2P 10DLC; overrides TWILIO_FROM_NUMBER when set.
+//
+//   Telnyx (fallback if no Twilio vars):
+//     TELNYX_API_KEY            — from console.telnyx.com → API Keys
+//     TELNYX_FROM_NUMBER        — your Telnyx number
 //
 // All calls are best-effort and never throw — a failed SMS never blocks the
-// user's request.
+// user's request. Neither provider sends to US numbers until A2P 10DLC
+// registration is approved on that account, regardless of code.
 
-export async function sendSms(to: string, body: string): Promise<void> {
+async function sendViaTwilio(to: string, body: string): Promise<boolean> {
+  const sid       = process.env.TWILIO_ACCOUNT_SID
+  const token     = process.env.TWILIO_AUTH_TOKEN
+  const from      = process.env.TWILIO_FROM_NUMBER
+  const msgSvcSid = process.env.TWILIO_MESSAGING_SERVICE_SID
+
+  // Need account creds plus at least one sender (a number or a messaging service).
+  if (!sid || !token || (!from && !msgSvcSid)) return false
+
+  try {
+    const params = new URLSearchParams({ To: to, Body: body })
+    // A Messaging Service SID is preferred for 10DLC; else a plain From number.
+    if (msgSvcSid) params.set('MessagingServiceSid', msgSvcSid)
+    else if (from) params.set('From', from)
+
+    const res = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString('base64')}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+      },
+    )
+    if (!res.ok) {
+      const text = await res.text()
+      console.error('[sms] Twilio error:', res.status, text)
+    }
+  } catch (err) {
+    console.error('[sms] Twilio send failed:', err)
+  }
+  return true // Twilio is the configured provider; we handled (or logged) it.
+}
+
+async function sendViaTelnyx(to: string, body: string): Promise<boolean> {
   const apiKey = process.env.TELNYX_API_KEY
   const from   = process.env.TELNYX_FROM_NUMBER
-
-  if (!apiKey || !from) {
-    if (process.env.NODE_ENV === 'production') {
-      console.warn('[sms] Telnyx env vars not set — SMS skipped')
-    }
-    return
-  }
+  if (!apiKey || !from) return false
 
   try {
     const res = await fetch('https://api.telnyx.com/v2/messages', {
@@ -28,13 +68,22 @@ export async function sendSms(to: string, body: string): Promise<void> {
       },
       body: JSON.stringify({ from, to, text: body }),
     })
-
     if (!res.ok) {
       const text = await res.text()
       console.error('[sms] Telnyx error:', res.status, text)
     }
   } catch (err) {
-    console.error('[sms] sendSms failed:', err)
+    console.error('[sms] Telnyx send failed:', err)
+  }
+  return true
+}
+
+export async function sendSms(to: string, body: string): Promise<void> {
+  // Twilio first, then Telnyx. Each returns false only when it isn't configured.
+  if (await sendViaTwilio(to, body)) return
+  if (await sendViaTelnyx(to, body)) return
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('[sms] No SMS provider configured (Twilio/Telnyx) — SMS skipped')
   }
 }
 
