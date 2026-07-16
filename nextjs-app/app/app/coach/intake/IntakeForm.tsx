@@ -15,6 +15,15 @@ import {
   DISCLAIMER_ACCEPT_LABEL,
   FULL_WAIVER_PATH,
 } from '../../../../lib/legal/coach-disclaimer'
+import {
+  SMS_OPT_IN_VERSION,
+  SMS_OPT_IN_HEADING,
+  SMS_OPT_IN_INTRO,
+  SMS_OPT_IN_DISCLOSURE,
+  SMS_OPT_IN_LABEL,
+  normalizePhoneNumber,
+  formatPhoneForDisplay,
+} from '../../../../lib/legal/sms-opt-in'
 
 type Initial = {
   goals?: string[] | null
@@ -27,6 +36,8 @@ type Initial = {
   training_style?: string | null
   delivery_time?: string | null
   coaching_tone?: string | null
+  phone_number?: string | null
+  sms_opt_in?: boolean | null
 } | null
 
 const GOALS = ['Build Muscle','Lose Weight','Get Stronger','Endurance','Flexibility','Sport-specific']
@@ -53,6 +64,10 @@ export function IntakeForm({ initial }: { initial: Initial }) {
   const [time, setTime] = useState(initial?.delivery_time ?? '07:00')
   const [injuries, setInjuries] = useState(initial?.injuries ?? '')
   const [accepted, setAccepted] = useState(false)
+  const [phone, setPhone] = useState(
+    initial?.phone_number ? formatPhoneForDisplay(initial.phone_number) : '',
+  )
+  const [smsConsent, setSmsConsent] = useState(!!initial?.sms_opt_in)
 
   const toggle = (s: Set<string>, v: string, fn: (s: Set<string>) => void) => {
     const n = new Set(s)
@@ -60,8 +75,17 @@ export function IntakeForm({ initial }: { initial: Initial }) {
     fn(n)
   }
 
+  // SMS is optional. If the member ticks the consent box, a valid phone number
+  // is required; if they don't, the number is ignored entirely.
+  const normalizedPhone = normalizePhoneNumber(phone)
+  const smsReady = !smsConsent || normalizedPhone !== null
+
   function submit() {
     setError(null)
+    if (smsConsent && !normalizedPhone) {
+      setError('Enter a valid mobile number to receive workout texts, or uncheck SMS consent.')
+      return
+    }
     start(async () => {
       const res = await saveIntake({
         goals: [...goals],
@@ -76,6 +100,16 @@ export function IntakeForm({ initial }: { initial: Initial }) {
         injuries: injuries.trim() || undefined,
         disclaimer_accepted: accepted,
         disclaimer_version: DISCLAIMER_VERSION,
+        // Only record SMS opt-in when the member both consented AND gave a
+        // valid number. Otherwise send the number through as undefined so we
+        // never store a half-consent.
+        ...(smsConsent && normalizedPhone
+          ? {
+              phone_number: normalizedPhone,
+              sms_opt_in: true,
+              sms_opt_in_version: SMS_OPT_IN_VERSION,
+            }
+          : { sms_opt_in: false }),
       })
       if (!res.ok) {
         setError(res.error ?? 'Save failed.')
@@ -85,7 +119,7 @@ export function IntakeForm({ initial }: { initial: Initial }) {
     })
   }
 
-  const canSubmit = goals.size > 0 && !!level && equipment.size > 0 && accepted
+  const canSubmit = goals.size > 0 && !!level && equipment.size > 0 && accepted && smsReady
 
   return (
     <main className="min-h-dvh px-6 pt-6 pb-32 max-w-md mx-auto">
@@ -155,6 +189,13 @@ export function IntakeForm({ initial }: { initial: Initial }) {
           </div>
         </Field>
 
+        <SmsOptIn
+          phone={phone}
+          setPhone={setPhone}
+          consent={smsConsent}
+          onToggleConsent={() => setSmsConsent(c => !c)}
+        />
+
         <Field label="Injuries or limitations">
           <textarea
             value={injuries}
@@ -178,6 +219,63 @@ export function IntakeForm({ initial }: { initial: Initial }) {
         {error && <p className="text-[12px] text-[var(--color-danger)] text-center">{error}</p>}
       </div>
     </main>
+  )
+}
+
+function SmsOptIn({
+  phone, setPhone, consent, onToggleConsent,
+}: {
+  phone: string
+  setPhone: (v: string) => void
+  consent: boolean
+  onToggleConsent: () => void
+}) {
+  const [showDisclosure, setShowDisclosure] = useState(false)
+  return (
+    <div className="rounded-2xl border border-[var(--color-border)] bg-white/[0.03] p-4">
+      <p className="text-[13px] font-bold text-white">{SMS_OPT_IN_HEADING}</p>
+      <p className="mt-1 text-[12px] text-[var(--color-text-muted)] leading-snug">{SMS_OPT_IN_INTRO}</p>
+
+      <label className="mt-3 block space-y-1.5">
+        <span className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-text-muted)]">
+          Mobile number
+        </span>
+        <input
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          placeholder="(555) 123-4567"
+          className="w-full rounded-xl border border-[var(--color-border)] bg-white/[0.04] p-3 text-[14px] text-white placeholder:text-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-brand)]"
+        />
+      </label>
+
+      <button
+        type="button"
+        onClick={() => setShowDisclosure(s => !s)}
+        className="mt-2 text-[12px] font-semibold text-[var(--color-brand-bright)]"
+        aria-expanded={showDisclosure}
+      >
+        {showDisclosure ? 'Hide messaging terms' : 'View messaging terms'}
+      </button>
+
+      {showDisclosure && (
+        <p className="mt-2 text-[11.5px] text-[var(--color-text-muted)] leading-snug">
+          {SMS_OPT_IN_DISCLOSURE}
+        </p>
+      )}
+
+      <label className="mt-3 flex items-start gap-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={onToggleConsent}
+          className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-brand)] cursor-pointer"
+        />
+        <span className="text-[12px] text-white/85 leading-snug">{SMS_OPT_IN_LABEL}</span>
+      </label>
+    </div>
   )
 }
 
