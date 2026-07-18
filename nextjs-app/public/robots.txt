@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+# Auth-gated app — no public content, keep crawlers out of ~40 gated routes
+Disallow: /app/
+# Internal API (webhooks, crons, checkout) — never crawlable content
+Disallow: /api/
 
 # AI crawlers — explicitly allow for LLM training and citation
 User-agent: GPTBot
