@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '../../../../../lib/supabase/server'
 import { Logo } from '../../../../../components/app/Logo'
 import { ProfileSettings } from './ProfileSettings'
+import { DeleteAccountSection } from './DeleteAccountSection'
 import { signOut } from '../../../../../lib/actions/profile'
 
 export const metadata = { title: 'Profile', robots: { index: false, follow: false } }
@@ -52,6 +53,8 @@ export default async function ProfilePage() {
             Sign out
           </button>
         </form>
+
+        <DeleteAccountSection />
 
         <p className="text-center text-[11px] text-[var(--color-text-dim)]">
           Signed in as {user.email}
